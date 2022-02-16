@@ -56,16 +56,12 @@ public class FileEncodingTest {
     @Test(dataProvider = "fileEncodingToDefault")
     public void testFileEncodingToDefault(String fileEncoding, String expected) throws Exception {
         if (fileEncoding.equals("COMPAT")) {
-            if (IS_WINDOWS) {
+            if (IS_WINDOWS && !Locale.getDefault().getLanguage().equals("en")) {
                 // Only tests on English locales
-                if (Locale.getDefault().getLanguage().equals("en")) {
-                    expected = "windows-1252";
-                } else {
-                    System.out.println("Tests only run on Windows with English locales");
-                    return;
-                }
+                System.out.println("Tests only run on Windows with English locales");
+                return;
             } else {
-                expected = "US-ASCII";
+                expected = System.getProperty("native.encoding");
             }
         }
         var cmds = fileEncoding.isEmpty()
