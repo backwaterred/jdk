@@ -443,7 +443,8 @@ GetJavaProperties(JNIEnv *env)
                     NULL);
     } else {
         sprops.display_language = "en";
-        sprops.encoding = "ISO8859-1";
+        // sprops.encoding = "ISO8859-1";
+        sprops.encoding = "ISO-8859-1";
     }
 
     /* ParseLocale failed with OOME */
