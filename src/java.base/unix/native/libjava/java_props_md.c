@@ -273,10 +273,12 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
     if (std_encoding != NULL) {
         /* OK, not so reliable - nl_langinfo() gives wrong answers on
          * Euro locales, in particular. */
-        if (strcmp(p, "ISO8859-15") == 0)
+        if (strcmp(p, "ISO8859-15") == 0) {
             p = "ISO8859-15";
-        else
+        } else {
             p = nl_langinfo(CODESET);
+            normalize_encoding(canonical_encodings, p);
+        }
 
         /* Convert the bare "646" used on Solaris to a proper IANA name */
         if (strcmp(p, "646") == 0)
@@ -284,7 +286,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
 
         /* return same result nl_langinfo would return for en_UK,
          * in order to use optimizations. */
-        *std_encoding = (*p != '\0') ? p : "ISO8859-1";
+        *std_encoding = (*p != '\0') ? p : "ISO-8859-1";
 
 #ifdef __linux__
         /*
@@ -443,7 +445,6 @@ GetJavaProperties(JNIEnv *env)
                     NULL);
     } else {
         sprops.display_language = "en";
-        // sprops.encoding = "ISO8859-1";
         sprops.encoding = "ISO-8859-1";
     }
 

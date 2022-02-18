@@ -104,7 +104,18 @@ typedef struct {
 
 } java_props_t;
 
+#define ISO_8859_1 "ISO-8859-1"
+
 java_props_t *GetJavaProperties(JNIEnv *env);
 jstring GetStringPlatform(JNIEnv *env, nchar* str);
+
+int normalize_encoding(char* encoding) {
+    if (strcmp(encoding, "ISO8859-1") == 0) {
+        encoding = ISO_8859_1;
+        return 1;
+    }
+
+    return 0;
+}
 
 #endif /* _JAVA_PROPS_H */
