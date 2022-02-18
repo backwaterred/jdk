@@ -68,6 +68,18 @@
 #endif
 #endif /* !_ALLBSD_SOURCE */
 
+static char* normalize_encoding(char* encoding) {
+    if (strcmp(encoding, "ISO8859-1") == 0) {
+        return ISO_8859_1;
+    } else if (strcmp(encoding, "ISO8859-15") == 0) {
+        return ISO_8859_15;
+    } else if (strcmp(encoding, "ANSI_X3.4-1968") == 0) {
+        return US_ASCII;
+    }
+
+    return encoding;
+}
+
 /* Take an array of string pairs (map of key->value) and a string (key).
  * Examine each pair in the map to see if the first string (key) matches the
  * string.  If so, store the second string of the pair (value) in the value and
@@ -277,7 +289,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
             p = "ISO8859-15";
         } else {
             p = nl_langinfo(CODESET);
-            normalize_encoding(p);
+            p = normalize_encoding(p);
         }
 
         /* Convert the bare "646" used on Solaris to a proper IANA name */
@@ -286,7 +298,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
 
         /* return same result nl_langinfo would return for en_UK,
          * in order to use optimizations. */
-        *std_encoding = (*p != '\0') ? p : "ISO-8859-1";
+        *std_encoding = (*p != '\0') ? p : "ISO8859-1";
 
 #ifdef __linux__
         /*
@@ -445,7 +457,7 @@ GetJavaProperties(JNIEnv *env)
                     NULL);
     } else {
         sprops.display_language = "en";
-        sprops.encoding = "ISO-8859-1";
+        sprops.encoding = "ISO8859-1";
     }
 
     /* ParseLocale failed with OOME */
