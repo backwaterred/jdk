@@ -104,10 +104,39 @@ typedef struct {
 
 } java_props_t;
 
+#define UTF_8 "UTF-8"
 #define ISO_8859_1 "ISO-8859-1"
-#define ISO_8859_15 "ISO-8859-15"
 #define US_ASCII "US-ASCII"
-// TODO: UnicodeBig/Little, UTF_8
+#define ISO_8859_15 "ISO-8859-15"
+#define WINDOWS_1251 "windows-1251"
+
+/*
+ * Compare the given encoding against known aliases. If the
+ * encoding is an alias, return the iana name instead. Otherwise
+ * return the original encoding name.
+ *
+ * Preferred names from:
+ * https://www.iana.org/assignments/character-sets/character-sets.xhtml
+ */
+static char* normalize_encoding(char* encoding) {
+    if (strcmp(encoding, "ISO8859-1") == 0)
+    {
+        return ISO_8859_1;
+    }
+    else if (strcmp(encoding, "ISO8859-15") == 0)
+    {
+        return ISO_8859_15;
+    }
+    else if (strcmp(encoding, "ANSI_X3.4-1968") == 0
+             || strcmp(encoding, "ISO646-US") == 0)
+    {
+        return US_ASCII;
+    }
+
+    // Not a known alias. Either the given encoding is
+    // already an iana name or the alias is not added above.
+    return encoding;
+}
 
 java_props_t *GetJavaProperties(JNIEnv *env);
 jstring GetStringPlatform(JNIEnv *env, nchar* str);

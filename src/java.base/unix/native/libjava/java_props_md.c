@@ -68,18 +68,6 @@
 #endif
 #endif /* !_ALLBSD_SOURCE */
 
-static char* normalize_encoding(char* encoding) {
-    if (strcmp(encoding, "ISO8859-1") == 0) {
-        return ISO_8859_1;
-    } else if (strcmp(encoding, "ISO8859-15") == 0) {
-        return ISO_8859_15;
-    } else if (strcmp(encoding, "ANSI_X3.4-1968") == 0) {
-        return US_ASCII;
-    }
-
-    return encoding;
-}
-
 /* Take an array of string pairs (map of key->value) and a string (key).
  * Examine each pair in the map to see if the first string (key) matches the
  * string.  If so, store the second string of the pair (value) in the value and
@@ -285,20 +273,23 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
     if (std_encoding != NULL) {
         /* OK, not so reliable - nl_langinfo() gives wrong answers on
          * Euro locales, in particular. */
-        if (strcmp(p, "ISO8859-15") == 0) {
-            p = "ISO8859-15";
+        if (strcmp(p, ISO_8859_15) == 0) {
+            p = ISO_8859_15;
         } else {
             p = nl_langinfo(CODESET);
             p = normalize_encoding(p);
         }
 
         /* Convert the bare "646" used on Solaris to a proper IANA name */
-        if (strcmp(p, "646") == 0)
-            p = "ISO646-US";
+        if (strcmp(p, "646") == 0) {
+            // ISO646-US is an alias for US-ASCII
+            p = US_ASCII;
+        }
+
 
         /* return same result nl_langinfo would return for en_UK,
          * in order to use optimizations. */
-        *std_encoding = (*p != '\0') ? p : "ISO8859-1";
+        *std_encoding = (*p != '\0') ? p : ISO_8859_1;
 
 #ifdef __linux__
         /*
@@ -349,7 +340,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
             (env_lang == NULL || strlen(env_lang) == 0) &&
             (env_lc_all == NULL || strlen(env_lc_all) == 0) &&
             (env_lc_ctype == NULL || strlen(env_lc_ctype) == 0)) {
-            *std_encoding = "UTF-8";
+            *std_encoding = UTF_8;
         }
 #endif
     }
@@ -457,14 +448,14 @@ GetJavaProperties(JNIEnv *env)
                     NULL);
     } else {
         sprops.display_language = "en";
-        sprops.encoding = "ISO8859-1";
+        sprops.encoding = ISO_8859_1;
     }
 
     /* ParseLocale failed with OOME */
     JNU_CHECK_EXCEPTION_RETURN(env, NULL);
 
 #ifdef MACOSX
-    sprops.sun_jnu_encoding = "UTF-8";
+    sprops.sun_jnu_encoding = UTF_8;
 #else
     sprops.sun_jnu_encoding = sprops.encoding;
 #endif
