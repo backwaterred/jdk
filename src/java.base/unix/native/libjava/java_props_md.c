@@ -277,7 +277,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
             p = "ISO8859-15";
         } else {
             p = nl_langinfo(CODESET);
-            normalize_encoding(canonical_encodings, p);
+            normalize_encoding(p);
         }
 
         /* Convert the bare "646" used on Solaris to a proper IANA name */
