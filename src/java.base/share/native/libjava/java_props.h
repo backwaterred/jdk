@@ -118,7 +118,7 @@ typedef struct {
  * Preferred names from:
  * https://www.iana.org/assignments/character-sets/character-sets.xhtml
  */
-static char* normalize_encoding(char* encoding) {
+char* normalize_encoding(char* encoding) {
     if (strcmp(encoding, "ISO8859-1") == 0)
     {
         return ISO_8859_1;

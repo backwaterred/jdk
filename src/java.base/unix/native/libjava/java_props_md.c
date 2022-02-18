@@ -267,7 +267,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
      * 'encoding' extracted from the locale name above.  Instead, we use the
      * more reliable method of calling nl_langinfo(CODESET).  This function
      * returns an empty string if no encoding is set for the given locale
-     * (e.g., the C or POSIX locales); we use the default ISO 8859-1
+     * (e.g., the C or POSIX locales); we use the default ISO-8859-1
      * converter for such locales.
      */
     if (std_encoding != NULL) {
@@ -336,7 +336,7 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
         const char* env_lc_all = getenv("LC_ALL");
         const char* env_lc_ctype = getenv("LC_CTYPE");
 
-        if (strcmp(p,"US-ASCII") == 0 &&
+        if (strcmp(p,US_ASCII) == 0 &&
             (env_lang == NULL || strlen(env_lang) == 0) &&
             (env_lc_all == NULL || strlen(env_lc_all) == 0) &&
             (env_lc_ctype == NULL || strlen(env_lc_ctype) == 0)) {
