@@ -36,10 +36,13 @@
 package compiler.unsafe;
 
 import jdk.internal.misc.Unsafe;
+import java.nio.ByteOrder;
 import static jdk.test.lib.Asserts.assertEQ;
 
 public class UnsafeCopyMemory {
     static private Unsafe UNSAFE = Unsafe.getUnsafe();
+
+    static final boolean IS_BIG_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
 
     // On-heap arrays
     static int[] srcArr = new int[1];
@@ -104,8 +107,12 @@ public class UnsafeCopyMemory {
         srcArr [readIdx]  = v1;
         dstArrL[writeIdx] = v2;
 
+        // On LE systems, low-order bytes of long and int overlap, but
+        // on BE systems, they differ by the size of an int.
+        long mismatchedOffset = Unsafe.ARRAY_LONG_BASE_OFFSET + (IS_BIG_ENDIAN ? 4 : 0);
+
         UNSAFE.copyMemory(srcArr,  Unsafe.ARRAY_INT_BASE_OFFSET,
-                          dstArrL, Unsafe.ARRAY_LONG_BASE_OFFSET, 4); // mismatched
+                          dstArrL, mismatchedOffset, 4); // mismatched
         long r = resArrL[0]; // snapshot
 
         srcArr[readIdx]  = v3;
@@ -156,6 +163,7 @@ public class UnsafeCopyMemory {
 
         Object srcArrLocal = (flag ? srcArrIntLocal               : srcArrLongLocal);
         long   srcOffset   = (flag ? Unsafe.ARRAY_INT_BASE_OFFSET : Unsafe.ARRAY_LONG_BASE_OFFSET);
+        srcOffset += (!flag && IS_BIG_ENDIAN ? 4 : 0);
 
         srcArrIntLocal[0]  = v1;
         srcArrLongLocal[0] = v1;
@@ -179,6 +187,7 @@ public class UnsafeCopyMemory {
 
         Object dstArrLocal = (flag ? dstArrIntLocal               : dstArrLongLocal);
         long   dstOffset   = (flag ? Unsafe.ARRAY_INT_BASE_OFFSET : Unsafe.ARRAY_LONG_BASE_OFFSET);
+        dstOffset += (!flag && IS_BIG_ENDIAN ? 4 : 0);
 
         srcArr[readIdx] = v1;
         dstArrIntLocal[0]  = v2;
@@ -298,10 +307,15 @@ public class UnsafeCopyMemory {
 
     /* ================================================================ */
 
-    static int v1 = 1;
-    static int v2 = 2;
-    static int v3 = 3;
-    static int v4 = 4;
+    // static int v1 = 1;
+    // static int v2 = 2;
+    // static int v3 = 3;
+    // static int v4 = 4;
+
+    static int v1 = 0xDEADBEEF;
+    static int v2 = -1;
+    static int v3 = 0xDEADBEEF;
+    static int v4 = 0xDEADBEEF;
 
     static int  readIdx0 = 0;
     static int writeIdx0 = 0;
@@ -434,6 +448,8 @@ public class UnsafeCopyMemory {
     static boolean flag = false;
 
     public static void main(String[] args) {
+        // FIXME: These messages (INTERP, COMPILED) are somewhat misleading. Unsafe.copyMemory is implemented
+        // as a native (cpp) procedure with native asm.
         runTests("INTERPRETED");
         for (int i = 0; i < 20_000; i++) {
             flag = (i % 2 == 0);
