@@ -2674,6 +2674,7 @@ jint JvmtiExport::load_agent_library(const char *agent, const char *absParam,
       // If OnAttach returns JNI_OK then we add it to the list of
       // agent libraries so that we can call Agent_OnUnload later.
       if (result == JNI_OK) {
+        st->print_cr("%s loaded sucessfully", agent_lib->name());
         Arguments::add_loaded_agent(agent_lib);
       } else {
         if (!agent_lib->is_static_lib()) {
