@@ -2608,6 +2608,7 @@ jint JvmtiExport::load_agent_library(const char *agent, const char *absParam,
   jint result = JNI_ERR;
   const char *on_attach_symbols[] = AGENT_ONATTACH_SYMBOLS;
   size_t num_symbol_entries = ARRAY_SIZE(on_attach_symbols);
+  st->print_cr("in load_agent_lib");//FIXME Debug priting
 
   // The abs paramter should be "true" or "false"
   bool is_absolute_path = (absParam != NULL) && (strcmp(absParam,"true")==0);
@@ -2674,7 +2675,7 @@ jint JvmtiExport::load_agent_library(const char *agent, const char *absParam,
       // If OnAttach returns JNI_OK then we add it to the list of
       // agent libraries so that we can call Agent_OnUnload later.
       if (result == JNI_OK) {
-        st->print_cr("%s loaded sucessfully", agent_lib->name());
+        st->print_cr("%s loaded sucessfully", agent_lib->name());//FIXME Debug priting
         Arguments::add_loaded_agent(agent_lib);
       } else {
         if (!agent_lib->is_static_lib()) {
