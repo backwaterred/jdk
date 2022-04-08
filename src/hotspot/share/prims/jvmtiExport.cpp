@@ -2644,7 +2644,6 @@ jint JvmtiExport::load_agent_library(const char *agent, const char *absParam,
   // If the library was loaded then we attempt to invoke the Agent_OnAttach
   // function
   if (agent_lib->valid()) {
-    st->print_cr("after agent_lib->valid()");//FIXME Debug priting
     // Lookup the Agent_OnAttach function
     OnAttachEntry_t on_attach_entry = NULL;
     on_attach_entry = CAST_TO_FN_PTR(OnAttachEntry_t,
@@ -2652,12 +2651,10 @@ jint JvmtiExport::load_agent_library(const char *agent, const char *absParam,
     if (on_attach_entry == NULL) {
       // Agent_OnAttach missing - unload library
       if (!agent_lib->is_static_lib()) {
-        st->print_cr("loading failed. unloading %s upper (non-static)", agent_lib->name());//FIXME Debug priting
         os::dll_unload(library);
       }
       st->print_cr("%s is not available in %s",
                    on_attach_symbols[0], agent_lib->name());
-        st->print_cr("loading failed. rm resources upper");//FIXME Debug priting
       delete agent_lib;
     } else {
       // Invoke the Agent_OnAttach function
@@ -2678,14 +2675,12 @@ jint JvmtiExport::load_agent_library(const char *agent, const char *absParam,
       // If OnAttach returns JNI_OK then we add it to the list of
       // agent libraries so that we can call Agent_OnUnload later.
       if (result == JNI_OK) {
-        st->print_cr("%s loaded sucessfully", agent_lib->name());//FIXME Debug priting
         Arguments::add_loaded_agent(agent_lib);
       } else {
         if (!agent_lib->is_static_lib()) {
           st->print_cr("loading failed. unloading %s lower (non-static)", agent_lib->name());//FIXME Debug priting
           os::dll_unload(library);
         }
-        st->print_cr("loading failed. rm resources lower");//FIXME Debug priting
         delete agent_lib;
       }
 
