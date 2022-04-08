@@ -656,7 +656,8 @@ void* os::dll_lookup(void* handle, const char* name) {
 }
 
 void os::dll_unload(void *lib) {
-  dlclose(lib);
+  printf("dll_unload called\n");
+  ::dlclose(lib);
 }
 
 jlong os::lseek(int fd, jlong offset, int whence) {
