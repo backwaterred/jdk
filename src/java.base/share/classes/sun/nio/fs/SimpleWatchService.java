@@ -25,6 +25,10 @@
 
 package sun.nio.fs;
 
+import java.nio.file.Path;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+
 import sun.nio.fs.AbstractWatchService;
 
 public class SimpleWatchService extends AbstractWatchService {
