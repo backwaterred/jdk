@@ -30,27 +30,21 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 
-public class SimpleWatchService extends AbstractWatchService {
+public class SimpleWatchKey extends AbstractWatchKey {
 
-    public SimpleWatchService() {
-       super();
+    public SimpleWatchKey(Path dir, SimpleWatchService ws) {
+        super(dir, ws);
     }
 
     @Override
-    WatchKey register(Path path,
-                      WatchEvent.Kind<?>[] events,
-                      WatchEvent.Modifier... modifers)
-        throws IOException
-    {
-        WatchKey wk = new SimpleWatchKey(path, this);
-        enqueueKey(wk);
-
-        return wk;
-    }
-
-    @Override
-    void implClose() throws IOException
-    {
+    public void cancel() {
         // TODO
     }
+
+    @Override
+    public boolean isValid() {
+        // TODO
+        return false;
+    }
+
 }
