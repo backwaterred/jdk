@@ -182,14 +182,13 @@ class PollingWatchService
                 watchKey = map.get(fileKey);
                 if (watchKey == null) {
                     // new registration
-                    map.put(fileKey, new PollingWatchKey(path, this, fileKey));
+                    watchKey = new PollingWatchKey(path, this, fileKey);
+                    map.put(fileKey, watchKey);
+                } else {
+                    // update to existing registration
+                    watchKey.disable();
                 }
             }
-            if (watchKey != null) {
-                // update to existing registration
-                watchKey.disable();
-            }
-
             watchKey.enable(events, sensitivityInSeconds);
             return watchKey;
         }
@@ -315,9 +314,8 @@ class PollingWatchService
 
         // disables periodic polling
         void disable() {
-            synchronized (this) {
-                if (poller != null)
-                    poller.cancel(true);
+            if (poller != null) {
+                poller.cancel(true);
             }
         }
 
