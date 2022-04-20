@@ -317,7 +317,7 @@ class PollingWatchService
         void disable() {
             synchronized (this) {
                 if (poller != null)
-                    poller.cancel(false);
+                    poller.cancel(true);
             }
         }
 
