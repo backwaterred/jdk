@@ -90,12 +90,12 @@ abstract class AbstractWatchKey implements WatchKey {
      * Enqueues this key to the watch service
      */
     final void signal() {
-        synchronized (this) {
+        // synchronized (this) {
             if (state == State.READY) {
                 state = State.SIGNALLED;
                 watcher.enqueueKey(this);
             }
-        }
+        // }
     }
 
     /**
@@ -171,7 +171,7 @@ abstract class AbstractWatchKey implements WatchKey {
 
     @Override
     public final boolean reset() {
-        synchronized (this) {
+        // synchronized (this) {
             if (state == State.SIGNALLED && isValid()) {
                 if (events.isEmpty()) {
                     state = State.READY;
@@ -181,7 +181,7 @@ abstract class AbstractWatchKey implements WatchKey {
                 }
             }
             return isValid();
-        }
+        // }
     }
 
     /**
