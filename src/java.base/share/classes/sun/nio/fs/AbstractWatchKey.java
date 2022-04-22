@@ -161,12 +161,12 @@ abstract class AbstractWatchKey implements WatchKey {
 
     @Override
     public final List<WatchEvent<?>> pollEvents() {
-        synchronized (this) {
+        // synchronized (this) {
             List<WatchEvent<?>> result = events;
             events = new ArrayList<>();
             lastModifyEvents.clear();
             return result;
-        }
+        // }
     }
 
     @Override

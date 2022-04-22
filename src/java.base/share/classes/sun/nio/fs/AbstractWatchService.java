@@ -144,7 +144,7 @@ abstract class AbstractWatchService implements WatchService {
     public final void close()
         throws IOException
     {
-        synchronized (closeLock) {
+        // synchronized (closeLock) {
             // nothing to do if already closed
             if (closed)
                 return;
@@ -156,6 +156,6 @@ abstract class AbstractWatchService implements WatchService {
             // threads blocked in take/poll wakeup
             pendingKeys.clear();
             pendingKeys.offer(CLOSE_KEY);
-        }
+        // }
     }
 }

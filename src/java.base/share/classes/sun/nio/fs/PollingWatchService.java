@@ -173,7 +173,7 @@ class PollingWatchService
             throw new AssertionError("File keys must be supported");
 
         // grab close lock to ensure that watch service cannot be closed
-        synchronized (closeLock()) {
+        // synchronized (closeLock()) {
             if (!isOpen())
                 throw new ClosedWatchServiceException();
 
@@ -191,7 +191,7 @@ class PollingWatchService
             // }
             watchKey.enable(events, sensitivityInSeconds);
             return watchKey;
-        }
+        // }
 
     }
 
