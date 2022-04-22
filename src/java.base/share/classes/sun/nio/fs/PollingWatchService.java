@@ -178,7 +178,7 @@ class PollingWatchService
                 throw new ClosedWatchServiceException();
 
             PollingWatchKey watchKey;
-            synchronized (map) {
+            // synchronized (map) {
                 watchKey = map.get(fileKey);
                 if (watchKey == null) {
                     // new registration
@@ -188,7 +188,7 @@ class PollingWatchService
                     // update to existing registration
                     watchKey.disable();
                 }
-            }
+            // }
             watchKey.enable(events, sensitivityInSeconds);
             return watchKey;
         }
@@ -198,14 +198,14 @@ class PollingWatchService
     @SuppressWarnings("removal")
     @Override
     void implClose() throws IOException {
-        synchronized (map) {
+        // synchronized (map) {
             for (Map.Entry<Object, PollingWatchKey> entry: map.entrySet()) {
                 PollingWatchKey watchKey = entry.getValue();
                 watchKey.disable();
                 watchKey.invalidate();
             }
             map.clear();
-        }
+        // }
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             @Override
             public Void run() {
@@ -301,7 +301,7 @@ class PollingWatchService
 
         // enables periodic polling
         void enable(Set<? extends WatchEvent.Kind<?>> events, long period) {
-            synchronized (this) {
+            // synchronized (this) {
                 // update the events
                 this.events = events;
 
@@ -309,7 +309,7 @@ class PollingWatchService
                 Runnable thunk = new Runnable() { public void run() { poll(); }};
                 this.poller = scheduledExecutor
                     .scheduleAtFixedRate(thunk, period, period, TimeUnit.SECONDS);
-            }
+            // }
         }
 
         // disables periodic polling
@@ -322,9 +322,9 @@ class PollingWatchService
         @Override
         public void cancel() {
             valid = false;
-            synchronized (map) {
+            // synchronized (map) {
                 map.remove(fileKey());
-            }
+            // }
             disable();
         }
 
@@ -332,7 +332,7 @@ class PollingWatchService
          * Polls the directory to detect for new files, modified files, or
          * deleted files.
          */
-        synchronized void poll() {
+        /*synchronized*/ void poll() {
             if (!valid) {
                 return;
             }
