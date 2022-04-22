@@ -104,7 +104,7 @@ abstract class AbstractWatchKey implements WatchKey {
     @SuppressWarnings("unchecked")
     final void signalEvent(WatchEvent.Kind<?> kind, Object context) {
         boolean isModify = (kind == StandardWatchEventKinds.ENTRY_MODIFY);
-        synchronized (this) {
+        // synchronized (this) {
             int size = events.size();
             if (size > 0) {
                 // if the previous event is an OVERFLOW event or this is a
@@ -156,7 +156,7 @@ abstract class AbstractWatchKey implements WatchKey {
             }
             events.add(ev);
             signal();
-        }
+        // }
     }
 
     @Override
