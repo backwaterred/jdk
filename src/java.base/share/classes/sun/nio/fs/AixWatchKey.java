@@ -30,10 +30,11 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 
-public class PollingWatchKey extends AbstractWatchKey {
+public class AixWatchKey extends AbstractWatchKey implements Runnable {
 
-    public PollingWatchKey(Path dir, PollingWatchService ws) {
+    public AixWatchKey(Path dir, AixWatchService ws) {
         super(dir, ws);
+        // TODO: Run polling thread
     }
 
     @Override
@@ -47,4 +48,17 @@ public class PollingWatchKey extends AbstractWatchKey {
         return false;
     }
 
+    @Override
+    public void run() {
+        scanForDeletions();
+        scanForUpdates();
+    }
+
+    private void scanForDeletions() {
+        // TODO
+    }
+
+    private void scanForUpdates() {
+        // TODO
+    }
 }
