@@ -30,9 +30,9 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 
-public class SimpleWatchService extends AbstractWatchService {
+public class PollingWatchService extends AbstractWatchService {
 
-    public SimpleWatchService() {
+    public PollingWatchService() {
        super();
     }
 
@@ -42,7 +42,7 @@ public class SimpleWatchService extends AbstractWatchService {
                       WatchEvent.Modifier... modifers)
         throws IOException
     {
-        WatchKey wk = new SimpleWatchKey(path, this);
+        WatchKey wk = new PollingWatchKey(path, this);
         enqueueKey(wk);
 
         return wk;

@@ -30,9 +30,9 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 
-public class SimpleWatchKey extends AbstractWatchKey {
+public class PollingWatchKey extends AbstractWatchKey {
 
-    public SimpleWatchKey(Path dir, SimpleWatchService ws) {
+    public PollingWatchKey(Path dir, PollingWatchService ws) {
         super(dir, ws);
     }
 
