@@ -30,35 +30,29 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 
-public class AixWatchKey extends AbstractWatchKey implements Runnable {
+public class AixWatchKey extends AbstractWatchKey {
+
+    private boolean valid;
 
     public AixWatchKey(Path dir, AixWatchService ws) {
         super(dir, ws);
-        // TODO: Run polling thread
+
+        valid = true;
+
+        // TODO: Start monitoring for events
     }
 
     @Override
     public void cancel() {
-        // TODO
+        valid = false;
+
+        // TODO: Complete
     }
 
     @Override
     public boolean isValid() {
-        // TODO
-        return false;
+        return valid;
     }
 
-    @Override
-    public void run() {
-        scanForDeletions();
-        scanForUpdates();
-    }
-
-    private void scanForDeletions() {
-        // TODO
-    }
-
-    private void scanForUpdates() {
-        // TODO
-    }
+    private static native monitorEvents();
 }

@@ -46,7 +46,7 @@ class AixFileSystem extends UnixFileSystem {
     public WatchService newWatchService()
         throws IOException
     {
-        return new SimpleWatchService();
+        return new AixWatchService();
     }
 
     // lazy initialization of the list of supported attribute views
