@@ -308,7 +308,7 @@ class PollingWatchService
                 // create the periodic task
                 Runnable thunk = new Runnable() { public void run() { poll(); }};
                 this.poller = scheduledExecutor
-                    .scheduleAtFixedRate(thunk, 0 /*init wait*/, period, TimeUnit.SECONDS);
+                    .scheduleAtFixedRate(thunk, 1 /*init wait*/, period, TimeUnit.SECONDS);
             }
         }
 
