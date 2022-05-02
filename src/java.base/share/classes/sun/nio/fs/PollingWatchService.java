@@ -117,11 +117,7 @@ class PollingWatchService
             throw new IllegalArgumentException("No events to register");
 
         // Extended modifiers may be used to specify the sensitivity level
-<<<<<<< HEAD
-        int sensitivity = 1;
-=======
         int sensitivity = DEFAULT_POLLING_INTERVAL;
->>>>>>> ExcessivePollInterval
         if (modifiers.length > 0) {
             for (WatchEvent.Modifier modifier: modifiers) {
                 if (modifier == null)
