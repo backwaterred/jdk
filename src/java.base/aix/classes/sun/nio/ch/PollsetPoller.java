@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,18 +27,37 @@ package sun.nio.ch;
 import java.io.IOException;
 
 /**
- * Default PollerProvider for AIX.
+ * Poller implementation based on the AIX Pollset library.
  */
-class DefaultPollerProvider extends PollerProvider {
-    DefaultPollerProvider() { }
+
+class PollsetPoller extends Poller {
+
+    PollsetPoller (boolean read) throws IOException {
+        super(read);
+    }
 
     @Override
-    Poller readPoller() throws IOException {
+    int fdVal() {
+        // Stub
         throw new RuntimeException("Unimplemented on AIX");
     }
 
     @Override
-    Poller writePoller() throws IOException {
+    void implRegister(int fdVal) throws IOException {
+        // Stub
+        throw new RuntimeException("Unimplemented on AIX");
+    }
+
+    @Override
+    void implDeregister(int fdVal) {
+        // Stub
+        throw new RuntimeException("Unimplemented on AIX");
+    }
+
+    @Override
+    int poll(int timeout) throws IOException {
+        // Stub
         throw new RuntimeException("Unimplemented on AIX");
     }
 }
+
