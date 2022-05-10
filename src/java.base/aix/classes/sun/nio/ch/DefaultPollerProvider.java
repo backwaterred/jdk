@@ -34,11 +34,11 @@ class DefaultPollerProvider extends PollerProvider {
 
     @Override
     Poller readPoller() throws IOException {
-        throw new RuntimeException("Unimplemented on AIX");
+        return new PollsetPoller(true);
     }
 
     @Override
     Poller writePoller() throws IOException {
-        throw new RuntimeException("Unimplemented on AIX");
+        return new PollsetPoller(false);
     }
 }
