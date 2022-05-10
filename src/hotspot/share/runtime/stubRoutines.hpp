@@ -97,7 +97,9 @@ class UnsafeCopyMemory : public CHeapObj<mtCode> {
   static address common_exit_stub_pc()               { return _common_exit_stub_pc; }
 
   static UnsafeCopyMemory* add_to_table(address start_pc, address end_pc, address error_exit_pc) {
-    guarantee(_table_length < _table_max_length, "Incorrect UnsafeCopyMemory::_table_max_length");
+    #ifndef AIX // AIX build broken by 8284161. Reenable when ported to ppc.
+      guarantee(_table_length < _table_max_length, "Incorrect UnsafeCopyMemory::_table_max_length");
+    #endif
     UnsafeCopyMemory* entry = &_table[_table_length];
     entry->set_start_pc(start_pc);
     entry->set_end_pc(end_pc);
