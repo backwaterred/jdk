@@ -182,8 +182,9 @@ void Fingerprinter::compute_fingerprint_and_return_type(bool static_flag) {
 #ifdef ASSERT
   int dbg_stack_arg_slots = compute_num_stack_arg_slots(_signature, _param_size, static_flag);
 #if defined(_LP64) && !defined(ZERO)
-  // AIX build broken by 8284161
-  // assert(_stack_arg_slots == dbg_stack_arg_slots, "fingerprinter: %d full: %d", _stack_arg_slots, dbg_stack_arg_slots);
+  #ifndef AIX // AIX build broken by 8284161. Reenable when ported to ppc.
+    assert(_stack_arg_slots == dbg_stack_arg_slots, "fingerprinter: %d full: %d", _stack_arg_slots, dbg_stack_arg_slots);
+  #endif
 #endif
 #endif
 

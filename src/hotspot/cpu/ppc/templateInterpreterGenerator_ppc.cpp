@@ -477,7 +477,8 @@ address TemplateInterpreterGenerator::generate_abstract_entry(void) {
 }
 
 address TemplateInterpreterGenerator::generate_Continuation_doYield_entry(void) {
-  Unimplemented();
+  // AIX build broken by 8284161. Reenable when possible.
+  // Unimplemented();
   return NULL;
 }
 
