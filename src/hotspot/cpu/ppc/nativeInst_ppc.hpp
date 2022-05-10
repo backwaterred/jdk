@@ -524,6 +524,7 @@ public:
   void  verify() { Unimplemented(); }
 
   static bool is_deopt_at(address instr) {
+    // AIX build broken by 8284161
     // Unimplemented();
     return false;
   }
