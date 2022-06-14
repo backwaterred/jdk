@@ -25,7 +25,7 @@
  * @bug 4313887 6838333 7017446 8011537 8042470
  * @summary Unit test for java.nio.file.WatchService
  * @library ..
- * @run main Basic
+ * @run main/othervm Basic
  */
 
 import java.nio.file.*;
