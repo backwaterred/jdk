@@ -179,7 +179,6 @@ public class AhafsPoller extends AbstractPoller
         // System.out.println("[implRegister] Register " + watchPath);
         UnixPath ahafsMonitorPath = (UnixPath)buildAhafsDirMonitorPath(watchPath.toAbsolutePath());
 
-
         int wd = AixWatchKey.INVALID_WATCH_DESCRIPTOR;
         try {
             wd = createNewWatchDescriptor(ahafsMonitorPath);
@@ -210,25 +209,38 @@ public class AhafsPoller extends AbstractPoller
         return wk;
     }
 
-    // Cancel single key.
+    /**
+     * Cancel an AixWatchKey.
+     * This method performs two (slightly different) tasks:
+     *
+     * 1. Cancel the given primary key (provided by the client) and
+     *      any subkeys.
+     * 2. Cancel the given subkey (provided as an interal call). Do not
+     *      resolve to TopLevelKey and cancel subkeys.
+     *
+     */
     @Override
     void implCancelKey(WatchKey wk)
     {
+        // Only cancel AixWatchKeys given out by this WatchService
+        if (!(wk instanceof AixWatchKey))
+            return;
+
         AixWatchKey awk = (AixWatchKey) wk;
 
-        // It this is a TopLevelKey, also cancel SubKeys
+        // If cancelling a TopLevelKey with SubKeys, also cancel children
         if(wk instanceof AixWatchKey.TopLevelKey) {
             AixWatchKey.TopLevelKey topLevelKey = awk.resolve();
             for (AixWatchKey.SubKey key : topLevelKey.subKeys()) {
-                cancelKey(key);
+                cancelKeyNoResolve(key);
             }
         }
 
-        // Cancel _this_ key.
-        cancelKey(awk);
+        // Cancel _this_ key regardless of whether it is a TopLevelKey.
+        cancelKeyNoResolve(awk);
     }
 
-    void cancelKey(AixWatchKey awk)
+    void cancelKeyNoResolve(AixWatchKey awk)
     {
         nCancelWatchDescriptor(opaqueStore.address(), nfds[0], awk.watchDescriptor());
         try {
@@ -401,7 +413,7 @@ public class AhafsPoller extends AbstractPoller
             // System.out.println("File deleted with top level modify");
             String fileName = e.fileName().get();
             // cancel subKey, but not the receiver
-            implCancelKey(e.key());
+            cancelKeyNoResolve(e.key());
         }
 
         // Only notify keys of events they are watching.
@@ -427,11 +439,14 @@ public class AhafsPoller extends AbstractPoller
                 }
             } catch (Exception e) {
                 // TODO: Tidy this logic.
+
+                System.err.println("[AixWatchService] Exiting poll loop with exception: " + e);
                 e.printStackTrace();
-                // System.err.println("[AixWatchService] Exiting poll loop with exception: " + e);
+                break; // <-- FIXME
+
                 try {
-                    close();
-                    processRequests();
+                    // close();
+                    // processRequests();
                 } catch (IOException ioe) {
                     // System.err.println("[AixWatchService] Exception while closing poll-loop: " + ioe);
                 }
