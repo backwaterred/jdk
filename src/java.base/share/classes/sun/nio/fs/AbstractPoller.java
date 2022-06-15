@@ -30,6 +30,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Base implementation of background poller thread used in watch service
