@@ -197,10 +197,12 @@ abstract class AbstractPoller implements Runnable {
         Object awaitResult() {
             boolean interrupted = false;
             while (!completed.get()) {
-                try {
-                    wait();
-                } catch (InterruptedException x) {
-                    interrupted = true;
+                synchronized(this) {
+                    try {
+                        wait();
+                    } catch (InterruptedException x) {
+                        interrupted = true;
+                    }
                 }
             }
             if (interrupted)
