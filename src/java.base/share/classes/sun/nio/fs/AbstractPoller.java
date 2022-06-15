@@ -165,7 +165,7 @@ abstract class AbstractPoller implements Runnable {
         private final RequestType type;
         private final Object[] params;
 
-        private boolean completed = false;
+        private boolean completed = new AtomicBoolean(false);
         private Object result = null;
 
         Request(RequestType type, Object... params) {
@@ -183,7 +183,7 @@ abstract class AbstractPoller implements Runnable {
 
         void release(Object result) {
             synchronized (this) {
-                this.completed = true;
+                this.completed.set(true);
                 this.result = result;
                 notifyAll();
             }
@@ -195,18 +195,16 @@ abstract class AbstractPoller implements Runnable {
          */
         Object awaitResult() {
             boolean interrupted = false;
-            synchronized (this) {
-                while (!completed) {
-                    try {
-                        wait();
-                    } catch (InterruptedException x) {
-                        interrupted = true;
-                    }
+            while (!completed.get()) {
+                try {
+                    wait();
+                } catch (InterruptedException x) {
+                    interrupted = true;
                 }
-                if (interrupted)
-                    Thread.currentThread().interrupt();
-                return result;
             }
+            if (interrupted)
+                Thread.currentThread().interrupt();
+            return result;
         }
     }
 
