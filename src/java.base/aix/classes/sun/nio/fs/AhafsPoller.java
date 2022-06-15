@@ -444,12 +444,12 @@ public class AhafsPoller extends AbstractPoller
                 e.printStackTrace();
                 break; // <-- FIXME
 
-                try {
-                    // close();
-                    // processRequests();
-                } catch (IOException ioe) {
-                    // System.err.println("[AixWatchService] Exception while closing poll-loop: " + ioe);
-                }
+                // try {
+                //     close();
+                //     processRequests();
+                // } catch (IOException ioe) {
+                //     // System.err.println("[AixWatchService] Exception while closing poll-loop: " + ioe);
+                // }
             }
         }
     }
