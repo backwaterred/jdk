@@ -165,7 +165,7 @@ abstract class AbstractPoller implements Runnable {
         private final RequestType type;
         private final Object[] params;
 
-        private boolean completed = new AtomicBoolean(false);
+        private AtomicBoolean completed = new AtomicBoolean(false);
         private Object result = null;
 
         Request(RequestType type, Object... params) {
