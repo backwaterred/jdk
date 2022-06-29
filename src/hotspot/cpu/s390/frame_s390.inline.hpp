@@ -63,7 +63,7 @@ inline void frame::setup() {
     }
   }
 
-  // assert(_on_heap || is_aligned(_sp, frame::frame_alignment), "SP must be 8-byte aligned");
+  assert(_on_heap || is_aligned(_sp, frame::frame_alignment), "SP must be 8-byte aligned");
 }
 
 // Constructors
