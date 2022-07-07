@@ -46,7 +46,11 @@ class AixFileSystem extends UnixFileSystem {
     public WatchService newWatchService()
         throws IOException
     {
-        return new AixWatchService();
+        if (AixWatchService.isAhafsMounted(this)) {
+            return new AixWatchService();
+        } else {
+            return new PollingWatchService();
+        }
     }
 
     // lazy initialization of the list of supported attribute views

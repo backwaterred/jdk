@@ -39,6 +39,9 @@ import static sun.nio.fs.UnixConstants.*;
  */
 public class AixWatchService extends AbstractWatchService
 {
+    // The mount point for ahafs. Can be mounted at any point, but setup instructions recommend /aha.
+    public static final String AHA_MOUNT_POINT = "/aha";
+
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
     Map<Path,AixWatchKey> registeredKeys;
     AhafsPoller poller;
@@ -57,8 +60,7 @@ public class AixWatchService extends AbstractWatchService
         FatalException(String msg, Throwable e) { super(msg, e); }
     }
 
-    public AixWatchService()
-        throws IOException
+    public AixWatchService() throws IOException
     {
         super();
         this.registeredKeys = new HashMap<>();
@@ -69,6 +71,11 @@ public class AixWatchService extends AbstractWatchService
             // Re-Throw as IOE so the exception conforms to the expected type
             throw new IOException(e);
         }
+    }
+
+    public boolean isAhafsMounted(FileSystem fs)
+    {
+        return fs.exits(Path.of(AHA_MOUNT_POINT));
     }
 
     @Override
