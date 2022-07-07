@@ -44,7 +44,8 @@
 #define AHA_INIT_STR "CHANGED=YES WAIT_TYPE=WAIT_IN_SELECT BUF_SIZE=2048"
 #define SIZEOF_AHA_INIT_STR sizeof(AHA_INIT_STR)
 
-static void throwUnixException(JNIEnv* env, int errnum) {
+static void throwUnixException(JNIEnv* env, int errnum)
+{
     jobject x = JNU_NewObjectByName(env, "sun/nio/fs/UnixException",
         "(I)V", errnum);
     if (x != NULL) {
@@ -59,7 +60,12 @@ Java_sun_nio_fs_AhafsPoller_nPollfdSize(JNIEnv *env, jclass clazz)
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_fs_AhafsPoller_nInit(JNIEnv* env, jclass clazz, jlong buf, jint buf_size, jintArray nv, jint socketfd)
+Java_sun_nio_fs_AhafsPoller_nInit(JNIEnv* env,
+                                  jclass clazz,
+                                  jlong buf,
+                                  jint buf_size,
+                                  jintArray nv,
+                                  jint socketfd)
 {
     struct pollfd* fds = (struct pollfd*)jlong_to_ptr(buf);
 
@@ -70,21 +76,6 @@ Java_sun_nio_fs_AhafsPoller_nInit(JNIEnv* env, jclass clazz, jlong buf, jint buf
     int nfds[] = { 1 };
 
     (*env)->SetIntArrayRegion(env, nv, 0, 1, &nfds[0]);
-}
-
-JNIEXPORT void JNICALL
-Java_sun_nio_fs_AhafsPoller_nCloseAll(JNIEnv* env, jclass clazz, jlong buf, jint nfds)
-{
-    struct pollfd* fds = (struct pollfd*)jlong_to_ptr(buf);
-
-    // First fd is assumed to be the socketpair, which will be cancelled
-    // in Java. Skip it here.
-    for (struct pollfd* pfd = fds+1; pfd <= fds + nfds; pfd++) {
-        close(pfd->fd);
-        pfd->events  = 0;
-        pfd->revents = 0;
-        pfd->fd = INVALID_WD;
-    }
 }
 
 JNIEXPORT void JNICALL
@@ -112,7 +103,6 @@ Java_sun_nio_fs_AhafsPoller_nRegisterMonitorPath
 
     int fd = open(path, O_CREAT | O_RDWR);
     if (fd < 0) {
-        fprintf(stderr,"[nRegisterMonitorPath] Fd invalid (%d) while opening %s\n", fd, path);
         perror("Open error");
         throwUnixException(env, errno);
         return INVALID_WD;
@@ -126,7 +116,7 @@ Java_sun_nio_fs_AhafsPoller_nRegisterMonitorPath
     }
 
     fds[nxt_fd].fd = fd;
-    fds[nxt_fd].events = POLLIN; // TODO: Are other event types important?
+    fds[nxt_fd].events = POLLIN;
 
     return (jint)fd;
 }
@@ -141,7 +131,6 @@ Java_sun_nio_fs_AhafsPoller_nCancelWatchDescriptor
         if (pfd->fd == wd) {
             if (close(pfd->fd) != 0) {
                 perror("Close error");
-                fprintf(stderr,"[nCancelWatchDescriptor] Close returned error while closing %d\n", wd);
                 throwUnixException(env, errno);
                 break;
             }
@@ -188,7 +177,6 @@ Java_sun_nio_fs_AhafsPoller_nPoll
                 sprintf(evbuf, "BEGIN_WD=%d\n%sEND_WD=%d\n", pfd->fd, tmpbuf, pfd->fd);
             } else {
                 perror("Read error");
-                fprintf(stderr,"[nPoll] Read returned error while reading fd: %d. Got %s\n", pfd->fd, tmpbuf);
                 throwUnixException(env, errno);
                 break;
             }

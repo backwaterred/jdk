@@ -41,8 +41,6 @@ import static sun.nio.fs.UnixConstants.*;
 public class AhafsPoller extends AbstractPoller
 {
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
-    // The mount point for ahafs. Can be mounted at any point, but setup instructions recommend /aha.
-    private static final String AHA_MOUNT_POINT = "/aha";
     // The following timeout controls the maximum time a worker thread will remain blocked before
     // picking up newly registered keys.
     private static final int POLL_TIMEOUT = 100; // ms
@@ -136,14 +134,17 @@ public class AhafsPoller extends AbstractPoller
         } catch (FileAlreadyExistsException e) {
             // Ignore. It's OK if the parent directory is already present in AHAFS.
         } catch (IOException e) {
-            throw new AixWatchService.FatalException("Unable to create parent directory in AHAFS for " + ahafsMonitorPath, e);
+            throw new AixWatchService.FatalException("Unable to create parent directory in AHAFS for "
+                                                     + ahafsMonitorPath, e);
         }
 
         try (NativeBuffer strBuff =
              NativeBuffers.asNativeBuffer(ahafsMonitorPath.getByteArrayForSysCalls())) {
             wd = nRegisterMonitorPath(opaqueBuffer.address(), nfds[0], strBuff.address());
         } catch (UnixException e) {
-            throw new AixWatchService.FatalException("Invalid WatchDescriptor (" + wd + ") returned by native procedure while attempting to register " + ahafsMonitorPath);
+            throw new AixWatchService.FatalException("Invalid WatchDescriptor (" + wd +
+                                                     ") returned by native procedure while attempting to register " +
+                                                     ahafsMonitorPath);
         }
 
         assert(wd != AixWatchKey.INVALID_WATCH_DESCRIPTOR);
@@ -161,7 +162,7 @@ public class AhafsPoller extends AbstractPoller
     private AixWatchKey.SubKey createSubKey(Path filePath, AixWatchKey.TopLevelKey topLevelKey)
         throws AixWatchService.FatalException
     {
-        UnixPath monitorPath = (UnixPath) buildAhafsFileMonitorPath(filePath.normalize().toAbsolutePath());
+        UnixPath monitorPath = (UnixPath) buildAhafsFileMonitorPath(filePath.toRealPath());
 
         int wd = createNewWatchDescriptor(monitorPath);
 
@@ -255,7 +256,8 @@ public class AhafsPoller extends AbstractPoller
         try {
             wd = createNewWatchDescriptor(ahafsMonitorPath);
         } catch (AixWatchService.FatalException e) {
-            return new IOException("Invalid watch descriptor returned for " + ahafsMonitorPath + " during registration of " + watchPath, e);
+            return new IOException("Invalid watch descriptor returned for " +
+                                   ahafsMonitorPath + " during registration of " + watchPath, e);
         }
 
         AixWatchKey.TopLevelKey wk = new AixWatchKey.TopLevelKey(watchPath, wd, events, this.watcher);
@@ -585,8 +587,6 @@ public class AhafsPoller extends AbstractPoller
     private static native int nPollfdSize();
 
     private static native void nInit(long buffer, int buff_size, int[] nv, int socketfd);
-
-    private static native void nCloseAll(long buffer, int nfds);
 
     private static native void nSocketpair(int[] sv) throws UnixException;
 

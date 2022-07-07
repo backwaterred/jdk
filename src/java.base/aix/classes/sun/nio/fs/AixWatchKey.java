@@ -51,7 +51,10 @@ public abstract class AixWatchKey extends AbstractWatchKey
         /**
          * TopLevelKeys may contain SubKeys
          */
-        public TopLevelKey(Path topLevelPath, int watchDescriptor, Set<? extends WatchEvent.Kind<?>> events, AixWatchService ws)
+        public TopLevelKey(Path topLevelPath,
+                           int watchDescriptor,
+                           Set<? extends WatchEvent.Kind<?>> events,
+                           AixWatchService ws)
         {
             super(topLevelPath, ws);
             this.watchDescriptor = watchDescriptor;
@@ -97,7 +100,9 @@ public abstract class AixWatchKey extends AbstractWatchKey
     {
         private TopLevelKey topLevelKey;
 
-        public SubKey(Path subKeyPath, int watchDescriptor, TopLevelKey topLevelKey)
+        public SubKey(Path subKeyPath,
+                      int watchDescriptor,
+                      TopLevelKey topLevelKey)
         {
             super(subKeyPath, topLevelKey.watcher());
             this.watchDescriptor = watchDescriptor;
