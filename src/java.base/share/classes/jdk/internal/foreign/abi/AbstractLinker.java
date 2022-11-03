@@ -38,7 +38,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.util.Objects;
 
-public abstract sealed class AbstractLinker implements Linker permits LinuxAArch64Linker, MacOsAArch64Linker,
+public abstract sealed class AbstractLinker implements Linker permits LinuxAArch64Linker, LinuxPPC64Linker, MacOsAArch64Linker,
                                                                       SysVx64Linker, Windowsx64Linker {
 
     private final SoftReferenceCache<FunctionDescriptor, MethodHandle> DOWNCALL_CACHE = new SoftReferenceCache<>();
