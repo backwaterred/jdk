@@ -92,9 +92,9 @@ class CallGenerator : public ArenaObj {
   // (The hashCode intrinsic does a vtable check and an inlined fast path.)
 
   // Allocate CallGenerators only in Compile arena since some of them are referenced from CallNodes.
-  void* operator new(size_t size) throw() {
+  void* operator new(size_t size, Arena* arena = nullptr) throw() {
     Compile* C = Compile::current();
-    return ArenaObj::operator new(size, C->comp_arena());
+    return ArenaObj::operator new(size, arena != nullptr ? arena : C->comp_arena());
   }
 
   // Utilities:
