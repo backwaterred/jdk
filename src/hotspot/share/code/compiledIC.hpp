@@ -335,7 +335,7 @@ class StaticCallInfo {
   methodHandle callee() const   { return _callee; }
 };
 
-class CompiledStaticCall : public ResourceObj {
+class CompiledStaticCall : public AnyObj {
  public:
   // Code
   static address emit_to_interp_stub(CodeBuffer &cbuf, address mark = NULL);
