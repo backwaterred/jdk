@@ -652,7 +652,7 @@ class PhaseCFG : public Phase {
 //------------------------------UnionFind--------------------------------------
 // Map Block indices to a block-index for a cfg-cover.
 // Array lookup in the optimized case.
-class UnionFind : public ResourceObj {
+class UnionFind : public AnyObj {
   uint _cnt, _max;
   uint* _indices;
   ReallocMark _nesting;  // assertion check for reallocations
@@ -752,7 +752,7 @@ class CFGLoop : public CFGElement {
 //----------------------------------CFGEdge------------------------------------
 // A edge between two basic blocks that will be embodied by a branch or a
 // fall-through.
-class CFGEdge : public ResourceObj {
+class CFGEdge : public AnyObj {
   friend class VMStructs;
  private:
   Block * _from;        // Source basic block
@@ -798,7 +798,7 @@ class CFGEdge : public ResourceObj {
 
 //-----------------------------------Trace-------------------------------------
 // An ordered list of basic blocks.
-class Trace : public ResourceObj {
+class Trace : public AnyObj {
  private:
   uint _id;             // Unique Trace id (derived from initial block)
   Block ** _next_list;  // Array mapping index to next block
