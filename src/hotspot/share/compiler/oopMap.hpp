@@ -147,7 +147,7 @@ public:
 };
 
 
-class OopMap: public ResourceObj {
+class OopMap: public AnyObj {
   friend class OopMapStream;
   friend class VMStructs;
   friend class OopMapSet;

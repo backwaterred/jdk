@@ -66,7 +66,7 @@ void BytecodeCounter::print() {
 
 // Helper class for sorting
 
-class HistoEntry: public ResourceObj {
+class HistoEntry: public AnyObj {
  private:
   int             _index;
   int             _count;
