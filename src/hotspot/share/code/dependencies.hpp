@@ -64,7 +64,7 @@ class     KlassInitDepChange;
 class   CallSiteDepChange;
 class NoSafepointVerifier;
 
-class Dependencies: public ResourceObj {
+class Dependencies: public AnyObj {
  public:
   // Note: In the comments on dependency types, most uses of the terms
   // subtype and supertype are used in a "non-strict" or "inclusive"
