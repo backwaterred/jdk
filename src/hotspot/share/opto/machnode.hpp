@@ -58,7 +58,7 @@ class RTMLockingCounters;
 class State;
 
 //---------------------------MachOper------------------------------------------
-class MachOper : public ResourceObj {
+class MachOper : public AnyObj {
 public:
   // Allocate right next to the MachNodes in the same arena
   void *operator new(size_t x) throw() {
