@@ -58,7 +58,7 @@ class SimpleScopeDesc : public StackObj {
 // ScopeDescs contain the information that makes source-level debugging of
 // nmethods possible; each scopeDesc describes a method activation
 
-class ScopeDesc : public ResourceObj {
+class ScopeDesc : public AnyObj {
  public:
   // Constructor
   ScopeDesc(const CompiledMethod* code, PcDesc* pd, bool ignore_objects = false);
