@@ -253,7 +253,7 @@ class FrameMap : public CompilationResourceObj {
 //               CallingConvention
 //--------------------------------------------------------
 
-class CallingConvention: public ResourceObj {
+class CallingConvention: public AnyObj {
  private:
   LIR_OprList* _args;
   int          _reserved_stack_slots;

@@ -175,7 +175,7 @@ class ObjectLookup : public ResourceObj {
   int find_index(jobject object, OopRecorder* oop_recorder);
 };
 
-class OopRecorder : public ResourceObj {
+class OopRecorder : public AnyObj {
  private:
   ValueRecorder<jobject>      _oops;
   ValueRecorder<Metadata*>    _metadata;
