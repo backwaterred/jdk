@@ -162,7 +162,7 @@ public:
   virtual void set_data(NativeInstruction* instruction, intptr_t data) = 0;
 };
 
-class CompiledIC: public ResourceObj {
+class CompiledIC: public AnyObj {
   friend class InlineCacheBuffer;
   friend class ICStub;
 
