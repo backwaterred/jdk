@@ -270,7 +270,7 @@ class ConstantOopReadValue: public ScopeValue {
 
 // MonitorValue describes the pair used for monitor_enter and monitor_exit.
 
-class MonitorValue: public ResourceObj {
+class MonitorValue: public AnyObj {
  private:
   ScopeValue* _owner;
   Location    _basic_lock;
