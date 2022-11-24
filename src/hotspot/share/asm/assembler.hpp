@@ -206,7 +206,7 @@ class RegisterOrConstant {
 // The Abstract Assembler: Pure assembler doing NO optimizations on the
 // instruction level; i.e., what you write is what you get.
 // The Assembler is generating code into a CodeBuffer.
-class AbstractAssembler : public ResourceObj  {
+class AbstractAssembler : public AnyObj  {
   friend class Label;
 
  protected:

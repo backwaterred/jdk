@@ -75,7 +75,7 @@ const int SynchronizationEntryBCI = InvocationEntryBci;
 
 class DIR_Chunk; // private class, a nugget of collected information
 
-class DebugInformationRecorder: public ResourceObj {
+class DebugInformationRecorder: public AnyObj {
  public:
   // constructor
   DebugInformationRecorder(OopRecorder* oop_recorder);

@@ -212,7 +212,7 @@ class OopMap: public AnyObj {
   bool equals(const OopMap* other) const;
 };
 
-class OopMapSet : public ResourceObj {
+class OopMapSet : public AnyObj {
   friend class VMStructs;
  private:
   GrowableArray<OopMap*> _list;
