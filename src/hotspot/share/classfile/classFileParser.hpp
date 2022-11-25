@@ -67,7 +67,7 @@ class OopMapBlocksBuilder : public ResourceObj {
 };
 
 // Values needed for oopmap and InstanceKlass creation
-class FieldLayoutInfo : public ResourceObj {
+class FieldLayoutInfo : public AnyObj {
  public:
   OopMapBlocksBuilder* oop_map_blocks;
   int _instance_size;
