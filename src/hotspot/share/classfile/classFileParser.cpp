@@ -960,7 +960,7 @@ void ClassFileParser::verify_constantvalue(const ConstantPool* const cp,
   }
 }
 
-class AnnotationCollector : public ResourceObj{
+class AnnotationCollector : public AnyObj{
 public:
   enum Location { _in_field, _in_method, _in_class };
   enum ID {
@@ -1434,7 +1434,7 @@ static FieldAllocationType basic_type_to_atype(bool is_static, BasicType type) {
   return result;
 }
 
-class ClassFileParser::FieldAllocationCount : public ResourceObj {
+class ClassFileParser::FieldAllocationCount : public AnyObj {
  public:
   u2 count[MAX_FIELD_ALLOCATION_TYPE];
 

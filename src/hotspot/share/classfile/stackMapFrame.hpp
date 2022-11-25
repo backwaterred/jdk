@@ -63,7 +63,7 @@ class StackMapFrame : public AnyObj {
   ClassVerifier* _verifier;  // the verifier verifying this method
 
   StackMapFrame(const StackMapFrame& cp) :
-      ResourceObj(cp),
+      AnyObj(cp),
       _offset(cp._offset), _locals_size(cp._locals_size),
       _stack_size(cp._stack_size), _stack_mark(cp._stack_mark),
       _max_locals(cp._max_locals), _max_stack(cp._max_stack),
