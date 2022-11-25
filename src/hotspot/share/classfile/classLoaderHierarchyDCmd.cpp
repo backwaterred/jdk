@@ -115,7 +115,7 @@ public:
 
 }; // end: BranchTracker
 
-struct LoadedClassInfo : public ResourceObj {
+struct LoadedClassInfo : public AnyObj {
 public:
   LoadedClassInfo* _next;
   Klass* const _klass;
@@ -126,7 +126,7 @@ public:
 
 };
 
-class LoaderTreeNode : public ResourceObj {
+class LoaderTreeNode : public AnyObj {
 
   // We walk the CLDG and, for each CLD which is findable, add
   // a tree node.

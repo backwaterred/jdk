@@ -37,7 +37,7 @@
 
 class ClassPathEntry;
 
-class ClassFileStream: public ResourceObj {
+class ClassFileStream: public AnyObj {
  private:
   const u1* const _buffer_start; // Buffer bottom
   const u1* const _buffer_end;   // Buffer top (one past last element)

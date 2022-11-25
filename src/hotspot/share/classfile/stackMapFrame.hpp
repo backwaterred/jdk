@@ -40,7 +40,7 @@ enum {
   FLAG_THIS_UNINIT = 0x01
 };
 
-class StackMapFrame : public ResourceObj {
+class StackMapFrame : public AnyObj {
  private:
   int32_t _offset;
 

@@ -764,7 +764,7 @@ void ClassFileParser::parse_constant_pool(const ClassFileStream* const stream,
   }  // end of for
 }
 
-class NameSigHash: public ResourceObj {
+class NameSigHash: public AnyObj {
  public:
   const Symbol*       _name;       // name
   const Symbol*       _sig;        // signature

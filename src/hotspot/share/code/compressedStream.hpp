@@ -31,7 +31,7 @@
 // Simple interface for filing out and filing in basic types
 // Used for writing out and reading in debugging information.
 
-class CompressedStream : public ResourceObj {
+class CompressedStream : public AnyObj {
   friend class VMStructs;
  protected:
   u_char* _buffer;
