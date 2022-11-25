@@ -274,7 +274,7 @@ class   SpeculativeTrapData;
 //
 // A ProfileData object is created to refer to a section of profiling
 // data in a structured way.
-class ProfileData : public ResourceObj {
+class ProfileData : public AnyObj {
   friend class TypeEntries;
   friend class ReturnTypeEntry;
   friend class TypeStackSlotEntries;
