@@ -184,7 +184,7 @@ class SystemProcess : public CHeapObj<mtInternal> {
   }
 };
 
-class NetworkInterface : public ResourceObj {
+class NetworkInterface : public AnyObj {
  private:
   char* _name;
   uint64_t _bytes_in;

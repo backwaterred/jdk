@@ -145,7 +145,7 @@ template <class T> class ValueRecorder : public StackObj {
 
 class OopRecorder;
 
-class ObjectLookup : public ResourceObj {
+class ObjectLookup : public AnyObj {
  private:
   class ObjectEntry {
    private:
