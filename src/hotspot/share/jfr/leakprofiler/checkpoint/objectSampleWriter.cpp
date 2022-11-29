@@ -40,7 +40,7 @@
 #include "utilities/growableArray.hpp"
 
 template <typename Data>
-class ObjectSampleAuxInfo : public ResourceObj {
+class ObjectSampleAuxInfo : public AnyObj {
  public:
   Data _data;
   traceid _id;
@@ -130,7 +130,7 @@ typedef ObjectSampleAuxInfo<ObjectSampleRootDescriptionData> ObjectSampleRootDes
 typedef ObjectSampleAuxInfo<OldObjectSampleData> OldObjectSampleInfo;
 typedef ObjectSampleAuxInfo<ReferenceData> ReferenceInfo;
 
-class FieldTable : public ResourceObj {
+class FieldTable : public AnyObj {
   template <typename,
             typename,
             template<typename, typename> class,
