@@ -525,7 +525,7 @@ class StatefulMethodFamily : public ResourceObj {
 // here).  You've just got to remember to call 'restore_state()' on the scope when
 // leaving it (and marks have to be explicitly added). The scope is reusable after
 // 'restore_state()' has been called.
-class StateRestorer : public ResourceObj {
+class StateRestorer : public AnyObj {
  public:
   StatefulMethodFamily* _method;
   QualifiedState _state_to_restore;
@@ -535,7 +535,7 @@ class StateRestorer : public ResourceObj {
   void restore_state() { _method->set_qualification_state(_state_to_restore); }
 };
 
-class StateRestorerScope : public ResourceObj {
+class StateRestorerScope : public AnyObj {
  private:
   GrowableArray<StateRestorer*>  _marks;
   GrowableArray<StateRestorer*>* _free_list; // Shared between scopes
@@ -585,7 +585,7 @@ void StatefulMethodFamily::record_method_and_dq_further(StateRestorerScope* scop
 // Represents a location corresponding to a vtable slot for methods that
 // neither the class nor any of it's ancestors provide an implementation.
 // Default methods may be present to fill this slot.
-class EmptyVtableSlot : public ResourceObj {
+class EmptyVtableSlot : public AnyObj {
  private:
   Symbol* _name;
   Symbol* _signature;

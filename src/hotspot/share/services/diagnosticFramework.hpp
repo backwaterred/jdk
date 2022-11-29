@@ -122,7 +122,7 @@ public:
 
 // A DCmdInfo instance provides a description of a diagnostic command. It is
 // used to export the description to the JMX interface of the framework.
-class DCmdInfo : public ResourceObj {
+class DCmdInfo : public AnyObj {
 protected:
   const char* const _name;           /* Name of the diagnostic command */
   const char* const _description;    /* Short description */
