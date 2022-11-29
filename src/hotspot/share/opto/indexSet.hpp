@@ -41,7 +41,7 @@
 // size and is allocated from a shared free list.  The bits which are set in
 // each BitBlock correspond to the elements of the set.
 
-class IndexSet : public ResourceObj {
+class IndexSet : public AnyObj {
  friend class IndexSetIterator;
 
  public:
