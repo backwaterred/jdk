@@ -45,7 +45,7 @@ class ThreadGroupExclusiveAccess : public StackObj {
 Semaphore ThreadGroupExclusiveAccess::_mutex_semaphore(1);
 JfrThreadGroup* JfrThreadGroup::_instance = NULL;
 
-class JfrThreadGroupPointers : public ResourceObj {
+class JfrThreadGroupPointers : public AnyObj {
  private:
   const Handle _thread_group_handle;
   jweak _thread_group_weak_ref;
