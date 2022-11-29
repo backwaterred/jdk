@@ -152,7 +152,7 @@ public:
 // A DCmdArgumentInfo instance provides a description of a diagnostic command
 // argument. It is used to export the description to the JMX interface of the
 // framework.
-class DCmdArgumentInfo : public AnyObj { {
+class DCmdArgumentInfo : public AnyObj {
 protected:
   const char* const _name;            /* Option/Argument name*/
   const char* const _description;     /* Short description */
