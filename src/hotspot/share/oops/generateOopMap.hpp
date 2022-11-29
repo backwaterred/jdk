@@ -49,7 +49,7 @@ typedef void (*jmpFct_t)(GenerateOopMap *c, int bcpDelta, int* data);
 //
 // Contains mapping between jsr targets and there return addresses. One-to-many mapping
 //
-class RetTableEntry : public ResourceObj {
+class RetTableEntry : public AnyObj {
  private:
   static int _init_nof_jsrs;                      // Default size of jsrs list
   int _target_bci;                                // Target PC address of jump (bytecode index)
