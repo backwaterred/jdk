@@ -141,7 +141,7 @@ class CompiledICInfo : public StackObj {
   }
 };
 
-class NativeCallWrapper: public ResourceObj {
+class NativeCallWrapper : public AnyObj {
 public:
   virtual address destination() const = 0;
   virtual address instruction_address() const = 0;

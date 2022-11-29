@@ -648,7 +648,7 @@ class Dependencies: public AnyObj {
 };
 
 
-class DependencySignature : public ResourceObj {
+class DependencySignature : public AnyObj {
  private:
   int                   _args_count;
   uintptr_t             _argument_hash[Dependencies::max_arg_count];
