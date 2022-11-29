@@ -90,7 +90,7 @@ class ReferenceData {
 static int initial_storage_size = 16;
 
 template <typename Data>
-class SampleSet : public ResourceObj {
+class SampleSet : public AnyObj {
  private:
   GrowableArray<Data>* _storage;
  public:
