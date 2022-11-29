@@ -93,7 +93,7 @@ template <class ALGO>
 class HierarchyVisitor : StackObj {
  private:
 
-  class Node : public ResourceObj {
+  class Node : public AnyObj {
    public:
     InstanceKlass* _class;
     bool _super_was_visited;
@@ -493,7 +493,7 @@ class StateRestorerScope;
 // StatefulMethodFamily is a wrapper around a MethodFamily that maintains the
 // qualification state during hierarchy visitation, and applies that state
 // when adding members to the MethodFamily
-class StatefulMethodFamily : public ResourceObj {
+class StatefulMethodFamily : public AnyObj {
   friend class StateRestorer;
  private:
   QualifiedState _qualification_state;
