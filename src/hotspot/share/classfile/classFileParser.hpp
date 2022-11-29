@@ -50,7 +50,7 @@ class Symbol;
 class FieldLayoutBuilder;
 
 // Utility to collect and compact oop maps during layout
-class OopMapBlocksBuilder : public ResourceObj {
+class OopMapBlocksBuilder : public AnyObj {
  public:
   OopMapBlock* _nonstatic_oop_maps;
   unsigned int _nonstatic_oop_map_count;

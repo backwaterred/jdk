@@ -140,7 +140,7 @@ int NativeCallingConvention::calling_convention(BasicType* sig_bt, VMRegPair* ou
 }
 
 class ComputeMoveOrder: public StackObj {
-  class MoveOperation: public ResourceObj {
+  class MoveOperation : public AnyObj {
     friend class ComputeMoveOrder;
    private:
     VMRegPair      _src;
