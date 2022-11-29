@@ -595,7 +595,7 @@ public:
 };
 
 // -----------------------------IdealLoopTree----------------------------------
-class IdealLoopTree : public ResourceObj {
+class IdealLoopTree : public AnyObj {
 public:
   IdealLoopTree *_parent;       // Parent in loop tree
   IdealLoopTree *_next;         // Next sibling in loop tree
