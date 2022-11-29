@@ -50,7 +50,7 @@
 //  next/prev pointers are included in the LayoutRawBlock class to narrow
 //  the number of allocation required during the computation of a layout.
 //
-class LayoutRawBlock : public AnyObj { {
+class LayoutRawBlock : public AnyObj {
  public:
   // Some code relies on the order of values below.
   enum Kind {
@@ -121,7 +121,7 @@ class LayoutRawBlock : public AnyObj { {
 // Inside a FieldGroup, fields are sorted based on their kind: primitive,
 // oop, or flattened.
 //
-class FieldGroup : public AnyObj { {
+class FieldGroup : public AnyObj {
 
  private:
   FieldGroup* _next;
@@ -162,7 +162,7 @@ class FieldGroup : public AnyObj { {
 // to allocate fields) with a size big enough to satisfy all
 // field allocations.
 //
-class FieldLayout : public AnyObj { {
+class FieldLayout : public AnyObj {
  private:
   Array<u2>* _fields;
   ConstantPool* _cp;
