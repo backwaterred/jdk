@@ -252,7 +252,7 @@ class entryVFrame: public externalVFrame {
 // A MonitorInfo is a ResourceObject that describes the pair:
 // 1) the owner of the monitor
 // 2) the monitor lock
-class MonitorInfo : public ResourceObj {
+class MonitorInfo : public AnyObj {
  private:
   Handle     _owner; // the object owning the monitor
   BasicLock* _lock;

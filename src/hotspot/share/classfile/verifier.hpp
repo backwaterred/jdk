@@ -248,7 +248,7 @@ class ErrorContext {
   void stackmap_details(outputStream* ss, const Method* method) const;
 };
 
-class sig_as_verification_types : public ResourceObj {
+class sig_as_verification_types : public AnyObj {
  private:
   int _num_args;  // Number of arguments, not including return type.
   GrowableArray<VerificationType>* _sig_verif_types;

@@ -29,7 +29,7 @@
 #include "runtime/stackValue.hpp"
 #include "utilities/growableArray.hpp"
 
-class StackValueCollection : public ResourceObj {
+class StackValueCollection : public AnyObj {
  private:
   GrowableArray<StackValue*>* _values;
 
