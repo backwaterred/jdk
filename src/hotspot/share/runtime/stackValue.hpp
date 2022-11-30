@@ -33,7 +33,7 @@ class frame;
 class RegisterMap;
 class ScopeValue;
 
-class StackValue : public ResourceObj {
+class StackValue : public AnyObj {
  private:
   BasicType _type;
   intptr_t  _integer_value; // Blank java stack slot value
