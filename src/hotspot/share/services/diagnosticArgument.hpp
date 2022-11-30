@@ -59,7 +59,7 @@ public:
   char _multiplier;
 };
 
-class GenDCmdArgument : public ResourceObj {
+class GenDCmdArgument : public AnyObj {
 protected:
   GenDCmdArgument* _next;
   const char* const _name;
