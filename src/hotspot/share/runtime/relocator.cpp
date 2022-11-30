@@ -40,7 +40,7 @@
 // Encapsulates a code change request. There are 3 types.
 // General instruction, jump instruction, and table/lookup switches
 //
-class ChangeItem : public ResourceObj {
+class ChangeItem : public AnyObj {
   int _bci;
  public:
    ChangeItem(int bci) { _bci = bci; }
