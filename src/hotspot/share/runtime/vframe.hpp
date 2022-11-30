@@ -55,7 +55,7 @@
 class StackFrameStream;
 class ContinuationEntry;
 
-class vframe: public ResourceObj {
+class vframe : public AnyObj {
  protected:
   frame        _fr;      // Raw frame behind the virtual frame.
   RegisterMap  _reg_map; // Register map for the raw frame (used to handle callee-saved registers).
