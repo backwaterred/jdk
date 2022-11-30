@@ -37,7 +37,7 @@
 
 #define __ kit.
 
-class StringConcat : public ResourceObj {
+class StringConcat : public AnyObj {
  private:
   PhaseStringOpts*    _stringopts;
   AllocateNode*       _begin;          // The allocation the begins the pattern
