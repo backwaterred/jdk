@@ -54,7 +54,7 @@ class ObjectSampleArrayData {
   ObjectSampleArrayData() : _array_size(0), _array_index(0) {}
 };
 
-class ObjectSampleFieldInfo : public ResourceObj {
+class ObjectSampleFieldInfo : public AnyObj {
  public:
   const Symbol* _field_name_symbol;
   jshort _field_modifiers;
