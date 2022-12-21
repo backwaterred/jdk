@@ -2744,7 +2744,8 @@ int os::loadavg(double values[], int nelem) {
 }
 
 bool os::is_primordial_thread(void) {
-  if (pthread_self() == (pthread_t)1) {
+  printf("Checking thread primordality. pthread_self: (%d) pthread_getthreadid_np: (%d)\n");
+  if (pthread_getthreadid_np() == (pthread_t)1) {
     return true;
   } else {
     return false;
