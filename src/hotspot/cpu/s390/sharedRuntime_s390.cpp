@@ -2822,7 +2822,7 @@ void SharedRuntime::generate_uncommon_trap_blob() {
   // skeletal interpreter frame, (resized) caller of deoptee, ...).
 
   // set the "unpack" frame as last_Java_frame
-  int offs = __ offset();
+  offs = __ offset();
   __ get_PC(Z_R1_scratch, offs);
   __ set_last_Java_frame(/*sp*/Z_SP, /*pc*/Z_R1_scratch);
 
