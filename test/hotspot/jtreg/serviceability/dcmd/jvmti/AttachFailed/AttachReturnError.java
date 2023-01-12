@@ -46,6 +46,9 @@ public class AttachReturnError extends AttachFailedTestBase {
             output = executor.execute("VM.dynlibs");
             output.shouldNotContain(libpath);
         } catch (Exception e) {
+            if (output != null) {
+                output.reportDiagnosticSummary();
+            }
             throw new RuntimeException(e);
         }
     }
