@@ -731,6 +731,7 @@ void os::dll_unload(void *lib) {
     l_path = "<not available>";
   }
   int res = ::dlclose(lib);
+  tty->print_cr("[os::dll_unload] dlclose -> %d", res);
 
   if (res == 0) {
     Events::log_dll_message(NULL, "Unloaded shared library \"%s\" [" INTPTR_FORMAT "]",
