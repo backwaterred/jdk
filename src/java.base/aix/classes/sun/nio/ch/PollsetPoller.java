@@ -25,39 +25,61 @@
 package sun.nio.ch;
 
 import java.io.IOException;
+import sun.nio.ch.AixPollPort;
 
 /**
  * Poller implementation based on the AIX Pollset library.
  */
 
 class PollsetPoller extends Poller {
+    private int setid;
+    private int setsize;
 
     PollsetPoller(boolean read) throws IOException {
         super(read);
+        this.setsize = 0;
+        this.setid = AixPollPort.pollsetCreate();
     }
 
     @Override
     int fdVal() {
-        // Stub
-        throw new UnsupportedOperationException("Unimplemented on AIX");
+        return setid;
     }
 
     @Override
-    void implRegister(int fdVal) throws IOException {
-        // Stub
-        throw new UnsupportedOperationException("Unimplemented on AIX");
+    void implRegister(int fd) throws IOException {
+        setsize++;
+
+        int ret = AixPollPort.pollsetCtr(setid, PS_MOD, fd, this.read ? Net.POLLIN : Net.POLLOUT);
+        if (ret != 0) {
+            throw new IOException("Unable to register fd " + fd +
+                                    ". Command failed with ERRNO " + ret);
+        }
     }
 
     @Override
-    void implDeregister(int fdVal) {
-        // Stub
-        throw new UnsupportedOperationException("Unimplemented on AIX");
+    void implDeregister(int fd) {
+        size--;
+
+        int ret = AixPollPort.pollsetCtr(setid, PS_DELETE, fd, 0);
+
+        assert ret == 0;
     }
 
     @Override
-    int poll(int timeout) throws IOException {
-        // Stub
-        throw new UnsupportedOperationException("Unimplemented on AIX");
+    int poll(int _timeout) throws IOException {
+        // TODO: use timeout (pollset_poll_ext call takes timeout value)
+        long buffer = AixPollPort.allocatePollArray(setsize);
+
+        int n = AixPollPort.pollsetPoll(setid, psarr, setsize);
+        for(int i=0; i<n; i++) {
+            long eventAddress = AixPollPort.getEvent(address, i);
+            int fd = AixPollPort.getDescriptor(eventAddress);
+            polled(fd);
+        }
+
+        AixPollPort.freePollArray(buffer);
+        return n;
     }
 }
 
