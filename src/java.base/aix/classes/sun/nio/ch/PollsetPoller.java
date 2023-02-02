@@ -50,7 +50,7 @@ class PollsetPoller extends Poller {
     void implRegister(int fd) throws IOException {
         setsize++;
 
-        int ret = AixPollPort.pollsetCtr(setid, PS_MOD, fd, this.read ? Net.POLLIN : Net.POLLOUT);
+        int ret = AixPollPort.pollsetCtr(setid, AixPollPort.PS_MOD, fd, this.read ? Net.POLLIN : Net.POLLOUT);
         if (ret != 0) {
             throw new IOException("Unable to register fd " + fd +
                                     ". Command failed with ERRNO " + ret);
@@ -59,9 +59,9 @@ class PollsetPoller extends Poller {
 
     @Override
     void implDeregister(int fd) {
-        size--;
+        setsize--;
 
-        int ret = AixPollPort.pollsetCtr(setid, PS_DELETE, fd, 0);
+        int ret = AixPollPort.pollsetCtr(setid, AixPollPort.PS_DELETE, fd, 0);
 
         assert ret == 0;
     }
@@ -71,9 +71,9 @@ class PollsetPoller extends Poller {
         // TODO: use timeout (pollset_poll_ext call takes timeout value)
         long buffer = AixPollPort.allocatePollArray(setsize);
 
-        int n = AixPollPort.pollsetPoll(setid, psarr, setsize);
+        int n = AixPollPort.pollsetPoll(setid, buffer, setsize);
         for(int i=0; i<n; i++) {
-            long eventAddress = AixPollPort.getEvent(address, i);
+            long eventAddress = AixPollPort.getEvent(buffer, i);
             int fd = AixPollPort.getDescriptor(eventAddress);
             polled(fd);
         }

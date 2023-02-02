@@ -62,9 +62,9 @@ final class AixPollPort
     private static final int OFFSETOF_FD      = fdOffset();
 
     // opcodes
-    private static final int PS_ADD     = 0x0;
-    private static final int PS_MOD     = 0x1;
-    private static final int PS_DELETE  = 0x2;
+    public static final int PS_ADD     = 0x0;
+    public static final int PS_MOD     = 0x1;
+    public static final int PS_DELETE  = 0x2;
 
     // maximum number of events to poll at a time
     private static final int MAX_POLL_EVENTS = 512;
@@ -471,46 +471,55 @@ final class AixPollPort
     /**
      * Allocates a poll array to handle up to {@code count} events.
      */
-    private static long allocatePollArray(int count) {
+    public static long allocatePollArray(int count) {
         return unsafe.allocateMemory(count * SIZEOF_POLLFD);
     }
 
     /**
      * Free a poll array
      */
-    private static void freePollArray(long address) {
+    public static void freePollArray(long address) {
         unsafe.freeMemory(address);
     }
 
     /**
      * Returns event[i];
      */
-    private static long getEvent(long address, int i) {
+    public static long getEvent(long address, int i) {
         return address + (SIZEOF_POLLFD*i);
     }
 
     /**
      * Returns event->fd
      */
-    private static int getDescriptor(long eventAddress) {
+    public static int getDescriptor(long eventAddress) {
         return unsafe.getInt(eventAddress + OFFSETOF_FD);
     }
 
     /**
      * Returns event->events
      */
-    private static int getEvents(long eventAddress) {
+    public static int getEvents(long eventAddress) {
         return unsafe.getChar(eventAddress + OFFSETOF_EVENTS);
     }
 
     /**
      * Returns event->revents
      */
-    private static int getRevents(long eventAddress) {
+    public static int getRevents(long eventAddress) {
         return unsafe.getChar(eventAddress + OFFSETOF_REVENTS);
     }
 
     // -- Native methods --
+
+    public static native int pollsetCreate() throws IOException;
+
+    public static native int pollsetCtl(int pollset, int opcode, int fd, int events);
+
+    public static native int pollsetPoll(int pollset, long pollAddress, int numfds)
+        throws IOException;
+
+    public static native void pollsetDestroy(int pollset);
 
     private static native void init();
 
@@ -521,15 +530,6 @@ final class AixPollPort
     private static native int reventsOffset();
 
     private static native int fdOffset();
-
-    private static native int pollsetCreate() throws IOException;
-
-    private static native int pollsetCtl(int pollset, int opcode, int fd, int events);
-
-    private static native int pollsetPoll(int pollset, long pollAddress, int numfds)
-        throws IOException;
-
-    private static native void pollsetDestroy(int pollset);
 
     private static native void socketpair(int[] sv) throws IOException;
 
