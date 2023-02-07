@@ -1080,10 +1080,10 @@ void TemplateInterpreterGenerator::generate_fixed_frame(bool native_call) {
     generate_stack_overflow_check(frame_size, fp/*tmp1*/);
   }
 
-  #ifndef PRODUCT
+  #ifdef ASSERT
     __ z_cg(Z_R14, _z_abi16(return_pc), Z_SP);
     __ asm_assert_eq("killed Z_R14", 0);
-  #endif // NOT_PRODUCT
+  #endif
   __ resize_frame_absolute(sp_after_resize, fp, true);
   __ save_return_pc(Z_R14);
 
