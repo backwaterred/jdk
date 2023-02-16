@@ -430,7 +430,7 @@ public:
     assert(obj == nullptr || dbg_is_good_oop(obj), "p: " PTR_FORMAT " obj: " PTR_FORMAT, p2i(p), p2i(obj));
     if (_chunk->has_bitmap()) {
       BitMap::idx_t index = _chunk->bit_index_for(p);
-      assert(_chunk->bitmap().at(index), "Bit not set at index " SIZE_FORMAT " corresponding to " PTR_FORMAT, index, p2i(p));
+      assert(_chunk->bitmap().at(index), "[%d] Bit not set at index " SIZE_FORMAT " corresponding to " PTR_FORMAT, _count, index, p2i(p));
     }
   }
 
