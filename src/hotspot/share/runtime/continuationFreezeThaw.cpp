@@ -2006,6 +2006,7 @@ NOINLINE intptr_t* ThawBase::thaw_slow(stackChunkOop chunk, bool return_barrier)
   _thread->set_cont_fastpath(_fastpath);
 
   intptr_t* sp = caller.sp();
+  log_develop_debug(continuations)("[slow_thaw] returning " INTPTR_FORMAT " (%d)", sp, __LINE__);
   return sp;
 }
 
