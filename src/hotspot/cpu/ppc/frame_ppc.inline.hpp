@@ -364,13 +364,7 @@ inline const ImmutableOopMap* frame::get_oop_map() const {
 
 inline int frame::compiled_frame_stack_argsize() const {
   assert(cb()->is_compiled(), "");
-  #if !defined(ELF_ABIv2)
-    return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
-  #else
-    // On AIX, space for 8 PWs (stack args) is allocated regardless of the actual number of arguments.
-    // TODO: Magic number are bad!
-    return (MAX2(cb()->as_compiled_method()->method()->num_stack_arg_slots(),8) * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
-  #endif
+  return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
 }
 
 inline void frame::interpreted_frame_oop_map(InterpreterOopMap* mask) const {
