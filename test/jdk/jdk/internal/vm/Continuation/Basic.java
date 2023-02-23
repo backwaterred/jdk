@@ -34,7 +34,8 @@
 * @build java.base/java.lang.StackWalkerHelper
 *
 * @enablePreview
-* @run testng/othervm -XX:+VerifyStack -Xcomp Basic
+* @run testng/othervm -XX:+VerifyStack -Xcomp -XX:TieredStopAtLevel=3 -XX:CompileOnly=jdk/internal/vm/Continuation,Basic Basic
+* @run testng/othervm -XX:+VerifyStack -Xcomp -XX:-TieredCompilation -XX:CompileOnly=jdk/internal/vm/Continuation,Basic Basic
 */
 
 import jdk.internal.vm.Continuation;
