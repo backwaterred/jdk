@@ -1122,7 +1122,7 @@ freeze_result FreezeBase::recurse_freeze_compiled_frame(frame& f, frame& caller,
   intptr_t* const stack_frame_bottom = ContinuationHelper::CompiledFrame::frame_bottom(f);
   // including metadata between f and its stackargs
   const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top;
-  AIX_ONLY(assert((argsize << LogBytesPerWord) >= abi_reg_args_size, "AIX always allows room for metadata + 8 PWs"));
+  AIX_ONLY(assert((argsize << LogBytesPerWord) >= frame::abi_reg_args_size, "AIX always allows room for metadata + 8 PWs"));
   const int fsize = stack_frame_bottom + argsize - stack_frame_top;
 
   log_develop_trace(continuations)("recurse_freeze_compiled_frame %s _size: %d fsize: %d argsize: %d",
