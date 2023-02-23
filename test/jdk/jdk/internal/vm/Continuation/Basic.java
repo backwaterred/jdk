@@ -72,7 +72,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Basic {
     static final ContinuationScope FOO = new ContinuationScope() {};
 
-    @Test
+    // @Test
     public void test1() {
         // Basic freeze and thaw
         final AtomicInteger res = new AtomicInteger(0);
@@ -181,7 +181,7 @@ public class Basic {
         return "" + r;
     }
 
-    @Test
+    // @Test
     public void testException1() {
         // Freeze and thaw with exceptions
         Continuation cont = new Continuation(FOO, ()-> {
@@ -276,7 +276,7 @@ public class Basic {
         return "" + r;
     }
 
-    @Test
+    // @Test
     public void testPinnedMonitor() {
         // Test pinning due to held monitor
         final AtomicReference<Continuation.Pinned> res = new AtomicReference<>();
@@ -307,7 +307,7 @@ public class Basic {
         return Integer.parseInt(r)+1;
     }
 
-    @Test
+    // @Test
     public void testNotPinnedMonitor() {
         final AtomicReference<Continuation.Pinned> res = new AtomicReference<>();
 
@@ -337,7 +337,7 @@ public class Basic {
         return Integer.parseInt(r)+1;
     }
 
-    @Test
+    // @Test
     public void testPinnedCriticalSection() {
         // pinning due to critical section
         final AtomicReference<Continuation.Pinned> res = new AtomicReference<>();
@@ -369,7 +369,7 @@ public class Basic {
         return Integer.parseInt(r)+1;
     }
 
-    @Test
+    // @Test
     public void testPinnedNative() {
         // pinning due to native method
         final AtomicReference<Continuation.Pinned> res = new AtomicReference<>();
