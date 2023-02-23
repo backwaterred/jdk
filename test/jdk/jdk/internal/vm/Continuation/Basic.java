@@ -242,7 +242,8 @@ public class Basic {
         x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20,
         f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
         o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20);
-        return Integer.parseInt(r)+1;
+        int r_int = Integer.parseInt(r);
+        return r_int+1;
     }
 
     static String barMany(long b,
