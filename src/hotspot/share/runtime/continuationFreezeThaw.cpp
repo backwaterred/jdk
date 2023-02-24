@@ -869,7 +869,8 @@ inline void FreezeBase::after_freeze_java_frame(const frame& hf, bool is_bottom_
 // The parameter argsize_md includes metadata that has to be part of caller/callee overlap.
 // See also StackChunkFrameStream<frame_kind>::frame_size()
 freeze_result FreezeBase::finalize_freeze(const frame& callee, frame& caller, int argsize_md) {
-  int argsize = argsize_md - frame::metadata_words_at_top;
+  int argsize = argsize_md - NOT_AIX(frame::metadata_words_at_top)
+                             AIX_ONLY(frame::abi_reg_args_size >> LogBytesPerWord);
   assert(callee.is_interpreted_frame()
     || callee.cb()->as_nmethod()->is_osr_method()
     || argsize == _cont.argsize(), "argsize: %d cont.argsize: %d", argsize, _cont.argsize());
