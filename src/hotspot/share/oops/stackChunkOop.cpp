@@ -556,10 +556,15 @@ bool stackChunkOopDesc::verify(size_t* out_size, int* out_oops, int* out_frames,
 
   assert(!is_empty() || closure._cb == nullptr, "");
   if (closure._cb != nullptr && closure._cb->is_compiled()) {
+    ResourceMark rm;
     assert(argsize() ==
       (closure._cb->as_compiled_method()->method()->num_stack_arg_slots()*VMRegImpl::stack_slot_size) >>LogBytesPerWord,
-      "chunk argsize: %d bottom frame argsize: %d", argsize(),
-      (closure._cb->as_compiled_method()->method()->num_stack_arg_slots()*VMRegImpl::stack_slot_size) >>LogBytesPerWord);
+      "While verify-ing: [%s %s]\nchunk argsize: %d bottom frame argsize: %d (%d * %d >> %d)",
+      closure._cb->as_compiled_method()->method()->name()->as_C_string(),
+      closure._cb->as_compiled_method()->method()->signature()->as_C_string(),
+      argsize(),
+      (closure._cb->as_compiled_method()->method()->num_stack_arg_slots()*VMRegImpl::stack_slot_size) >>LogBytesPerWord,
+      closure._cb->as_compiled_method()->method()->num_stack_arg_slots(), VMRegImpl::stack_slot_size, LogBytesPerWord);
   }
 
   assert(closure._num_interpreted_frames == 0 || has_mixed_frames(), "");

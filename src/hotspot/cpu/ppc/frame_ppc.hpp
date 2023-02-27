@@ -429,14 +429,19 @@
     // normal return address is 1 bundle past PC
     pc_return_offset                       = 0,
     // size, in words, of frame metadata (e.g. pc and link)
-    metadata_words                         = sizeof(abi_minframe) >> LogBytesPerWord,
+    // on AIX, this incudes backing storage PW1..8
+    #if !defined(ABI_ELFv2)
+      metadata_words                       = sizeof(abi_minframe) >> LogBytesPerWord,
+    #else
+      metadata_words                       = sizeof(abi_reg_args) >> LogBytesPerWord,
+    #endif
     // size, in words, of metadata at frame bottom, i.e. it is not part of the
     // caller/callee overlap
     metadata_words_at_bottom               = 0,
     // size, in words, of frame metadata at the frame top, i.e. it is located
     // between a callee frame and its stack arguments, where it is part
     // of the caller/callee overlap
-    metadata_words_at_top                  = sizeof(abi_minframe) >> LogBytesPerWord,
+    metadata_words_at_top                  = metadata_words,
     // size, in words, of frame metadata at the frame top that needs
     // to be reserved for callee functions in the runtime
     frame_alignment                        = 16,

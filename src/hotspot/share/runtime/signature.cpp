@@ -177,12 +177,12 @@ void Fingerprinter::compute_fingerprint_and_return_type(bool static_flag) {
     _param_size += 1;  // this is the convention for Method::compute_size_of_parameters
   }
 
-#if defined(_LP64) && !defined(ZERO)
+#if defined(_LP64) && !defined(ZERO) && !defined(AIX)
   _stack_arg_slots = align_up(_stack_arg_slots, 2);
-#ifdef ASSERT
-  int dbg_stack_arg_slots = compute_num_stack_arg_slots(_signature, _param_size, static_flag);
-  assert(_stack_arg_slots == dbg_stack_arg_slots, "fingerprinter: %d full: %d", _stack_arg_slots, dbg_stack_arg_slots);
-#endif
+  #ifdef ASSERT
+    int dbg_stack_arg_slots = compute_num_stack_arg_slots(_signature, _param_size, static_flag);
+    assert(_stack_arg_slots == dbg_stack_arg_slots, "fingerprinter: %d full: %d", _stack_arg_slots, dbg_stack_arg_slots);
+  #endif
 #else
   // Fallback: computed _stack_arg_slots is unreliable, compute directly.
   _stack_arg_slots = compute_num_stack_arg_slots(_signature, _param_size, static_flag);

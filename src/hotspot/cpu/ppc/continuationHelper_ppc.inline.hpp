@@ -47,7 +47,7 @@ inline void ContinuationHelper::update_register_map(const frame& f, RegisterMap*
 }
 
 inline void ContinuationHelper::update_register_map_with_callee(const frame& f, RegisterMap* map) {
-  Unimplemented();
+  // nothing to do
 }
 
 inline void ContinuationHelper::push_pd(const frame& f) {
