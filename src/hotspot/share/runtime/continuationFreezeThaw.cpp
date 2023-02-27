@@ -869,8 +869,7 @@ inline void FreezeBase::after_freeze_java_frame(const frame& hf, bool is_bottom_
 // The parameter argsize_md includes metadata that has to be part of caller/callee overlap.
 // See also StackChunkFrameStream<frame_kind>::frame_size()
 freeze_result FreezeBase::finalize_freeze(const frame& callee, frame& caller, int argsize_md) {
-  int argsize = argsize_md - frame::metadata_words_at_top
-                             AIX_ONLY(-8);
+  int argsize = argsize_md - frame::metadata_words_at_top;
   assert(callee.is_interpreted_frame()
     || callee.cb()->as_nmethod()->is_osr_method()
     || argsize == _cont.argsize(), "argsize: %d cont.argsize: %d", argsize, _cont.argsize());
@@ -1122,8 +1121,7 @@ freeze_result FreezeBase::recurse_freeze_compiled_frame(frame& f, frame& caller,
   intptr_t* const stack_frame_top = ContinuationHelper::CompiledFrame::frame_top(f, callee_argsize, callee_interpreted);
   intptr_t* const stack_frame_bottom = ContinuationHelper::CompiledFrame::frame_bottom(f);
   // including metadata between f and its stackargs
-  const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top AIX_ONLY(+8);
-  AIX_ONLY(assert((argsize << LogBytesPerWord) >= frame::abi_reg_args_size, "AIX always allows room for metadata + 8 PWs. argsize: %d, abi_reg_args_size: %d", argsize << LogBytesPerWord, frame::abi_reg_args_size));
+  const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top;
   const int fsize = stack_frame_bottom + argsize - stack_frame_top;
 
   log_develop_trace(continuations)("recurse_freeze_compiled_frame %s _size: %d fsize: %d argsize: %d",
@@ -2008,7 +2006,6 @@ NOINLINE intptr_t* ThawBase::thaw_slow(stackChunkOop chunk, bool return_barrier)
   _thread->set_cont_fastpath(_fastpath);
 
   intptr_t* sp = caller.sp();
-  log_develop_debug(continuations)("[slow_thaw] returning " INTPTR_FORMAT " (%d)", sp, __LINE__);
   return sp;
 }
 

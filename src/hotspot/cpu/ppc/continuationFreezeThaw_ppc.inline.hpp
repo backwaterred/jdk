@@ -515,8 +515,7 @@ template<typename FKind> frame ThawBase::new_stack_frame(const frame& hf, frame&
     return f;
   } else {
     int fsize = FKind::size(hf);
-    int argsize = NOT_AIX(hf.compiled_frame_stack_argsize())
-                  AIX_ONLY(MAX2(hf.compiled_frame_stack_argsize(),8));
+    int argsize = hf.compiled_frame_stack_argsize();
     intptr_t* frame_sp = caller.sp() - fsize;
 
     if ((bottom && argsize > 0) || caller.is_interpreted_frame()) {
