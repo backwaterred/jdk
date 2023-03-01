@@ -112,9 +112,11 @@ bool ContinuationEntry::assert_entry_frame_laid_out(JavaThread* thread) {
   assert(entry != nullptr, "");
 
   intptr_t* unextended_sp = entry->entry_sp();
+  log_develop_debug(continuations)("[assert_entry_frame_laid_out] unextended_sp: " INTPTR_FORMAT, unextended_sp);
   intptr_t* sp;
   if (entry->argsize() > 0) {
     sp = entry->bottom_sender_sp();
+    log_develop_debug(continuations)("[assert_entry_frame_laid_out] sp (argsize >0): " INTPTR_FORMAT, sp);
   } else {
     sp = unextended_sp;
     bool interpreted_bottom = false;
@@ -130,11 +132,15 @@ bool ContinuationEntry::assert_entry_frame_laid_out(JavaThread* thread) {
     }
     assert(Continuation::is_continuation_enterSpecial(f), "");
     sp = interpreted_bottom ? f.sp() : entry->bottom_sender_sp();
+    log_develop_debug(continuations)("[assert_entry_frame_laid_out] f.sp(): " INTPTR_FORMAT " entry->bottom_sender_sp(): " INTPTR_FORMAT, f.sp(), entry->bottom_sender_sp());
+    AIX_ONLY(sp -= 4);
+    log_develop_debug(continuations)("[assert_entry_frame_laid_out] sp (argsize 0): " INTPTR_FORMAT, sp);
   }
 
   assert(sp != nullptr, "");
   assert(sp <= entry->entry_sp(), "");
   address pc = *(address*)(sp - frame::sender_sp_ret_address_offset());
+  log_develop_debug(continuations)("[assert_entry_frame_laid_out] pc: " INTPTR_FORMAT " = *(" INTPTR_FORMAT " - %d)", pc, sp, frame::sender_sp_ret_address_offset());
 
   if (pc != StubRoutines::cont_returnBarrier()) {
     CodeBlob* cb = pc != nullptr ? CodeCache::find_blob(pc) : nullptr;
