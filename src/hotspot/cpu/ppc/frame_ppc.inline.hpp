@@ -364,7 +364,14 @@ inline const ImmutableOopMap* frame::get_oop_map() const {
 
 inline int frame::compiled_frame_stack_argsize() const {
   assert(cb()->is_compiled(), "");
-  return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
+  #ifndef AIX
+    return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
+  #else
+    // AIX ABI includes 8 Parameter Words in every stack frame.
+    int true_arg_slots = cb()->as_compiled_method()->method()->num_stack_arg_slots();
+    int aix_arg_slots = MAX2(true_arg_slots - 8, 0);
+    return (aix_arg_slots * VMRegImpl::stack_slot_size) >> LogBytesPerWord; 
+  #endif
 }
 
 inline void frame::interpreted_frame_oop_map(InterpreterOopMap* mask) const {
