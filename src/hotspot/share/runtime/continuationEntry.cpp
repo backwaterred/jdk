@@ -113,7 +113,8 @@ bool ContinuationEntry::assert_entry_frame_laid_out(JavaThread* thread) {
 
   intptr_t* unextended_sp = entry->entry_sp();
   intptr_t* sp;
-  if (entry->argsize() > 0) {
+  // Test: Skip this on AIX and use else-branch instead
+  if (AIX_ONLY(true ||) entry->argsize() > 0) {
     sp = entry->bottom_sender_sp();
     log_develop_trace(continuations)("[aeflo] sp = entry->bottom_sender_sp() -> " INTPTR_FORMAT, p2i(sp));
   } else {
