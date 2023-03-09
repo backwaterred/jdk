@@ -2225,7 +2225,7 @@ void ThawBase::recurse_thaw_compiled_frame(const frame& hf, frame& caller, int n
   assert(!is_bottom_frame || (_cont.entrySP() - 1 <= to + sz && to + sz <= _cont.entrySP()),
     "Expected !is_bottom_frame || (_cont.entrySP() - 1 <= to + sz && to + sz <= _cont.entrySP()\n"
     "Got      !%d || (" INTPTR_FORMAT " - 1 <= " INTPTR_FORMAT " + %d && " INTPTR_FORMAT " + %d <= " INTPTR_FORMAT,
-    is_bottom_frame, _cont.entrySP(), to, to, _cont.entrySP());
+    is_bottom_frame, _cont.entrySP(), to, sz, to, sz, _cont.entrySP());
   assert(!is_bottom_frame || hf.compiled_frame_stack_argsize() != 0 || (to + sz && to + sz == _cont.entrySP()), "");
 
   copy_from_chunk(from, to, sz); // copying good oops because we invoked barriers above
