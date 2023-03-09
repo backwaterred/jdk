@@ -515,6 +515,7 @@ template<typename FKind> frame ThawBase::new_stack_frame(const frame& hf, frame&
     return f;
   } else {
     int fsize = FKind::size(hf);
+    // argsize may be zero on AIX when <= 8 words of args are passed.
     int argsize = hf.compiled_frame_stack_argsize();
     intptr_t* frame_sp = caller.sp() - fsize;
 
