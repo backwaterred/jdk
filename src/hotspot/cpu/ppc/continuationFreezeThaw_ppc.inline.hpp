@@ -518,7 +518,7 @@ template<typename FKind> frame ThawBase::new_stack_frame(const frame& hf, frame&
     int argsize = hf.compiled_frame_stack_argsize();
     intptr_t* frame_sp = caller.sp() - fsize;
 
-    if ((bottom && argsize > 0) || caller.is_interpreted_frame()) {
+    if ((bottom && fsize > frame::metadata_words) || caller.is_interpreted_frame()) {
       frame_sp -= argsize + frame::metadata_words_at_top;
       frame_sp = align_down(frame_sp, frame::alignment_in_bytes);
       caller.set_sp(frame_sp + fsize);
