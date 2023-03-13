@@ -2224,7 +2224,7 @@ void ThawBase::recurse_thaw_compiled_frame(const frame& hf, frame& caller, int n
   // (we might have one padding word for alignment)
   assert(!is_bottom_frame || (_cont.entrySP() - 1 <= to + sz && to + sz <= _cont.entrySP()),
     "\nExpected !is_bottom_frame || (_cont.entrySP() - 1 <= to + sz && to + sz <= _cont.entrySP()"
-    "\nGot      !%d || (" INTPTR_FORMAT " - 1 <= " INTPTR_FORMAT " + %x && " INTPTR_FORMAT " + %x <= " INTPTR_FORMAT,
+    "\nGot      !%d || (" INTPTR_FORMAT " - 1 <= " INTPTR_FORMAT " + 0x%x && " INTPTR_FORMAT " + 0x%x <= " INTPTR_FORMAT,
     is_bottom_frame, _cont.entrySP(), to, sz, to, sz, _cont.entrySP());
   assert(!is_bottom_frame || hf.compiled_frame_stack_argsize() != 0 || (to + sz && to + sz == _cont.entrySP()), "");
 
