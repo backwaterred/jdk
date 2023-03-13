@@ -369,7 +369,7 @@ inline int frame::compiled_frame_stack_argsize() const {
   #else
     // AIX ABI includes 8 Parameter Words in every stack frame.
     int true_arg_slots = cb()->as_compiled_method()->method()->num_stack_arg_slots();
-    int aix_arg_slots = MAX2(true_arg_slots - 8, 0);
+    int aix_arg_slots = MAX2(true_arg_slots, 8);
     return (aix_arg_slots * VMRegImpl::stack_slot_size) >> LogBytesPerWord; 
   #endif
 }
