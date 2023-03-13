@@ -190,7 +190,7 @@ public:
   }
 
   void describe_chunk() {
-    _values.describe(-1, _chunk->start_address(), "CHUNK START");
+    // _values.describe(-1, _chunk->start_address(), "CHUNK START");
     _values.describe(-1, _chunk->sp_address(),         "CHUNK SP");
     _values.describe(-1, _chunk->bottom_address() - 1, "CHUNK ARGS");
     _values.describe(-1, _chunk->end_address() - 1,    "CHUNK END");
