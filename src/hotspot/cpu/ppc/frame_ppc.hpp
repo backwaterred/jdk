@@ -97,7 +97,8 @@
   };
 
   enum {
-    abi_minframe_size = sizeof(abi_minframe)
+    abi_minframe_size = NOT_AIX(sizeof(abi_minframe))
+                        AIX_ONLY(sizeof(abi_reg_args))
   };
 
   struct abi_reg_args : abi_minframe {
