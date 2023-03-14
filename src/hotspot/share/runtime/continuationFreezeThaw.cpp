@@ -2214,11 +2214,13 @@ void ThawBase::recurse_thaw_compiled_frame(const frame& hf, frame& caller, int n
   const int added_argsize = (is_bottom_frame || caller.is_interpreted_frame()) ? hf.compiled_frame_stack_argsize() : 0;
   int fsize = ContinuationHelper::CompiledFrame::size(hf) + added_argsize;
   assert(fsize <= (int)(caller.unextended_sp() - f.unextended_sp()), "");
+  log_develop_trace(continuations)("CF::size(hf): 0x%x, added_argsize: 0x%x", ContinuationHelper::CompiledFrame::size(hf), added_argsize);
 
   intptr_t* from = heap_frame_top - frame::metadata_words_at_bottom;
   intptr_t* to   = stack_frame_top - frame::metadata_words_at_bottom;
   // copy metadata, except the metadata at the top of the (unextended) entry frame
   int sz = fsize + frame::metadata_words_at_bottom + (is_bottom_frame NOT_AIX(&& added_argsize == 0) ? 0 : frame::metadata_words_at_top);
+  log_develop_trace(continuations)("sz: 0x%x, fsize: 0x%x", sz, fsize);
 
   // If we're the bottom-most thawed frame, we're writing to within one word from entrySP
   // (we might have one padding word for alignment)
