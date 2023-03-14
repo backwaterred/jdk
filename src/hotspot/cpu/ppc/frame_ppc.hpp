@@ -96,11 +96,6 @@
     // aligned to frame::alignment_in_bytes (16)
   };
 
-  enum {
-    abi_minframe_size = NOT_AIX(sizeof(abi_minframe))
-                        AIX_ONLY(sizeof(abi_reg_args))
-  };
-
   struct abi_reg_args : abi_minframe {
     uint64_t carg_1;
     uint64_t carg_2;                              //_16
@@ -111,6 +106,11 @@
     uint64_t carg_7;
     uint64_t carg_8;                              //_16
     // aligned to frame::alignment_in_bytes (16)
+  };
+
+  enum {
+    abi_minframe_size = NOT_AIX(sizeof(abi_minframe))
+                        AIX_ONLY(sizeof(abi_reg_args))
   };
 
   enum {
