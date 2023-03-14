@@ -96,10 +96,10 @@
     // aligned to frame::alignment_in_bytes (16)
   };
 
-
   enum {
     abi_minframe_size = sizeof(abi_minframe)
   };
+
   struct abi_reg_args : abi_minframe {
     uint64_t carg_1;
     uint64_t carg_2;                              //_16
