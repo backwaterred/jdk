@@ -2218,7 +2218,7 @@ void ThawBase::recurse_thaw_compiled_frame(const frame& hf, frame& caller, int n
   intptr_t* from = heap_frame_top - frame::metadata_words_at_bottom;
   intptr_t* to   = stack_frame_top - frame::metadata_words_at_bottom;
   // copy metadata, except the metadata at the top of the (unextended) entry frame
-  int sz = fsize + frame::metadata_words_at_bottom + (is_bottom_frame && added_argsize == 0 ? 0 : frame::metadata_words_at_top);
+  int sz = fsize + frame::metadata_words_at_bottom + (is_bottom_frame NOT_AIX(&& added_argsize == 0) ? 0 : frame::metadata_words_at_top);
 
   // If we're the bottom-most thawed frame, we're writing to within one word from entrySP
   // (we might have one padding word for alignment)
