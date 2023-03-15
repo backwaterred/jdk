@@ -33,6 +33,7 @@
 
 bool builtin_mul_overflow_inner (int ai, int bi, int* res) {
   Unimplemented();
+  return false;
 }
 
 // Information about the protection of the page at address '0' on this os.
