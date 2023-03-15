@@ -33,7 +33,7 @@
 
 // Mimics the behaviour of the GCC builtin which performs the operation and checks for overflow.
 // Required by AIX for the Harfbuzz version 7.0.1 upgrade.
-bool pd_mul_overflow(int ai, int bi, int* res) {
+bool os::pd_mul_overflow(int ai, int bi, int* res) {
   Unimplemented();
   return false;
 }
