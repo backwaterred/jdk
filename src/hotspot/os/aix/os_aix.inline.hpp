@@ -31,7 +31,9 @@
 #include "runtime/os.hpp"
 #include "os_posix.inline.hpp"
 
-bool builtin_mul_overflow_inner (int ai, int bi, int* res) {
+// Mimics the behaviour of the GCC builtin which performs the operation and checks for overflow.
+// Required by AIX for the Harfbuzz version 7.0.1 upgrade.
+bool pd_mul_overflow(int ai, int bi, int* res) {
   Unimplemented();
   return false;
 }

@@ -28,12 +28,6 @@
 
 #include "runtime/os.hpp"
 
-#define __builtin_mul_overflow(a, b, res) (builtin_mul_overflow_inner(a,b,res))
-
-// Mimics the behaviour of the GCC builtin which performs the operation and checks for overflow.
-// Required by AIX for the Harfbuzz version 7.0.1 upgrade.
-bool builtin_mul_overflow_inner (int a, int b, int* res);
-
 // Class Aix defines the interface to the Aix operating systems.
 
 class os::Aix {

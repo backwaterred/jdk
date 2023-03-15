@@ -147,6 +147,10 @@ enum WXMode {
 // os::commit_memory_or_exit().
 const bool ExecMem = true;
 
+#ifndef __buildin_mul_overflow
+  #define __builtin_mul_overflow(a, b, res) (pd_mul_overflow(a,b,res))
+#endif
+
 // Typedef for structured exception handling support
 typedef void (*java_call_t)(JavaValue* value, const methodHandle& method, JavaCallArguments* args, JavaThread* thread);
 
@@ -166,6 +170,8 @@ class os: AllStatic {
 #endif
 
  public:
+
+  pd_mul_overflow(int, int, int*);
 
   // A simple value class holding a set of page sizes (similar to sigset_t)
   class PageSizes {
