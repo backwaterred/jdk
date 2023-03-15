@@ -223,8 +223,8 @@ struct DeltaSetIndexMap
 struct VarStoreInstancer
 {
   VarStoreInstancer (const VariationStore &varStore,
-		     const DeltaSetIndexMap &varIdxMap,
-		     hb_array_t<int> coords) :
+                   const DeltaSetIndexMap &varIdxMap,
+                   hb_array_t<int> coords) :
     varStore (varStore), varIdxMap (varIdxMap), coords (coords) {}
 
   operator bool () const { return bool (coords); }

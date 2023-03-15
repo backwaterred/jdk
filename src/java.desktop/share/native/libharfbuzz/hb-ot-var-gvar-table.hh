@@ -67,7 +67,7 @@ struct contour_point_vector_t : hb_vector_t<contour_point_t>
   void transform (const float (&matrix)[4])
   {
     if (matrix[0] == 1.f && matrix[1] == 0.f &&
-	matrix[2] == 0.f && matrix[3] == 1.f)
+       matrix[2] == 0.f && matrix[3] == 1.f)
       return;
     auto arrayZ = this->arrayZ;
     unsigned count = length;
@@ -75,7 +75,7 @@ struct contour_point_vector_t : hb_vector_t<contour_point_t>
     {
       contour_point_t &p = arrayZ[i];
       float x_ = p.x * matrix[0] + p.y * matrix[2];
-	   p.y = p.x * matrix[1] + p.y * matrix[3];
+          p.y = p.x * matrix[1] + p.y * matrix[3];
       p.x = x_;
     }
   }
@@ -102,10 +102,10 @@ struct gvar
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && (version.major == 1) &&
-		  sharedTuples.sanitize (c, this, axisCount * sharedTupleCount) &&
-		  (is_long_offset () ?
-		     c->check_array (get_long_offset_array (), glyphCount+1) :
-		     c->check_array (get_short_offset_array (), glyphCount+1)));
+                sharedTuples.sanitize (c, this, axisCount * sharedTupleCount) &&
+                (is_long_offset () ?
+                   c->check_array (get_long_offset_array (), glyphCount+1) :
+                   c->check_array (get_short_offset_array (), glyphCount+1)));
   }
 
   /* GlyphVariationData not sanitized here; must be checked while accessing each glyph variation data */
@@ -166,16 +166,16 @@ struct gvar
     {
       hb_codepoint_t old_gid;
       hb_bytes_t var_data_bytes = c->plan->old_gid_for_new_gid (gid, &old_gid)
-				? get_glyph_var_data_bytes (c->source_blob, old_gid)
-				: hb_bytes_t ();
+                            ? get_glyph_var_data_bytes (c->source_blob, old_gid)
+                            : hb_bytes_t ();
 
       if (long_offset)
-	((HBUINT32 *) subset_offsets)[gid] = glyph_offset;
+       ((HBUINT32 *) subset_offsets)[gid] = glyph_offset;
       else
-	((HBUINT16 *) subset_offsets)[gid] = glyph_offset / 2;
+       ((HBUINT16 *) subset_offsets)[gid] = glyph_offset / 2;
 
       if (var_data_bytes.length > 0)
-	hb_memcpy (subset_data, var_data_bytes.arrayZ, var_data_bytes.length);
+       hb_memcpy (subset_data, var_data_bytes.arrayZ, var_data_bytes.length);
       subset_data += var_data_bytes.length;
       glyph_offset += var_data_bytes.length;
     }
@@ -220,9 +220,9 @@ struct gvar
     private:
 
     static float infer_delta (const hb_array_t<contour_point_t> points,
-			      const hb_array_t<contour_point_t> deltas,
-			      unsigned int target, unsigned int prev, unsigned int next,
-			      float contour_point_t::*m)
+                           const hb_array_t<contour_point_t> deltas,
+                           unsigned int target, unsigned int prev, unsigned int next,
+                           float contour_point_t::*m)
     {
       float target_val = points.arrayZ[target].*m;
       float prev_val = points.arrayZ[prev].*m;
@@ -231,11 +231,11 @@ struct gvar
       float next_delta =  deltas.arrayZ[next].*m;
 
       if (prev_val == next_val)
-	return (prev_delta == next_delta) ? prev_delta : 0.f;
+       return (prev_delta == next_delta) ? prev_delta : 0.f;
       else if (target_val <= hb_min (prev_val, next_val))
-	return (prev_val < next_val) ? prev_delta : next_delta;
+       return (prev_val < next_val) ? prev_delta : next_delta;
       else if (target_val >= hb_max (prev_val, next_val))
-	return (prev_val > next_val) ? prev_delta : next_delta;
+       return (prev_val > next_val) ? prev_delta : next_delta;
 
       /* linear interpolation */
       float r = (target_val - prev_val) / (next_val - prev_val);
@@ -247,8 +247,8 @@ struct gvar
 
     public:
     bool apply_deltas_to_points (hb_codepoint_t glyph,
-				 hb_array_t<int> coords,
-				 const hb_array_t<contour_point_t> points) const
+                             hb_array_t<int> coords,
+                             const hb_array_t<contour_point_t> points) const
     {
       if (!coords) return true;
 
@@ -259,9 +259,9 @@ struct gvar
       hb_vector_t<unsigned int> shared_indices;
       GlyphVariationData::tuple_iterator_t iterator;
       if (!GlyphVariationData::get_tuple_iterator (var_data_bytes, table->axisCount,
-						   var_data_bytes.arrayZ,
-						   shared_indices, &iterator))
-	return true; /* so isn't applied at all */
+                                             var_data_bytes.arrayZ,
+                                             shared_indices, &iterator))
+       return true; /* so isn't applied at all */
 
       /* Save original points for inferred delta calculation */
       contour_point_vector_t orig_points_vec;
@@ -275,8 +275,8 @@ struct gvar
 
       hb_vector_t<unsigned> end_points;
       for (unsigned i = 0; i < points.length; ++i)
-	if (points.arrayZ[i].is_end_point)
-	  end_points.push (i);
+       if (points.arrayZ[i].is_end_point)
+         end_points.push (i);
 
       unsigned num_coords = table->axisCount;
       hb_array_t<const F2DOT14> shared_tuples = (table+table->sharedTuples).as_array (table->sharedTupleCount * table->axisCount);
@@ -286,114 +286,114 @@ struct gvar
       hb_vector_t<int> y_deltas;
       do
       {
-	float scalar = iterator.current_tuple->calculate_scalar (coords, num_coords, shared_tuples);
-	if (scalar == 0.f) continue;
-	const HBUINT8 *p = iterator.get_serialized_data ();
-	unsigned int length = iterator.current_tuple->get_data_size ();
-	if (unlikely (!iterator.var_data_bytes.check_range (p, length)))
-	  return false;
+       float scalar = iterator.current_tuple->calculate_scalar (coords, num_coords, shared_tuples);
+       if (scalar == 0.f) continue;
+       const HBUINT8 *p = iterator.get_serialized_data ();
+       unsigned int length = iterator.current_tuple->get_data_size ();
+       if (unlikely (!iterator.var_data_bytes.check_range (p, length)))
+         return false;
 
-	const HBUINT8 *end = p + length;
+       const HBUINT8 *end = p + length;
 
-	bool has_private_points = iterator.current_tuple->has_private_points ();
-	if (has_private_points &&
-	    !GlyphVariationData::unpack_points (p, private_indices, end))
-	  return false;
-	const hb_array_t<unsigned int> &indices = has_private_points ? private_indices : shared_indices;
+       bool has_private_points = iterator.current_tuple->has_private_points ();
+       if (has_private_points &&
+           !GlyphVariationData::unpack_points (p, private_indices, end))
+         return false;
+       const hb_array_t<unsigned int> &indices = has_private_points ? private_indices : shared_indices;
 
-	bool apply_to_all = (indices.length == 0);
-	unsigned int num_deltas = apply_to_all ? points.length : indices.length;
-	if (unlikely (!x_deltas.resize (num_deltas, false))) return false;
-	if (unlikely (!GlyphVariationData::unpack_deltas (p, x_deltas, end))) return false;
-	if (unlikely (!y_deltas.resize (num_deltas, false))) return false;
-	if (unlikely (!GlyphVariationData::unpack_deltas (p, y_deltas, end))) return false;
+       bool apply_to_all = (indices.length == 0);
+       unsigned int num_deltas = apply_to_all ? points.length : indices.length;
+       if (unlikely (!x_deltas.resize (num_deltas, false))) return false;
+       if (unlikely (!GlyphVariationData::unpack_deltas (p, x_deltas, end))) return false;
+       if (unlikely (!y_deltas.resize (num_deltas, false))) return false;
+       if (unlikely (!GlyphVariationData::unpack_deltas (p, y_deltas, end))) return false;
 
-	hb_memset (deltas.arrayZ, 0, deltas.get_size ());
+       hb_memset (deltas.arrayZ, 0, deltas.get_size ());
 
-	unsigned ref_points = 0;
-	if (scalar != 1.0f)
-	  for (unsigned int i = 0; i < num_deltas; i++)
-	  {
-	    unsigned int pt_index = apply_to_all ? i : indices[i];
-	    if (unlikely (pt_index >= deltas.length)) continue;
-	    auto &delta = deltas.arrayZ[pt_index];
-	    ref_points += !delta.flag;
-	    delta.flag = 1;	/* this point is referenced, i.e., explicit deltas specified */
-	    delta.x += x_deltas.arrayZ[i] * scalar;
-	    delta.y += y_deltas.arrayZ[i] * scalar;
-	  }
-	else
-	  for (unsigned int i = 0; i < num_deltas; i++)
-	  {
-	    unsigned int pt_index = apply_to_all ? i : indices[i];
-	    if (unlikely (pt_index >= deltas.length)) continue;
-	    auto &delta = deltas.arrayZ[pt_index];
-	    ref_points += !delta.flag;
-	    delta.flag = 1;	/* this point is referenced, i.e., explicit deltas specified */
-	    delta.x += x_deltas.arrayZ[i];
-	    delta.y += y_deltas.arrayZ[i];
-	  }
+       unsigned ref_points = 0;
+       if (scalar != 1.0f)
+         for (unsigned int i = 0; i < num_deltas; i++)
+         {
+           unsigned int pt_index = apply_to_all ? i : indices[i];
+           if (unlikely (pt_index >= deltas.length)) continue;
+           auto &delta = deltas.arrayZ[pt_index];
+           ref_points += !delta.flag;
+           delta.flag = 1;       /* this point is referenced, i.e., explicit deltas specified */
+           delta.x += x_deltas.arrayZ[i] * scalar;
+           delta.y += y_deltas.arrayZ[i] * scalar;
+         }
+       else
+         for (unsigned int i = 0; i < num_deltas; i++)
+         {
+           unsigned int pt_index = apply_to_all ? i : indices[i];
+           if (unlikely (pt_index >= deltas.length)) continue;
+           auto &delta = deltas.arrayZ[pt_index];
+           ref_points += !delta.flag;
+           delta.flag = 1;       /* this point is referenced, i.e., explicit deltas specified */
+           delta.x += x_deltas.arrayZ[i];
+           delta.y += y_deltas.arrayZ[i];
+         }
 
-	/* infer deltas for unreferenced points */
-	if (ref_points && ref_points < orig_points.length)
-	{
-	  unsigned start_point = 0;
-	  for (unsigned c = 0; c < end_points.length; c++)
-	  {
-	    unsigned end_point = end_points.arrayZ[c];
+       /* infer deltas for unreferenced points */
+       if (ref_points && ref_points < orig_points.length)
+       {
+         unsigned start_point = 0;
+         for (unsigned c = 0; c < end_points.length; c++)
+         {
+           unsigned end_point = end_points.arrayZ[c];
 
-	    /* Check the number of unreferenced points in a contour. If no unref points or no ref points, nothing to do. */
-	    unsigned unref_count = 0;
-	    for (unsigned i = start_point; i < end_point + 1; i++)
-	      unref_count += deltas.arrayZ[i].flag;
-	    unref_count = (end_point - start_point + 1) - unref_count;
+           /* Check the number of unreferenced points in a contour. If no unref points or no ref points, nothing to do. */
+           unsigned unref_count = 0;
+           for (unsigned i = start_point; i < end_point + 1; i++)
+             unref_count += deltas.arrayZ[i].flag;
+           unref_count = (end_point - start_point + 1) - unref_count;
 
-	    unsigned j = start_point;
-	    if (unref_count == 0 || unref_count > end_point - start_point)
-	      goto no_more_gaps;
+           unsigned j = start_point;
+           if (unref_count == 0 || unref_count > end_point - start_point)
+             goto no_more_gaps;
 
-	    for (;;)
-	    {
-	      /* Locate the next gap of unreferenced points between two referenced points prev and next.
-	       * Note that a gap may wrap around at left (start_point) and/or at right (end_point).
-	       */
-	      unsigned int prev, next, i;
-	      for (;;)
-	      {
-		i = j;
-		j = next_index (i, start_point, end_point);
-		if (deltas.arrayZ[i].flag && !deltas.arrayZ[j].flag) break;
-	      }
-	      prev = j = i;
-	      for (;;)
-	      {
-		i = j;
-		j = next_index (i, start_point, end_point);
-		if (!deltas.arrayZ[i].flag && deltas.arrayZ[j].flag) break;
-	      }
-	      next = j;
-	      /* Infer deltas for all unref points in the gap between prev and next */
-	      i = prev;
-	      for (;;)
-	      {
-		i = next_index (i, start_point, end_point);
-		if (i == next) break;
-		deltas.arrayZ[i].x = infer_delta (orig_points, deltas, i, prev, next, &contour_point_t::x);
-		deltas.arrayZ[i].y = infer_delta (orig_points, deltas, i, prev, next, &contour_point_t::y);
-		if (--unref_count == 0) goto no_more_gaps;
-	      }
-	    }
-	  no_more_gaps:
-	    start_point = end_point + 1;
-	  }
-	}
+           for (;;)
+           {
+             /* Locate the next gap of unreferenced points between two referenced points prev and next.
+              * Note that a gap may wrap around at left (start_point) and/or at right (end_point).
+              */
+             unsigned int prev, next, i;
+             for (;;)
+             {
+              i = j;
+              j = next_index (i, start_point, end_point);
+              if (deltas.arrayZ[i].flag && !deltas.arrayZ[j].flag) break;
+             }
+             prev = j = i;
+             for (;;)
+             {
+              i = j;
+              j = next_index (i, start_point, end_point);
+              if (!deltas.arrayZ[i].flag && deltas.arrayZ[j].flag) break;
+             }
+             next = j;
+             /* Infer deltas for all unref points in the gap between prev and next */
+             i = prev;
+             for (;;)
+             {
+              i = next_index (i, start_point, end_point);
+              if (i == next) break;
+              deltas.arrayZ[i].x = infer_delta (orig_points, deltas, i, prev, next, &contour_point_t::x);
+              deltas.arrayZ[i].y = infer_delta (orig_points, deltas, i, prev, next, &contour_point_t::y);
+              if (--unref_count == 0) goto no_more_gaps;
+             }
+           }
+         no_more_gaps:
+           start_point = end_point + 1;
+         }
+       }
 
-	/* apply specified / inferred deltas to points */
-	for (unsigned int i = 0; i < points.length; i++)
-	{
-	  points.arrayZ[i].x += deltas.arrayZ[i].x;
-	  points.arrayZ[i].y += deltas.arrayZ[i].y;
-	}
+       /* apply specified / inferred deltas to points */
+       for (unsigned int i = 0; i < points.length; i++)
+       {
+         points.arrayZ[i].x += deltas.arrayZ[i].x;
+         points.arrayZ[i].y += deltas.arrayZ[i].y;
+       }
       } while (iterator.move_to_next ());
 
       return true;
@@ -406,29 +406,29 @@ struct gvar
   };
 
   protected:
-  FixedVersion<>version;	/* Version number of the glyph variations table
-				 * Set to 0x00010000u. */
-  HBUINT16	axisCount;	/* The number of variation axes for this font. This must be
-				 * the same number as axisCount in the 'fvar' table. */
-  HBUINT16	sharedTupleCount;
-				/* The number of shared tuple records. Shared tuple records
-				 * can be referenced within glyph variation data tables for
-				 * multiple glyphs, as opposed to other tuple records stored
-				 * directly within a glyph variation data table. */
+  FixedVersion<>version;       /* Version number of the glyph variations table
+                             * Set to 0x00010000u. */
+  HBUINT16       axisCount;       /* The number of variation axes for this font. This must be
+                             * the same number as axisCount in the 'fvar' table. */
+  HBUINT16       sharedTupleCount;
+                            /* The number of shared tuple records. Shared tuple records
+                             * can be referenced within glyph variation data tables for
+                             * multiple glyphs, as opposed to other tuple records stored
+                             * directly within a glyph variation data table. */
   NNOffset32To<UnsizedArrayOf<F2DOT14>>
-		sharedTuples;	/* Offset from the start of this table to the shared tuple records.
-				 * Array of tuple records shared across all glyph variation data tables. */
-  HBUINT16	glyphCount;	/* The number of glyphs in this font. This must match the number of
-				 * glyphs stored elsewhere in the font. */
-  HBUINT16	flags;		/* Bit-field that gives the format of the offset array that follows.
-				 * If bit 0 is clear, the offsets are uint16; if bit 0 is set, the
-				 * offsets are uint32. */
+              sharedTuples;       /* Offset from the start of this table to the shared tuple records.
+                             * Array of tuple records shared across all glyph variation data tables. */
+  HBUINT16       glyphCount;       /* The number of glyphs in this font. This must match the number of
+                             * glyphs stored elsewhere in the font. */
+  HBUINT16       flags;              /* Bit-field that gives the format of the offset array that follows.
+                             * If bit 0 is clear, the offsets are uint16; if bit 0 is set, the
+                             * offsets are uint32. */
   Offset32To<GlyphVariationData>
-		dataZ;		/* Offset from the start of this table to the array of
-				 * GlyphVariationData tables. */
+              dataZ;              /* Offset from the start of this table to the array of
+                             * GlyphVariationData tables. */
   UnsizedArrayOf<HBUINT8>
-		offsetZ;	/* Offsets from the start of the GlyphVariationData array
-				 * to each GlyphVariationData table. */
+              offsetZ;       /* Offsets from the start of the GlyphVariationData array
+                             * to each GlyphVariationData table. */
   public:
   DEFINE_SIZE_ARRAY (20, offsetZ);
 };

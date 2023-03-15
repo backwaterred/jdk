@@ -44,8 +44,8 @@ struct cvar
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-		  version.sanitize (c) && likely (version.major == 1) &&
-		  tupleVariationData.sanitize (c));
+                version.sanitize (c) && likely (version.major == 1) &&
+                tupleVariationData.sanitize (c));
   }
 
   const TupleVariationData* get_tuple_var_data (void) const
@@ -145,8 +145,8 @@ struct cvar
   }
 
   protected:
-  FixedVersion<>version;		/* Version of the CVT variation table
-					 * initially set to 0x00010000u */
+  FixedVersion<>version;              /* Version of the CVT variation table
+                                    * initially set to 0x00010000u */
   TupleVariationData tupleVariationData; /* TupleVariationDate for cvar table */
   public:
   DEFINE_SIZE_MIN (8);

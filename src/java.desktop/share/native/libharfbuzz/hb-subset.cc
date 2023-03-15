@@ -191,8 +191,8 @@ _get_table_tags (const hb_subset_plan_t* plan,
 
 static unsigned
 _plan_estimate_subset_table_size (hb_subset_plan_t *plan,
-				  unsigned table_len,
-				  bool same_size)
+                              unsigned table_len,
+                              bool same_size)
 {
   unsigned src_glyphs = plan->source->get_num_glyphs ();
   unsigned dst_glyphs = plan->glyphset ()->get_population ();
@@ -251,7 +251,7 @@ _try_subset (const TableType *table,
              HB_UNTAG (c->table_tag), buf_size);
 
   if (unlikely (buf_size > c->source_blob->length * 16 ||
-		!buf->alloc (buf_size, true)))
+              !buf->alloc (buf_size, true)))
   {
     DEBUG_MSG (SUBSET, nullptr, "OT::%c%c%c%c failed to reallocate %u bytes.",
                HB_UNTAG (c->table_tag), buf_size);
@@ -281,8 +281,8 @@ _subset (hb_subset_plan_t *plan, hb_vector_t<char> &buf)
   /* Tables that we want to allocate same space as the source table. For GSUB/GPOS it's
    * because those are expensive to subset, so giving them more room is fine. */
   bool same_size_table = TableType::tableTag == HB_OT_TAG_GSUB ||
-			 TableType::tableTag == HB_OT_TAG_GPOS ||
-			 TableType::tableTag == HB_OT_TAG_name;
+                      TableType::tableTag == HB_OT_TAG_GPOS ||
+                      TableType::tableTag == HB_OT_TAG_name;
 
   unsigned buf_size = _plan_estimate_subset_table_size (plan, source_blob.get_length (), same_size_table);
   DEBUG_MSG (SUBSET, nullptr,
@@ -347,7 +347,7 @@ _is_table_present (hb_face_t *source, hb_tag_t tag)
   {
     for (unsigned i = 0; i < num_tables; ++i)
       if (table_tags[i] == tag)
-	return true;
+       return true;
     offset += num_tables;
   }
   return false;
@@ -423,8 +423,8 @@ _dependencies_satisfied (hb_subset_plan_t *plan, hb_tag_t tag,
 
 static bool
 _subset_table (hb_subset_plan_t *plan,
-	       hb_vector_t<char> &buf,
-	       hb_tag_t tag)
+              hb_vector_t<char> &buf,
+              hb_tag_t tag)
 {
   if (plan->no_subset_tables.has (tag)) {
     return _passthrough (plan, tag);
