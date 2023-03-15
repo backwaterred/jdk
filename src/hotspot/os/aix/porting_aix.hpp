@@ -107,4 +107,8 @@ class AixMisc {
 
 };
 
+// Mimics the behaviour of the GCC builtin which performs the operation and checks for overflow.
+// Required by AIX for the Harfbuzz version 7.0.1 upgrade.
+bool __builtin_mul_overflow (type1 a, type2 b, type3 *res);
+
 #endif // OS_AIX_PORTING_AIX_HPP
