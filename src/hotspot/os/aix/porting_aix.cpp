@@ -886,6 +886,6 @@ bool AixMisc::query_stack_bounds_for_current_thread(stackbounds_t* out) {
 
 }
 
-bool __builtin_mul_overflow (type1 a, type2 b, type3 *res) {
+bool builtin_mul_overflow_inner (int a, int b, int* res) {
   Unimplemented();
 }

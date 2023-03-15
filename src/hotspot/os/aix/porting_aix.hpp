@@ -107,8 +107,11 @@ class AixMisc {
 
 };
 
+#ifndef __builtin_mul_overflow
+#define __builtin_mul_overflow(a, b, res) (builtin_mul_overflow_inner(a,b,res))
+
 // Mimics the behaviour of the GCC builtin which performs the operation and checks for overflow.
 // Required by AIX for the Harfbuzz version 7.0.1 upgrade.
-bool __builtin_mul_overflow (type1 a, type2 b, type3 *res);
+bool builtin_mul_overflow_inner (int a, int b, int* res);
 
 #endif // OS_AIX_PORTING_AIX_HPP
