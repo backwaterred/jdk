@@ -31,6 +31,10 @@
 #include "runtime/os.hpp"
 #include "os_posix.inline.hpp"
 
+bool builtin_mul_overflow_inner (int ai, int bi, int* res) {
+  Unimplemented();
+}
+
 // Information about the protection of the page at address '0' on this os.
 inline bool os::zero_page_read_protected() {
   return false;
