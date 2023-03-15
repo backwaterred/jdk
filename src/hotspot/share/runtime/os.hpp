@@ -171,7 +171,7 @@ class os: AllStatic {
 
  public:
 
-  pd_mul_overflow(int, int, int*);
+  bool pd_mul_overflow(int, int, int*);
 
   // A simple value class holding a set of page sizes (similar to sigset_t)
   class PageSizes {
