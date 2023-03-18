@@ -1121,7 +1121,7 @@ freeze_result FreezeBase::recurse_freeze_compiled_frame(frame& f, frame& caller,
   intptr_t* const stack_frame_top = ContinuationHelper::CompiledFrame::frame_top(f, callee_argsize, callee_interpreted);
   intptr_t* const stack_frame_bottom = ContinuationHelper::CompiledFrame::frame_bottom(f);
   // including metadata between f and its stackargs
-  const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top;
+  const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top AIX_ONLY(-8);
   const int fsize = stack_frame_bottom + argsize - stack_frame_top;
 
   log_develop_trace(continuations)("recurse_freeze_compiled_frame %s _size: %d fsize: %d argsize: %d",
@@ -1805,7 +1805,7 @@ public:
     assert(_base - 1 <= top() + total_size() + frame::metadata_words_at_bottom, "missed entry frame");
   }
 
-  int entry_frame_extension() const { return _argsize + (_argsize > 0 ? frame::metadata_words_at_top : 0); }
+  int entry_frame_extension() const { return _argsize + (_argsize > 0 ? (frame::metadata_words_at_top AIX_ONLY(-8)) : 0); }
 
   // top and bottom stack pointers
   intptr_t* sp() const { return ContinuationHelper::frame_align_pointer(_base - _thaw_size); }
@@ -1849,7 +1849,7 @@ inline void ThawBase::clear_chunk(stackChunkOop chunk) {
   assert(empty == chunk->is_empty(), "");
   // returns the size required to store the frame on stack, and because it is a
   // compiled frame, it must include a copy of the arguments passed by the caller
-  return frame_size + argsize + frame::metadata_words_at_top;
+  return frame_size + argsize + frame::metadata_words_at_top AIX_ONLY(-8);
 }
 
 void ThawBase::copy_from_chunk(intptr_t* from, intptr_t* to, int size) {

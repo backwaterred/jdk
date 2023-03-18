@@ -296,7 +296,7 @@ frame FreezeBase::new_heap_frame(frame& f, frame& caller) {
       // If the caller is interpreted, our stackargs are not supposed to overlap with it
       // so we make more room by moving sp down by argsize
       int argsize = FKind::stack_argsize(f);
-      sp -= argsize + frame::metadata_words_at_top;
+      sp -= argsize + frame::metadata_words_at_top AIX_ONLY(-8);
     }
     fp = sp + fsize;
     caller.set_sp(fp);
@@ -519,7 +519,7 @@ template<typename FKind> frame ThawBase::new_stack_frame(const frame& hf, frame&
     intptr_t* frame_sp = caller.sp() - fsize;
 
     if ((bottom && argsize > 0) || caller.is_interpreted_frame()) {
-      frame_sp -= argsize + frame::metadata_words_at_top;
+      frame_sp -= argsize + frame::metadata_words_at_top AIX_ONLY(-8);
       frame_sp = align_down(frame_sp, frame::alignment_in_bytes);
       caller.set_sp(frame_sp + fsize);
     }
