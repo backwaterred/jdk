@@ -364,7 +364,13 @@ inline const ImmutableOopMap* frame::get_oop_map() const {
 
 inline int frame::compiled_frame_stack_argsize() const {
   assert(cb()->is_compiled(), "");
-  return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
+  #ifndef (ABI_ELFv2)
+    return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
+  #else
+    int true_argsize = cb()->as_compiled_method()->method()->num_stack_arg_slots();
+    int aix_argsize  = MAX2(true_argsize,8);
+    return (aix_argsize * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
+  #endif
 }
 
 inline void frame::interpreted_frame_oop_map(InterpreterOopMap* mask) const {
