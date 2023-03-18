@@ -364,7 +364,7 @@ inline const ImmutableOopMap* frame::get_oop_map() const {
 
 inline int frame::compiled_frame_stack_argsize() const {
   assert(cb()->is_compiled(), "");
-  #ifndef (ABI_ELFv2)
+  #if !defined(ABI_ELFv2)
     return (cb()->as_compiled_method()->method()->num_stack_arg_slots() * VMRegImpl::stack_slot_size) >> LogBytesPerWord;
   #else
     int true_argsize = cb()->as_compiled_method()->method()->num_stack_arg_slots();

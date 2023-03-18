@@ -429,7 +429,7 @@
     // normal return address is 1 bundle past PC
     pc_return_offset                       = 0,
     // size, in words, of frame metadata (e.g. pc and link)
-    #ifndef (ABI_ELFv2)
+    #if !defined(ABI_ELFv2)
       metadata_words                       = sizeof(abi_minframe) >> LogBytesPerWord,
     #else
       metadata_words                       = abi_reg_args_size >> LogBytesPerWord,
