@@ -47,46 +47,46 @@ struct path_builder_t
     {
       if (is_on_curve)
       {
-        first_oncurve = p;
-        draw_session->move_to (p.x, p.y);
+	first_oncurve = p;
+	draw_session->move_to (p.x, p.y);
       }
       else
       {
-        if (first_offcurve)
-        {
-          optional_point_t mid = first_offcurve.lerp (p, .5f);
-          first_oncurve = mid;
-          last_offcurve = p;
-          draw_session->move_to (mid.x, mid.y);
-        }
-        else
-          first_offcurve = p;
+	if (first_offcurve)
+	{
+	  optional_point_t mid = first_offcurve.lerp (p, .5f);
+	  first_oncurve = mid;
+	  last_offcurve = p;
+	  draw_session->move_to (mid.x, mid.y);
+	}
+	else
+	  first_offcurve = p;
       }
     }
     else
     {
       if (last_offcurve)
       {
-        if (is_on_curve)
-        {
-          draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
-                                     p.x, p.y);
-          last_offcurve = optional_point_t ();
-        }
-        else
-        {
-          optional_point_t mid = last_offcurve.lerp (p, .5f);
-          draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
-                                     mid.x, mid.y);
-          last_offcurve = p;
-        }
+	if (is_on_curve)
+	{
+	  draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
+				     p.x, p.y);
+	  last_offcurve = optional_point_t ();
+	}
+	else
+	{
+	  optional_point_t mid = last_offcurve.lerp (p, .5f);
+	  draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
+				     mid.x, mid.y);
+	  last_offcurve = p;
+	}
       }
       else
       {
-        if (is_on_curve)
-          draw_session->line_to (p.x, p.y);
-        else
-          last_offcurve = p;
+	if (is_on_curve)
+	  draw_session->line_to (p.x, p.y);
+	else
+	  last_offcurve = p;
       }
     }
 
@@ -94,26 +94,26 @@ struct path_builder_t
     {
       if (first_offcurve && last_offcurve)
       {
-        optional_point_t mid = last_offcurve.lerp (first_offcurve, .5f);
-        draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
-                                   mid.x, mid.y);
-        last_offcurve = optional_point_t ();
-        /* now check the rest */
+	optional_point_t mid = last_offcurve.lerp (first_offcurve, .5f);
+	draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
+				   mid.x, mid.y);
+	last_offcurve = optional_point_t ();
+	/* now check the rest */
       }
 
       if (first_offcurve && first_oncurve)
-        draw_session->quadratic_to (first_offcurve.x, first_offcurve.y,
-                                   first_oncurve.x, first_oncurve.y);
+	draw_session->quadratic_to (first_offcurve.x, first_offcurve.y,
+				   first_oncurve.x, first_oncurve.y);
       else if (last_offcurve && first_oncurve)
-        draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
-                                   first_oncurve.x, first_oncurve.y);
+	draw_session->quadratic_to (last_offcurve.x, last_offcurve.y,
+				   first_oncurve.x, first_oncurve.y);
       else if (first_oncurve)
-        draw_session->line_to (first_oncurve.x, first_oncurve.y);
+	draw_session->line_to (first_oncurve.x, first_oncurve.y);
       else if (first_offcurve)
       {
-        float x = first_offcurve.x, y = first_offcurve.y;
-        draw_session->move_to (x, y);
-        draw_session->quadratic_to (x, y, x, y);
+	float x = first_offcurve.x, y = first_offcurve.y;
+	draw_session->move_to (x, y);
+	draw_session->quadratic_to (x, y, x, y);
       }
 
       /* Getting ready for the next contour */

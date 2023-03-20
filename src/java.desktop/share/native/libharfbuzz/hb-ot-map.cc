@@ -43,7 +43,7 @@ void hb_ot_map_t::collect_lookups (unsigned int table_index, hb_set_t *lookups_o
 
 
 hb_ot_map_builder_t::hb_ot_map_builder_t (hb_face_t *face_,
-                                          const hb_segment_properties_t *props_)
+					  const hb_segment_properties_t &props_)
 {
   memset (this, 0, sizeof (*this));
 
@@ -52,7 +52,7 @@ hb_ot_map_builder_t::hb_ot_map_builder_t (hb_face_t *face_,
     stages[table_index].init ();
 
   face = face_;
-  props = *props_;
+  props = props_;
 
   /* Fetch script/language indices for GSUB/GPOS.  We need these later to skip
    * features not available in either table and not waste precious bits for them. */
@@ -63,27 +63,27 @@ hb_ot_map_builder_t::hb_ot_map_builder_t (hb_face_t *face_,
   hb_tag_t language_tags[HB_OT_MAX_TAGS_PER_LANGUAGE];
 
   hb_ot_tags_from_script_and_language (props.script,
-                                       props.language,
-                                       &script_count,
-                                       script_tags,
-                                       &language_count,
-                                       language_tags);
+				       props.language,
+				       &script_count,
+				       script_tags,
+				       &language_count,
+				       language_tags);
 
   for (unsigned int table_index = 0; table_index < 2; table_index++)
   {
     hb_tag_t table_tag = table_tags[table_index];
     found_script[table_index] = (bool) hb_ot_layout_table_select_script (face,
-                                                                         table_tag,
-                                                                         script_count,
-                                                                         script_tags,
-                                                                         &script_index[table_index],
-                                                                         &chosen_script[table_index]);
+									 table_tag,
+									 script_count,
+									 script_tags,
+									 &script_index[table_index],
+									 &chosen_script[table_index]);
     hb_ot_layout_script_select_language (face,
-                                         table_tag,
-                                         script_index[table_index],
-                                         language_count,
-                                         language_tags,
-                                         &language_index[table_index]);
+					 table_tag,
+					 script_index[table_index],
+					 language_count,
+					 language_tags,
+					 &language_index[table_index]);
   }
 }
 
@@ -95,8 +95,8 @@ hb_ot_map_builder_t::~hb_ot_map_builder_t ()
 }
 
 void hb_ot_map_builder_t::add_feature (hb_tag_t tag,
-                                       hb_ot_map_feature_flags_t flags,
-                                       unsigned int value)
+				       hb_ot_map_feature_flags_t flags,
+				       unsigned int value)
 {
   if (unlikely (!tag)) return;
   feature_info_t *info = feature_infos.push();
@@ -109,16 +109,31 @@ void hb_ot_map_builder_t::add_feature (hb_tag_t tag,
   info->stage[1] = current_stage[1];
 }
 
+bool hb_ot_map_builder_t::has_feature (hb_tag_t tag)
+{
+  for (unsigned int table_index = 0; table_index < 2; table_index++)
+  {
+    if (hb_ot_layout_language_find_feature (face,
+					    table_tags[table_index],
+					    script_index[table_index],
+					    language_index[table_index],
+					    tag,
+					    nullptr))
+      return true;
+  }
+  return false;
+}
+
 void
 hb_ot_map_builder_t::add_lookups (hb_ot_map_t  &m,
-                                  unsigned int  table_index,
-                                  unsigned int  feature_index,
-                                  unsigned int  variations_index,
-                                  hb_mask_t     mask,
-                                  bool          auto_zwnj,
-                                  bool          auto_zwj,
-                                  bool          random,
-                                  bool          per_syllable)
+				  unsigned int  table_index,
+				  unsigned int  feature_index,
+				  unsigned int  variations_index,
+				  hb_mask_t     mask,
+				  bool          auto_zwnj,
+				  bool          auto_zwj,
+				  bool          random,
+				  bool          per_syllable)
 {
   unsigned int lookup_indices[32];
   unsigned int offset, len;
@@ -130,16 +145,16 @@ hb_ot_map_builder_t::add_lookups (hb_ot_map_t  &m,
   do {
     len = ARRAY_LENGTH (lookup_indices);
     hb_ot_layout_feature_with_variations_get_lookups (face,
-                                                      table_tags[table_index],
-                                                      feature_index,
-                                                      variations_index,
-                                                      offset, &len,
-                                                      lookup_indices);
+						      table_tags[table_index],
+						      feature_index,
+						      variations_index,
+						      offset, &len,
+						      lookup_indices);
 
     for (unsigned int i = 0; i < len; i++)
     {
       if (lookup_indices[i] >= table_lookup_count)
-        continue;
+	continue;
       hb_ot_map_t::lookup_map_t *lookup = m.lookups[table_index].push ();
       lookup->mask = mask;
       lookup->index = lookup_indices[i];
@@ -165,7 +180,7 @@ void hb_ot_map_builder_t::add_pause (unsigned int table_index, hb_ot_map_t::paus
 
 void
 hb_ot_map_builder_t::compile (hb_ot_map_t                  &m,
-                              const hb_ot_shape_plan_key_t &key)
+			      const hb_ot_shape_plan_key_t &key)
 {
   unsigned int global_bit_shift = 8 * sizeof (hb_mask_t) - 1;
   unsigned int global_bit_mask = 1u << global_bit_shift;
@@ -186,11 +201,11 @@ hb_ot_map_builder_t::compile (hb_ot_map_t                  &m,
     m.found_script[table_index] = found_script[table_index];
 
     hb_ot_layout_language_get_required_feature (face,
-                                                table_tags[table_index],
-                                                script_index[table_index],
-                                                language_index[table_index],
-                                                &required_feature_index[table_index],
-                                                &required_feature_tag[table_index]);
+						table_tags[table_index],
+						script_index[table_index],
+						language_index[table_index],
+						&required_feature_index[table_index],
+						&required_feature_tag[table_index]);
   }
 
   /* Sort features and merge duplicates */
@@ -200,21 +215,21 @@ hb_ot_map_builder_t::compile (hb_ot_map_t                  &m,
     unsigned int j = 0;
     for (unsigned int i = 1; i < feature_infos.length; i++)
       if (feature_infos[i].tag != feature_infos[j].tag)
-        feature_infos[++j] = feature_infos[i];
+	feature_infos[++j] = feature_infos[i];
       else {
-        if (feature_infos[i].flags & F_GLOBAL) {
-          feature_infos[j].flags |= F_GLOBAL;
-          feature_infos[j].max_value = feature_infos[i].max_value;
-          feature_infos[j].default_value = feature_infos[i].default_value;
-        } else {
-          if (feature_infos[j].flags & F_GLOBAL)
-            feature_infos[j].flags ^= F_GLOBAL;
-          feature_infos[j].max_value = hb_max (feature_infos[j].max_value, feature_infos[i].max_value);
-          /* Inherit default_value from j */
-        }
-        feature_infos[j].flags |= (feature_infos[i].flags & F_HAS_FALLBACK);
-        feature_infos[j].stage[0] = hb_min (feature_infos[j].stage[0], feature_infos[i].stage[0]);
-        feature_infos[j].stage[1] = hb_min (feature_infos[j].stage[1], feature_infos[i].stage[1]);
+	if (feature_infos[i].flags & F_GLOBAL) {
+	  feature_infos[j].flags |= F_GLOBAL;
+	  feature_infos[j].max_value = feature_infos[i].max_value;
+	  feature_infos[j].default_value = feature_infos[i].default_value;
+	} else {
+	  if (feature_infos[j].flags & F_GLOBAL)
+	    feature_infos[j].flags ^= F_GLOBAL;
+	  feature_infos[j].max_value = hb_max (feature_infos[j].max_value, feature_infos[i].max_value);
+	  /* Inherit default_value from j */
+	}
+	feature_infos[j].flags |= (feature_infos[i].flags & F_HAS_FALLBACK);
+	feature_infos[j].stage[0] = hb_min (feature_infos[j].stage[0], feature_infos[i].stage[0]);
+	feature_infos[j].stage[1] = hb_min (feature_infos[j].stage[1], feature_infos[i].stage[1]);
       }
     feature_infos.shrink (j + 1);
   }
@@ -246,23 +261,23 @@ hb_ot_map_builder_t::compile (hb_ot_map_t                  &m,
     for (unsigned int table_index = 0; table_index < 2; table_index++)
     {
       if (required_feature_tag[table_index] == info->tag)
-        required_feature_stage[table_index] = info->stage[table_index];
+	required_feature_stage[table_index] = info->stage[table_index];
 
       found |= (bool) hb_ot_layout_language_find_feature (face,
-                                                          table_tags[table_index],
-                                                          script_index[table_index],
-                                                          language_index[table_index],
-                                                          info->tag,
-                                                          &feature_index[table_index]);
+							  table_tags[table_index],
+							  script_index[table_index],
+							  language_index[table_index],
+							  info->tag,
+							  &feature_index[table_index]);
     }
     if (!found && (info->flags & F_GLOBAL_SEARCH))
     {
       for (unsigned int table_index = 0; table_index < 2; table_index++)
       {
-        found |= (bool) hb_ot_layout_table_find_feature (face,
-                                                         table_tags[table_index],
-                                                         info->tag,
-                                                         &feature_index[table_index]);
+	found |= (bool) hb_ot_layout_table_find_feature (face,
+							 table_tags[table_index],
+							 info->tag,
+							 &feature_index[table_index]);
       }
     }
     if (!found && !(info->flags & F_HAS_FALLBACK))
@@ -308,49 +323,49 @@ hb_ot_map_builder_t::compile (hb_ot_map_t                  &m,
     for (unsigned stage = 0; stage < current_stage[table_index]; stage++)
     {
       if (required_feature_index[table_index] != HB_OT_LAYOUT_NO_FEATURE_INDEX &&
-          required_feature_stage[table_index] == stage)
-        add_lookups (m, table_index,
-                     required_feature_index[table_index],
-                     key.variations_index[table_index],
-                     global_bit_mask);
+	  required_feature_stage[table_index] == stage)
+	add_lookups (m, table_index,
+		     required_feature_index[table_index],
+		     key.variations_index[table_index],
+		     global_bit_mask);
 
       for (unsigned i = 0; i < m.features.length; i++)
-        if (m.features[i].stage[table_index] == stage)
-          add_lookups (m, table_index,
-                       m.features[i].index[table_index],
-                       key.variations_index[table_index],
-                       m.features[i].mask,
-                       m.features[i].auto_zwnj,
-                       m.features[i].auto_zwj,
-                       m.features[i].random,
-                       m.features[i].per_syllable);
+	if (m.features[i].stage[table_index] == stage)
+	  add_lookups (m, table_index,
+		       m.features[i].index[table_index],
+		       key.variations_index[table_index],
+		       m.features[i].mask,
+		       m.features[i].auto_zwnj,
+		       m.features[i].auto_zwj,
+		       m.features[i].random,
+		       m.features[i].per_syllable);
 
       /* Sort lookups and merge duplicates */
       if (last_num_lookups < m.lookups[table_index].length)
       {
-        m.lookups[table_index].qsort (last_num_lookups, m.lookups[table_index].length);
+	m.lookups[table_index].qsort (last_num_lookups, m.lookups[table_index].length);
 
-        unsigned int j = last_num_lookups;
-        for (unsigned int i = j + 1; i < m.lookups[table_index].length; i++)
-          if (m.lookups[table_index][i].index != m.lookups[table_index][j].index)
-            m.lookups[table_index][++j] = m.lookups[table_index][i];
-          else
-          {
-            m.lookups[table_index][j].mask |= m.lookups[table_index][i].mask;
-            m.lookups[table_index][j].auto_zwnj &= m.lookups[table_index][i].auto_zwnj;
-            m.lookups[table_index][j].auto_zwj &= m.lookups[table_index][i].auto_zwj;
-          }
-        m.lookups[table_index].shrink (j + 1);
+	unsigned int j = last_num_lookups;
+	for (unsigned int i = j + 1; i < m.lookups[table_index].length; i++)
+	  if (m.lookups[table_index][i].index != m.lookups[table_index][j].index)
+	    m.lookups[table_index][++j] = m.lookups[table_index][i];
+	  else
+	  {
+	    m.lookups[table_index][j].mask |= m.lookups[table_index][i].mask;
+	    m.lookups[table_index][j].auto_zwnj &= m.lookups[table_index][i].auto_zwnj;
+	    m.lookups[table_index][j].auto_zwj &= m.lookups[table_index][i].auto_zwj;
+	  }
+	m.lookups[table_index].shrink (j + 1);
       }
 
       last_num_lookups = m.lookups[table_index].length;
 
       if (stage_index < stages[table_index].length && stages[table_index][stage_index].index == stage) {
-        hb_ot_map_t::stage_map_t *stage_map = m.stages[table_index].push ();
-        stage_map->last_lookup = last_num_lookups;
-        stage_map->pause_func = stages[table_index][stage_index].pause_func;
+	hb_ot_map_t::stage_map_t *stage_map = m.stages[table_index].push ();
+	stage_map->last_lookup = last_num_lookups;
+	stage_map->pause_func = stages[table_index][stage_index].pause_func;
 
-        stage_index++;
+	stage_index++;
       }
     }
   }

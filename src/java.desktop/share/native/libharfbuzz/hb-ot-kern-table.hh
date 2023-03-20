@@ -79,33 +79,33 @@ struct KernSubTableFormat3
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-                  c->check_range (kernValueZ,
-                                  kernValueCount * sizeof (FWORD) +
-                                  glyphCount * 2 +
-                                  leftClassCount * rightClassCount));
+		  c->check_range (kernValueZ,
+				  kernValueCount * sizeof (FWORD) +
+				  glyphCount * 2 +
+				  leftClassCount * rightClassCount));
   }
 
   protected:
   KernSubTableHeader
-                header;
-  HBUINT16      glyphCount;     /* The number of glyphs in this font. */
-  HBUINT8       kernValueCount; /* The number of kerning values. */
-  HBUINT8       leftClassCount; /* The number of left-hand classes. */
-  HBUINT8       rightClassCount;/* The number of right-hand classes. */
-  HBUINT8       flags;          /* Set to zero (reserved for future use). */
+		header;
+  HBUINT16	glyphCount;	/* The number of glyphs in this font. */
+  HBUINT8	kernValueCount;	/* The number of kerning values. */
+  HBUINT8	leftClassCount;	/* The number of left-hand classes. */
+  HBUINT8	rightClassCount;/* The number of right-hand classes. */
+  HBUINT8	flags;		/* Set to zero (reserved for future use). */
   UnsizedArrayOf<FWORD>
-                kernValueZ;     /* The kerning values.
-                                 * Length kernValueCount. */
+		kernValueZ;	/* The kerning values.
+				 * Length kernValueCount. */
 #if 0
   UnsizedArrayOf<HBUINT8>
-                leftClass;      /* The left-hand classes.
-                                 * Length glyphCount. */
+		leftClass;	/* The left-hand classes.
+				 * Length glyphCount. */
   UnsizedArrayOf<HBUINT8>
-                rightClass;     /* The right-hand classes.
-                                 * Length glyphCount. */
+		rightClass;	/* The right-hand classes.
+				 * Length glyphCount. */
   UnsizedArrayOf<HBUINT8>kernIndex;
-                                /* The indices into the kernValue array.
-                                 * Length leftClassCount * rightClassCount */
+				/* The indices into the kernValue array.
+				 * Length leftClassCount * rightClassCount */
 #endif
   public:
   DEFINE_SIZE_ARRAY (KernSubTableHeader::static_size + 6, kernValueZ);
@@ -132,15 +132,15 @@ struct KernSubTable
     unsigned int subtable_type = get_type ();
     TRACE_DISPATCH (this, subtable_type);
     switch (subtable_type) {
-    case 0:     return_trace (c->dispatch (u.format0));
+    case 0:	return_trace (c->dispatch (u.format0));
 #ifndef HB_NO_AAT_SHAPE
-    case 1:     return_trace (u.header.apple ? c->dispatch (u.format1, std::forward<Ts> (ds)...) : c->default_return_value ());
+    case 1:	return_trace (u.header.apple ? c->dispatch (u.format1, std::forward<Ts> (ds)...) : c->default_return_value ());
 #endif
-    case 2:     return_trace (c->dispatch (u.format2));
+    case 2:	return_trace (c->dispatch (u.format2));
 #ifndef HB_NO_AAT_SHAPE
-    case 3:     return_trace (u.header.apple ? c->dispatch (u.format3, std::forward<Ts> (ds)...) : c->default_return_value ());
+    case 3:	return_trace (u.header.apple ? c->dispatch (u.format3, std::forward<Ts> (ds)...) : c->default_return_value ());
 #endif
-    default:    return_trace (c->default_return_value ());
+    default:	return_trace (c->default_return_value ());
     }
   }
 
@@ -148,19 +148,19 @@ struct KernSubTable
   {
     TRACE_SANITIZE (this);
     if (unlikely (!u.header.sanitize (c) ||
-                  u.header.length < u.header.min_size ||
-                  !c->check_range (this, u.header.length))) return_trace (false);
+		  u.header.length < u.header.min_size ||
+		  !c->check_range (this, u.header.length))) return_trace (false);
 
     return_trace (dispatch (c));
   }
 
   public:
   union {
-  KernSubTableHeader                            header;
-  AAT::KerxSubTableFormat0<KernSubTableHeader>  format0;
-  AAT::KerxSubTableFormat1<KernSubTableHeader>  format1;
-  AAT::KerxSubTableFormat2<KernSubTableHeader>  format2;
-  KernSubTableFormat3<KernSubTableHeader>       format3;
+  KernSubTableHeader				header;
+  AAT::KerxSubTableFormat0<KernSubTableHeader>	format0;
+  AAT::KerxSubTableFormat1<KernSubTableHeader>	format1;
+  AAT::KerxSubTableFormat2<KernSubTableHeader>	format2;
+  KernSubTableFormat3<KernSubTableHeader>	format3;
   } u;
   public:
   DEFINE_SIZE_MIN (KernSubTableHeader::static_size);
@@ -177,14 +177,14 @@ struct KernOTSubTableHeader
 
   enum Coverage
   {
-    Horizontal  = 0x01u,
-    Minimum     = 0x02u,
-    CrossStream = 0x04u,
-    Override    = 0x08u,
+    Horizontal	= 0x01u,
+    Minimum	= 0x02u,
+    CrossStream	= 0x04u,
+    Override	= 0x08u,
 
     /* Not supported: */
-    Backwards   = 0x00u,
-    Variation   = 0x00u,
+    Backwards	= 0x00u,
+    Variation	= 0x00u,
   };
 
   bool sanitize (hb_sanitize_context_t *c) const
@@ -194,10 +194,10 @@ struct KernOTSubTableHeader
   }
 
   public:
-  HBUINT16      versionZ;       /* Unused. */
-  HBUINT16      length;         /* Length of the subtable (including this header). */
-  HBUINT8       format;         /* Subtable format. */
-  HBUINT8       coverage;       /* Coverage bits. */
+  HBUINT16	versionZ;	/* Unused. */
+  HBUINT16	length;		/* Length of the subtable (including this header). */
+  HBUINT8	format;		/* Subtable format. */
+  HBUINT8	coverage;	/* Coverage bits. */
   public:
   DEFINE_SIZE_STATIC (6);
 };
@@ -214,9 +214,9 @@ struct KernOT : AAT::KerxTable<KernOT>
   typedef KernSubTable<SubTableHeader> SubTable;
 
   protected:
-  HBUINT16      version;        /* Version--0x0000u */
-  HBUINT16      tableCount;     /* Number of subtables in the kerning table. */
-  SubTable      firstSubTable;  /* Subtables. */
+  HBUINT16	version;	/* Version--0x0000u */
+  HBUINT16	tableCount;	/* Number of subtables in the kerning table. */
+  SubTable	firstSubTable;	/* Subtables. */
   public:
   DEFINE_SIZE_MIN (4);
 };
@@ -232,12 +232,12 @@ struct KernAATSubTableHeader
 
   enum Coverage
   {
-    Vertical    = 0x80u,
-    CrossStream = 0x40u,
-    Variation   = 0x20u,
+    Vertical	= 0x80u,
+    CrossStream	= 0x40u,
+    Variation	= 0x20u,
 
     /* Not supported: */
-    Backwards   = 0x00u,
+    Backwards	= 0x00u,
   };
 
   bool sanitize (hb_sanitize_context_t *c) const
@@ -247,12 +247,12 @@ struct KernAATSubTableHeader
   }
 
   public:
-  HBUINT32      length;         /* Length of the subtable (including this header). */
-  HBUINT8       coverage;       /* Coverage bits. */
-  HBUINT8       format;         /* Subtable format. */
-  HBUINT16      tupleIndex;     /* The tuple index (used for variations fonts).
-                                 * This value specifies which tuple this subtable covers.
-                                 * Note: We don't implement. */
+  HBUINT32	length;		/* Length of the subtable (including this header). */
+  HBUINT8	coverage;	/* Coverage bits. */
+  HBUINT8	format;		/* Subtable format. */
+  HBUINT16	tupleIndex;	/* The tuple index (used for variations fonts).
+				 * This value specifies which tuple this subtable covers.
+				 * Note: We don't implement. */
   public:
   DEFINE_SIZE_STATIC (8);
 };
@@ -269,9 +269,9 @@ struct KernAAT : AAT::KerxTable<KernAAT>
   typedef KernSubTable<SubTableHeader> SubTable;
 
   protected:
-  HBUINT32      version;        /* Version--0x00010000u */
-  HBUINT32      tableCount;     /* Number of subtables in the kerning table. */
-  SubTable      firstSubTable;  /* Subtables. */
+  HBUINT32	version;	/* Version--0x00010000u */
+  HBUINT32	tableCount;	/* Number of subtables in the kerning table. */
+  SubTable	firstSubTable;	/* Subtables. */
   public:
   DEFINE_SIZE_MIN (8);
 };
@@ -325,11 +325,11 @@ struct kern
     unsigned int subtable_type = get_type ();
     TRACE_DISPATCH (this, subtable_type);
     switch (subtable_type) {
-    case 0:     return_trace (c->dispatch (u.ot, std::forward<Ts> (ds)...));
+    case 0:	return_trace (c->dispatch (u.ot, std::forward<Ts> (ds)...));
 #ifndef HB_NO_AAT_SHAPE
-    case 1:     return_trace (c->dispatch (u.aat, std::forward<Ts> (ds)...));
+    case 1:	return_trace (c->dispatch (u.aat, std::forward<Ts> (ds)...));
 #endif
-    default:    return_trace (c->default_return_value ());
+    default:	return_trace (c->default_return_value ());
     }
   }
 
@@ -342,11 +342,11 @@ struct kern
 
   protected:
   union {
-  HBUINT32              version32;
-  HBUINT16              major;
-  KernOT                ot;
+  HBUINT32		version32;
+  HBUINT16		major;
+  KernOT		ot;
 #ifndef HB_NO_AAT_SHAPE
-  KernAAT               aat;
+  KernAAT		aat;
 #endif
   } u;
   public:

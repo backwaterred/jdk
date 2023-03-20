@@ -56,7 +56,7 @@
  *
  * Tests whether a face includes any OpenType variation data in the `fvar` table.
  *
- * Return value: %true if data found, %false otherwise
+ * Return value: `true` if data found, `false` otherwise
  *
  * Since: 1.4.2
  **/
@@ -70,7 +70,7 @@ hb_ot_var_has_data (hb_face_t *face)
  * hb_ot_var_get_axis_count:
  * @face: The #hb_face_t to work on
  *
- * Fetches the number of OpenType variation axes included in the face.
+ * Fetches the number of OpenType variation axes included in the face. 
  *
  * Return value: the number of variation axes defined
  *
@@ -99,9 +99,9 @@ hb_ot_var_get_axis_count (hb_face_t *face)
  **/
 unsigned int
 hb_ot_var_get_axes (hb_face_t        *face,
-                    unsigned int      start_offset,
-                    unsigned int     *axes_count /* IN/OUT */,
-                    hb_ot_var_axis_t *axes_array /* OUT */)
+		    unsigned int      start_offset,
+		    unsigned int     *axes_count /* IN/OUT */,
+		    hb_ot_var_axis_t *axes_array /* OUT */)
 {
   return face->table.fvar->get_axes_deprecated (start_offset, axes_count, axes_array);
 }
@@ -121,9 +121,9 @@ hb_ot_var_get_axes (hb_face_t        *face,
  **/
 hb_bool_t
 hb_ot_var_find_axis (hb_face_t        *face,
-                     hb_tag_t          axis_tag,
-                     unsigned int     *axis_index,
-                     hb_ot_var_axis_t *axis_info)
+		     hb_tag_t          axis_tag,
+		     unsigned int     *axis_index,
+		     hb_ot_var_axis_t *axis_info)
 {
   return face->table.fvar->find_axis_deprecated (axis_tag, axis_index, axis_info);
 }
@@ -146,9 +146,9 @@ hb_ot_var_find_axis (hb_face_t        *face,
  **/
 HB_EXTERN unsigned int
 hb_ot_var_get_axis_infos (hb_face_t             *face,
-                          unsigned int           start_offset,
-                          unsigned int          *axes_count /* IN/OUT */,
-                          hb_ot_var_axis_info_t *axes_array /* OUT */)
+			  unsigned int           start_offset,
+			  unsigned int          *axes_count /* IN/OUT */,
+			  hb_ot_var_axis_info_t *axes_array /* OUT */)
 {
   return face->table.fvar->get_axis_infos (start_offset, axes_count, axes_array);
 }
@@ -162,14 +162,14 @@ hb_ot_var_get_axis_infos (hb_face_t             *face,
  * Fetches the variation-axis information corresponding to the specified axis tag
  * in the specified face.
  *
- * Return value: %true if data found, %false otherwise
+ * Return value: `true` if data found, `false` otherwise
  *
  * Since: 2.2.0
  **/
 HB_EXTERN hb_bool_t
 hb_ot_var_find_axis_info (hb_face_t             *face,
-                          hb_tag_t               axis_tag,
-                          hb_ot_var_axis_info_t *axis_info)
+			  hb_tag_t               axis_tag,
+			  hb_ot_var_axis_info_t *axis_info)
 {
   return face->table.fvar->find_axis_info (axis_tag, axis_info);
 }
@@ -183,7 +183,7 @@ hb_ot_var_find_axis_info (hb_face_t             *face,
  * hb_ot_var_get_named_instance_count:
  * @face: The #hb_face_t to work on
  *
- * Fetches the number of named instances included in the face.
+ * Fetches the number of named instances included in the face. 
  *
  * Return value: the number of named instances defined
  *
@@ -209,7 +209,7 @@ hb_ot_var_get_named_instance_count (hb_face_t *face)
  **/
 hb_ot_name_id_t
 hb_ot_var_named_instance_get_subfamily_name_id (hb_face_t   *face,
-                                                unsigned int instance_index)
+						unsigned int instance_index)
 {
   return face->table.fvar->get_instance_subfamily_name_id (instance_index);
 }
@@ -228,7 +228,7 @@ hb_ot_var_named_instance_get_subfamily_name_id (hb_face_t   *face,
  **/
 hb_ot_name_id_t
 hb_ot_var_named_instance_get_postscript_name_id (hb_face_t  *face,
-                                                unsigned int instance_index)
+						unsigned int instance_index)
 {
   return face->table.fvar->get_instance_postscript_name_id (instance_index);
 }
@@ -250,9 +250,9 @@ hb_ot_var_named_instance_get_postscript_name_id (hb_face_t  *face,
  **/
 unsigned int
 hb_ot_var_named_instance_get_design_coords (hb_face_t    *face,
-                                            unsigned int  instance_index,
-                                            unsigned int *coords_length, /* IN/OUT */
-                                            float        *coords         /* OUT */)
+					    unsigned int  instance_index,
+					    unsigned int *coords_length, /* IN/OUT */
+					    float        *coords         /* OUT */)
 {
   return face->table.fvar->get_instance_coords (instance_index, coords_length, coords);
 }
@@ -263,7 +263,7 @@ hb_ot_var_named_instance_get_design_coords (hb_face_t    *face,
  * @face: The #hb_face_t to work on
  * @variations: The array of variations to normalize
  * @variations_length: The number of variations to normalize
- * @coords: (out) (array length=coords_length): The array of normalized coordinates
+ * @coords: (out) (array length=coords_length): The array of normalized coordinates 
  * @coords_length: The length of the coordinate array
  *
  * Normalizes all of the coordinates in the given list of variation axes.
@@ -272,10 +272,10 @@ hb_ot_var_named_instance_get_design_coords (hb_face_t    *face,
  **/
 void
 hb_ot_var_normalize_variations (hb_face_t            *face,
-                                const hb_variation_t *variations, /* IN */
-                                unsigned int          variations_length,
-                                int                  *coords, /* OUT */
-                                unsigned int          coords_length)
+				const hb_variation_t *variations, /* IN */
+				unsigned int          variations_length,
+				int                  *coords, /* OUT */
+				unsigned int          coords_length)
 {
   for (unsigned int i = 0; i < coords_length; i++)
     coords[i] = 0;
@@ -285,7 +285,7 @@ hb_ot_var_normalize_variations (hb_face_t            *face,
   {
     hb_ot_var_axis_info_t info;
     if (hb_ot_var_find_axis_info (face, variations[i].tag, &info) &&
-        info.axis_index < coords_length)
+	info.axis_index < coords_length)
       coords[info.axis_index] = fvar.normalize_axis_value (info.axis_index, variations[i].value);
   }
 
@@ -313,9 +313,9 @@ hb_ot_var_normalize_variations (hb_face_t            *face,
  **/
 void
 hb_ot_var_normalize_coords (hb_face_t    *face,
-                            unsigned int coords_length,
-                            const float *design_coords, /* IN */
-                            int *normalized_coords /* OUT */)
+			    unsigned int coords_length,
+			    const float *design_coords, /* IN */
+			    int *normalized_coords /* OUT */)
 {
   const OT::fvar &fvar = *face->table.fvar;
   for (unsigned int i = 0; i < coords_length; i++)

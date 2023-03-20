@@ -28,6 +28,8 @@
 #define HB_OT_VAR_AVAR_TABLE_HH
 
 #include "hb-open-type.hh"
+#include "hb-ot-var-common.hh"
+
 
 /*
  * avar -- Axis Variations
@@ -40,6 +42,28 @@
 namespace OT {
 
 
+/* "Spec": https://github.com/be-fonts/boring-expansion-spec/issues/14 */
+struct avarV2Tail
+{
+  friend struct avar;
+
+  bool sanitize (hb_sanitize_context_t *c,
+		 const void *base) const
+  {
+    TRACE_SANITIZE (this);
+    return_trace (varIdxMap.sanitize (c, base) &&
+		  varStore.sanitize (c, base));
+  }
+
+  protected:
+  Offset32To<DeltaSetIndexMap>	varIdxMap;	/* Offset from the beginning of 'avar' table. */
+  Offset32To<VariationStore>	varStore;	/* Offset from the beginning of 'avar' table. */
+
+  public:
+  DEFINE_SIZE_STATIC (8);
+};
+
+
 struct AxisValueMap
 {
   bool sanitize (hb_sanitize_context_t *c) const
@@ -49,10 +73,10 @@ struct AxisValueMap
   }
 
   public:
-  F2DOT14       coords[2];
-//   F2DOT14    fromCoord;      /* A normalized coordinate value obtained using
-//                               * default normalization. */
-//   F2DOT14    toCoord;        /* The modified, normalized coordinate value. */
+  F2DOT14	coords[2];
+//   F2DOT14	fromCoord;	/* A normalized coordinate value obtained using
+//				 * default normalization. */
+//   F2DOT14	toCoord;	/* The modified, normalized coordinate value. */
 
   public:
   DEFINE_SIZE_STATIC (4);
@@ -70,9 +94,9 @@ struct SegmentMaps : Array16Of<AxisValueMap>
     if (len < 2)
     {
       if (!len)
-        return value;
+	return value;
       else /* len == 1*/
-        return value - arrayZ[0].fromCoord + arrayZ[0].toCoord;
+	return value - arrayZ[0].fromCoord + arrayZ[0].toCoord;
     }
 
     if (value <= arrayZ[0].fromCoord)
@@ -91,7 +115,7 @@ struct SegmentMaps : Array16Of<AxisValueMap>
 
     int denom = arrayZ[i].fromCoord - arrayZ[i-1].fromCoord;
     return roundf (arrayZ[i-1].toCoord + ((float) (arrayZ[i].toCoord - arrayZ[i-1].toCoord) *
-                                          (value - arrayZ[i-1].fromCoord)) / denom);
+					  (value - arrayZ[i-1].fromCoord)) / denom);
 #undef toCoord
 #undef fromCoord
   }
@@ -106,12 +130,24 @@ struct avar
 {
   static constexpr hb_tag_t tableTag = HB_OT_TAG_avar;
 
+  bool has_data () const { return version.to_int (); }
+
+  const SegmentMaps* get_segment_maps () const
+  { return &firstAxisSegmentMaps; }
+
+  unsigned get_axis_count () const
+  { return axisCount; }
+
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
-    if (unlikely (!(version.sanitize (c) &&
-                    version.major == 1 &&
-                    c->check_struct (this))))
+    if (!(version.sanitize (c) &&
+	  (version.major == 1
+#ifndef HB_NO_VARIATIONS2
+	   || version.major == 2
+#endif
+	   ) &&
+	  c->check_struct (this)))
       return_trace (false);
 
     const SegmentMaps *map = &firstAxisSegmentMaps;
@@ -119,9 +155,18 @@ struct avar
     for (unsigned int i = 0; i < count; i++)
     {
       if (unlikely (!map->sanitize (c)))
-        return_trace (false);
+	return_trace (false);
       map = &StructAfter<SegmentMaps> (*map);
     }
+
+#ifndef HB_NO_VARIATIONS2
+    if (version.major < 2)
+      return_trace (true);
+
+    const auto &v2 = * (const avarV2Tail *) map;
+    if (unlikely (!v2.sanitize (c, this)))
+      return_trace (false);
+#endif
 
     return_trace (true);
   }
@@ -136,6 +181,36 @@ struct avar
       coords[i] = map->map (coords[i]);
       map = &StructAfter<SegmentMaps> (*map);
     }
+
+#ifndef HB_NO_VARIATIONS2
+    if (version.major < 2)
+      return;
+
+    for (; count < axisCount; count++)
+      map = &StructAfter<SegmentMaps> (*map);
+
+    const auto &v2 = * (const avarV2Tail *) map;
+
+    const auto &varidx_map = this+v2.varIdxMap;
+    const auto &var_store = this+v2.varStore;
+    auto *var_store_cache = var_store.create_cache ();
+
+    hb_vector_t<int> out;
+    out.alloc (coords_length);
+    for (unsigned i = 0; i < coords_length; i++)
+    {
+      int v = coords[i];
+      uint32_t varidx = varidx_map.map (i);
+      float delta = var_store.get_delta (varidx, coords, coords_length, var_store_cache);
+      v += roundf (delta);
+      v = hb_clamp (v, -(1<<14), +(1<<14));
+      out.push (v);
+    }
+    for (unsigned i = 0; i < coords_length; i++)
+      coords[i] = out[i];
+
+    OT::VariationStore::destroy_cache (var_store_cache);
+#endif
   }
 
   void unmap_coords (int *coords, unsigned int coords_length) const
@@ -151,13 +226,13 @@ struct avar
   }
 
   protected:
-  FixedVersion<>version;        /* Version of the avar table
-                                 * initially set to 0x00010000u */
-  HBUINT16      reserved;       /* This field is permanently reserved. Set to 0. */
-  HBUINT16      axisCount;      /* The number of variation axes in the font. This
-                                 * must be the same number as axisCount in the
-                                 * 'fvar' table. */
-  SegmentMaps   firstAxisSegmentMaps;
+  FixedVersion<>version;	/* Version of the avar table
+				 * initially set to 0x00010000u */
+  HBUINT16	reserved;	/* This field is permanently reserved. Set to 0. */
+  HBUINT16	axisCount;	/* The number of variation axes in the font. This
+				 * must be the same number as axisCount in the
+				 * 'fvar' table. */
+  SegmentMaps	firstAxisSegmentMaps;
 
   public:
   DEFINE_SIZE_MIN (8);

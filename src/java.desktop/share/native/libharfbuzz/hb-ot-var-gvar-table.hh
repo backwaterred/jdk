@@ -67,7 +67,7 @@ struct contour_point_vector_t : hb_vector_t<contour_point_t>
   void transform (const float (&matrix)[4])
   {
     if (matrix[0] == 1.f && matrix[1] == 0.f &&
-        matrix[2] == 0.f && matrix[3] == 1.f)
+	matrix[2] == 0.f && matrix[3] == 1.f)
       return;
     auto arrayZ = this->arrayZ;
     unsigned count = length;
@@ -75,7 +75,7 @@ struct contour_point_vector_t : hb_vector_t<contour_point_t>
     {
       contour_point_t &p = arrayZ[i];
       float x_ = p.x * matrix[0] + p.y * matrix[2];
-           p.y = p.x * matrix[1] + p.y * matrix[3];
+	   p.y = p.x * matrix[1] + p.y * matrix[3];
       p.x = x_;
     }
   }
@@ -103,7 +103,7 @@ struct TupleVariationHeader
   { return StructAtOffset<TupleVariationHeader> (this, get_size (axis_count)); }
 
   float calculate_scalar (hb_array_t<int> coords, unsigned int coord_count,
-                          const hb_array_t<const F2DOT14> shared_tuples) const
+			  const hb_array_t<const F2DOT14> shared_tuples) const
   {
     hb_array_t<const F2DOT14> peak_tuple;
 
@@ -113,7 +113,7 @@ struct TupleVariationHeader
     {
       unsigned int index = get_index ();
       if (unlikely (index * coord_count >= shared_tuples.length))
-        return 0.f;
+	return 0.f;
       peak_tuple = shared_tuples.sub_array (coord_count * index, coord_count);
     }
 
@@ -134,19 +134,19 @@ struct TupleVariationHeader
 
       if (has_intermediate ())
       {
-        int start = start_tuple[i];
-        int end = end_tuple[i];
-        if (unlikely (start > peak || peak > end ||
-                      (start < 0 && end > 0 && peak))) continue;
-        if (v < start || v > end) return 0.f;
-        if (v < peak)
-        { if (peak != start) scalar *= (float) (v - start) / (peak - start); }
-        else
-        { if (peak != end) scalar *= (float) (end - v) / (end - peak); }
+	int start = start_tuple[i];
+	int end = end_tuple[i];
+	if (unlikely (start > peak || peak > end ||
+		      (start < 0 && end > 0 && peak))) continue;
+	if (v < start || v > end) return 0.f;
+	if (v < peak)
+	{ if (peak != start) scalar *= (float) (v - start) / (peak - start); }
+	else
+	{ if (peak != end) scalar *= (float) (end - v) / (end - peak); }
       }
       else if (!v || v < hb_min (0, peak) || v > hb_max (0, peak)) return 0.f;
       else
-        scalar *= (float) v / peak;
+	scalar *= (float) v / peak;
     }
     return scalar;
   }
@@ -178,22 +178,22 @@ struct TupleVariationHeader
   hb_array_t<const F2DOT14> get_end_tuple (unsigned axis_count) const
   { return get_all_tuples (axis_count).sub_array (has_peak () * axis_count + axis_count, axis_count); }
 
-  HBUINT16      varDataSize;    /* The size in bytes of the serialized
-                                 * data for this tuple variation table. */
-  TuppleIndex   tupleIndex;     /* A packed field. The high 4 bits are flags (see below).
-                                   The low 12 bits are an index into a shared tuple
-                                   records array. */
+  HBUINT16	varDataSize;	/* The size in bytes of the serialized
+				 * data for this tuple variation table. */
+  TuppleIndex	tupleIndex;	/* A packed field. The high 4 bits are flags (see below).
+				   The low 12 bits are an index into a shared tuple
+				   records array. */
   /* UnsizedArrayOf<F2DOT14> peakTuple - optional */
-                                /* Peak tuple record for this tuple variation table — optional,
-                                 * determined by flags in the tupleIndex value.
-                                 *
-                                 * Note that this must always be included in the 'cvar' table. */
+				/* Peak tuple record for this tuple variation table — optional,
+				 * determined by flags in the tupleIndex value.
+				 *
+				 * Note that this must always be included in the 'cvar' table. */
   /* UnsizedArrayOf<F2DOT14> intermediateStartTuple - optional */
-                                /* Intermediate start tuple record for this tuple variation table — optional,
-                                   determined by flags in the tupleIndex value. */
+				/* Intermediate start tuple record for this tuple variation table — optional,
+				   determined by flags in the tupleIndex value. */
   /* UnsizedArrayOf<F2DOT14> intermediateEndTuple - optional */
-                                /* Intermediate end tuple record for this tuple variation table — optional,
-                                 * determined by flags in the tupleIndex value. */
+				/* Intermediate end tuple record for this tuple variation table — optional,
+				 * determined by flags in the tupleIndex value. */
   public:
   DEFINE_SIZE_MIN (4);
 };
@@ -219,10 +219,10 @@ struct GlyphVariationData
     {
       if (var_data->has_shared_point_numbers ())
       {
-        const HBUINT8 *base = &(var_data+var_data->data);
-        const HBUINT8 *p = base;
-        if (!unpack_points (p, shared_indices, (const HBUINT8 *) (var_data_bytes.arrayZ + var_data_bytes.length))) return false;
-        data_offset = p - base;
+	const HBUINT8 *base = &(var_data+var_data->data);
+	const HBUINT8 *p = base;
+	if (!unpack_points (p, shared_indices, (const HBUINT8 *) (var_data_bytes.arrayZ + var_data_bytes.length))) return false;
+	data_offset = p - base;
       }
       return true;
     }
@@ -230,9 +230,9 @@ struct GlyphVariationData
     bool is_valid () const
     {
       return (index < var_data->tupleVarCount.get_count ()) &&
-             var_data_bytes.check_range (current_tuple, TupleVariationHeader::min_size) &&
-             var_data_bytes.check_range (current_tuple, hb_max (current_tuple->get_data_size (), current_tuple->get_size (axis_count))) &&
-             current_tuple->get_size (axis_count);
+	     var_data_bytes.check_range (current_tuple, TupleVariationHeader::min_size) &&
+	     var_data_bytes.check_range (current_tuple, hb_max (current_tuple->get_data_size (), current_tuple->get_size (axis_count))) &&
+	     current_tuple->get_size (axis_count);
     }
 
     bool move_to_next ()
@@ -258,8 +258,8 @@ struct GlyphVariationData
   };
 
   static bool get_tuple_iterator (hb_bytes_t var_data_bytes, unsigned axis_count,
-                                  hb_vector_t<unsigned int> &shared_indices /* OUT */,
-                                  tuple_iterator_t *iterator /* OUT */)
+				  hb_vector_t<unsigned int> &shared_indices /* OUT */,
+				  tuple_iterator_t *iterator /* OUT */)
   {
     iterator->init (var_data_bytes, axis_count);
     if (!iterator->get_shared_indices (shared_indices))
@@ -270,8 +270,8 @@ struct GlyphVariationData
   bool has_shared_point_numbers () const { return tupleVarCount.has_shared_point_numbers (); }
 
   static bool unpack_points (const HBUINT8 *&p /* IN/OUT */,
-                             hb_vector_t<unsigned int> &points /* OUT */,
-                             const HBUINT8 *end)
+			     hb_vector_t<unsigned int> &points /* OUT */,
+			     const HBUINT8 *end)
   {
     enum packed_point_flag_t
     {
@@ -299,22 +299,22 @@ struct GlyphVariationData
       uint16_t run_count = (control & POINT_RUN_COUNT_MASK) + 1;
       if (control & POINTS_ARE_WORDS)
       {
-        for (j = 0; j < run_count && i < count; j++, i++)
-        {
-          if (unlikely (p + HBUINT16::static_size > end)) return false;
-          n += *(const HBUINT16 *)p;
-          points[i] = n;
-          p += HBUINT16::static_size;
-        }
+	for (j = 0; j < run_count && i < count; j++, i++)
+	{
+	  if (unlikely (p + HBUINT16::static_size > end)) return false;
+	  n += *(const HBUINT16 *)p;
+	  points[i] = n;
+	  p += HBUINT16::static_size;
+	}
       }
       else
       {
-        for (j = 0; j < run_count && i < count; j++, i++)
-        {
-          if (unlikely (p + 1 > end)) return false;
-          n += *p++;
-          points[i] = n;
-        }
+	for (j = 0; j < run_count && i < count; j++, i++)
+	{
+	  if (unlikely (p + 1 > end)) return false;
+	  n += *p++;
+	  points[i] = n;
+	}
       }
       if (j < run_count) return false;
     }
@@ -322,8 +322,8 @@ struct GlyphVariationData
   }
 
   static bool unpack_deltas (const HBUINT8 *&p /* IN/OUT */,
-                             hb_vector_t<int> &deltas /* IN/OUT */,
-                             const HBUINT8 *end)
+			     hb_vector_t<int> &deltas /* IN/OUT */,
+			     const HBUINT8 *end)
   {
     enum packed_delta_flag_t
     {
@@ -341,23 +341,23 @@ struct GlyphVariationData
       unsigned int run_count = (control & DELTA_RUN_COUNT_MASK) + 1;
       unsigned int j;
       if (control & DELTAS_ARE_ZERO)
-        for (j = 0; j < run_count && i < count; j++, i++)
-          deltas[i] = 0;
+	for (j = 0; j < run_count && i < count; j++, i++)
+	  deltas[i] = 0;
       else if (control & DELTAS_ARE_WORDS)
-        for (j = 0; j < run_count && i < count; j++, i++)
-        {
-          if (unlikely (p + HBUINT16::static_size > end)) return false;
-          deltas[i] = *(const HBINT16 *) p;
-          p += HBUINT16::static_size;
-        }
+	for (j = 0; j < run_count && i < count; j++, i++)
+	{
+	  if (unlikely (p + HBUINT16::static_size > end)) return false;
+	  deltas[i] = *(const HBINT16 *) p;
+	  p += HBUINT16::static_size;
+	}
       else
-        for (j = 0; j < run_count && i < count; j++, i++)
-        {
-          if (unlikely (p + 1 > end)) return false;
-          deltas[i] = *(const HBINT8 *) p++;
-        }
+	for (j = 0; j < run_count && i < count; j++, i++)
+	{
+	  if (unlikely (p + 1 > end)) return false;
+	  deltas[i] = *(const HBINT8 *) p++;
+	}
       if (j < run_count)
-        return false;
+	return false;
     }
     return true;
   }
@@ -374,19 +374,19 @@ struct GlyphVariationData
     enum Flags
     {
       SharedPointNumbers= 0x8000u,
-      CountMask         = 0x0FFFu
+      CountMask		= 0x0FFFu
     };
     public:
     DEFINE_SIZE_STATIC (2);
   };
 
-  TupleVarCount tupleVarCount;  /* A packed field. The high 4 bits are flags, and the
-                                 * low 12 bits are the number of tuple variation tables
-                                 * for this glyph. The number of tuple variation tables
-                                 * can be any number between 1 and 4095. */
+  TupleVarCount	tupleVarCount;  /* A packed field. The high 4 bits are flags, and the
+				 * low 12 bits are the number of tuple variation tables
+				 * for this glyph. The number of tuple variation tables
+				 * can be any number between 1 and 4095. */
   Offset16To<HBUINT8>
-                data;           /* Offset from the start of the GlyphVariationData table
-                                 * to the serialized data. */
+		data;		/* Offset from the start of the GlyphVariationData table
+				 * to the serialized data. */
   /* TupleVariationHeader tupleVariationHeaders[] *//* Array of tuple variation headers. */
   public:
   DEFINE_SIZE_MIN (4);
@@ -400,10 +400,10 @@ struct gvar
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) && (version.major == 1) &&
-                  sharedTuples.sanitize (c, this, axisCount * sharedTupleCount) &&
-                  (is_long_offset () ?
-                     c->check_array (get_long_offset_array (), glyphCount+1) :
-                     c->check_array (get_short_offset_array (), glyphCount+1)));
+		  sharedTuples.sanitize (c, this, axisCount * sharedTupleCount) &&
+		  (is_long_offset () ?
+		     c->check_array (get_long_offset_array (), glyphCount+1) :
+		     c->check_array (get_short_offset_array (), glyphCount+1)));
   }
 
   /* GlyphVariationData not sanitized here; must be checked while accessing each glyph variation data */
@@ -464,16 +464,16 @@ struct gvar
     {
       hb_codepoint_t old_gid;
       hb_bytes_t var_data_bytes = c->plan->old_gid_for_new_gid (gid, &old_gid)
-                                ? get_glyph_var_data_bytes (c->source_blob, old_gid)
-                                : hb_bytes_t ();
+				? get_glyph_var_data_bytes (c->source_blob, old_gid)
+				: hb_bytes_t ();
 
       if (long_offset)
-        ((HBUINT32 *) subset_offsets)[gid] = glyph_offset;
+	((HBUINT32 *) subset_offsets)[gid] = glyph_offset;
       else
-        ((HBUINT16 *) subset_offsets)[gid] = glyph_offset / 2;
+	((HBUINT16 *) subset_offsets)[gid] = glyph_offset / 2;
 
       if (var_data_bytes.length > 0)
-        memcpy (subset_data, var_data_bytes.arrayZ, var_data_bytes.length);
+	memcpy (subset_data, var_data_bytes.arrayZ, var_data_bytes.length);
       subset_data += var_data_bytes.length;
       glyph_offset += var_data_bytes.length;
     }
@@ -517,9 +517,9 @@ struct gvar
     private:
 
     static float infer_delta (const hb_array_t<contour_point_t> points,
-                              const hb_array_t<contour_point_t> deltas,
-                              unsigned int target, unsigned int prev, unsigned int next,
-                              float contour_point_t::*m)
+			      const hb_array_t<contour_point_t> deltas,
+			      unsigned int target, unsigned int prev, unsigned int next,
+			      float contour_point_t::*m)
     {
       float target_val = points[target].*m;
       float prev_val = points[prev].*m;
@@ -528,11 +528,11 @@ struct gvar
       float next_delta =  deltas[next].*m;
 
       if (prev_val == next_val)
-        return (prev_delta == next_delta) ? prev_delta : 0.f;
+	return (prev_delta == next_delta) ? prev_delta : 0.f;
       else if (target_val <= hb_min (prev_val, next_val))
-        return (prev_val < next_val) ? prev_delta : next_delta;
+	return (prev_val < next_val) ? prev_delta : next_delta;
       else if (target_val >= hb_max (prev_val, next_val))
-        return (prev_val > next_val) ? prev_delta : next_delta;
+	return (prev_val > next_val) ? prev_delta : next_delta;
 
       /* linear interpolation */
       float r = (target_val - prev_val) / (next_val - prev_val);
@@ -544,7 +544,7 @@ struct gvar
 
     public:
     bool apply_deltas_to_points (hb_codepoint_t glyph, hb_font_t *font,
-                                 const hb_array_t<contour_point_t> points) const
+				 const hb_array_t<contour_point_t> points) const
     {
       if (!font->num_coords) return true;
 
@@ -555,22 +555,22 @@ struct gvar
       hb_vector_t<unsigned int> shared_indices;
       GlyphVariationData::tuple_iterator_t iterator;
       if (!GlyphVariationData::get_tuple_iterator (var_data_bytes, table->axisCount,
-                                                   shared_indices, &iterator))
-        return true; /* so isn't applied at all */
+						   shared_indices, &iterator))
+	return true; /* so isn't applied at all */
 
       /* Save original points for inferred delta calculation */
       contour_point_vector_t orig_points;
       if (unlikely (!orig_points.resize (points.length))) return false;
       for (unsigned int i = 0; i < orig_points.length; i++)
-        orig_points.arrayZ[i] = points.arrayZ[i];
+	orig_points.arrayZ[i] = points.arrayZ[i];
 
       contour_point_vector_t deltas; /* flag is used to indicate referenced point */
       if (unlikely (!deltas.resize (points.length))) return false;
 
       hb_vector_t<unsigned> end_points;
       for (unsigned i = 0; i < points.length; ++i)
-        if (points[i].is_end_point)
-          end_points.push (i);
+	if (points[i].is_end_point)
+	  end_points.push (i);
 
       auto coords = hb_array (font->coords, font->num_coords);
       unsigned num_coords = table->axisCount;
@@ -581,95 +581,95 @@ struct gvar
       hb_vector_t<int> y_deltas;
       do
       {
-        float scalar = iterator.current_tuple->calculate_scalar (coords, num_coords, shared_tuples);
-        if (scalar == 0.f) continue;
-        const HBUINT8 *p = iterator.get_serialized_data ();
-        unsigned int length = iterator.current_tuple->get_data_size ();
-        if (unlikely (!iterator.var_data_bytes.check_range (p, length)))
-          return false;
+	float scalar = iterator.current_tuple->calculate_scalar (coords, num_coords, shared_tuples);
+	if (scalar == 0.f) continue;
+	const HBUINT8 *p = iterator.get_serialized_data ();
+	unsigned int length = iterator.current_tuple->get_data_size ();
+	if (unlikely (!iterator.var_data_bytes.check_range (p, length)))
+	  return false;
 
-        const HBUINT8 *end = p + length;
+	const HBUINT8 *end = p + length;
 
-        bool has_private_points = iterator.current_tuple->has_private_points ();
-        if (has_private_points &&
-            !GlyphVariationData::unpack_points (p, private_indices, end))
-          return false;
-        const hb_array_t<unsigned int> &indices = has_private_points ? private_indices : shared_indices;
+	bool has_private_points = iterator.current_tuple->has_private_points ();
+	if (has_private_points &&
+	    !GlyphVariationData::unpack_points (p, private_indices, end))
+	  return false;
+	const hb_array_t<unsigned int> &indices = has_private_points ? private_indices : shared_indices;
 
-        bool apply_to_all = (indices.length == 0);
-        unsigned int num_deltas = apply_to_all ? points.length : indices.length;
-        if (unlikely (!x_deltas.resize (num_deltas))) return false;
-        if (unlikely (!GlyphVariationData::unpack_deltas (p, x_deltas, end))) return false;
-        if (unlikely (!y_deltas.resize (num_deltas))) return false;
-        if (unlikely (!GlyphVariationData::unpack_deltas (p, y_deltas, end))) return false;
+	bool apply_to_all = (indices.length == 0);
+	unsigned int num_deltas = apply_to_all ? points.length : indices.length;
+	if (unlikely (!x_deltas.resize (num_deltas))) return false;
+	if (unlikely (!GlyphVariationData::unpack_deltas (p, x_deltas, end))) return false;
+	if (unlikely (!y_deltas.resize (num_deltas))) return false;
+	if (unlikely (!GlyphVariationData::unpack_deltas (p, y_deltas, end))) return false;
 
-        for (unsigned int i = 0; i < deltas.length; i++)
-          deltas[i].init ();
-        for (unsigned int i = 0; i < num_deltas; i++)
-        {
-          unsigned int pt_index = apply_to_all ? i : indices[i];
-          if (unlikely (pt_index >= deltas.length)) continue;
-          deltas.arrayZ[pt_index].flag = 1;     /* this point is referenced, i.e., explicit deltas specified */
-          deltas.arrayZ[pt_index].x += x_deltas.arrayZ[i] * scalar;
-          deltas.arrayZ[pt_index].y += y_deltas.arrayZ[i] * scalar;
-        }
+	for (unsigned int i = 0; i < deltas.length; i++)
+	  deltas[i].init ();
+	for (unsigned int i = 0; i < num_deltas; i++)
+	{
+	  unsigned int pt_index = apply_to_all ? i : indices[i];
+	  if (unlikely (pt_index >= deltas.length)) continue;
+	  deltas.arrayZ[pt_index].flag = 1;	/* this point is referenced, i.e., explicit deltas specified */
+	  deltas.arrayZ[pt_index].x += x_deltas.arrayZ[i] * scalar;
+	  deltas.arrayZ[pt_index].y += y_deltas.arrayZ[i] * scalar;
+	}
 
-        /* infer deltas for unreferenced points */
-        unsigned start_point = 0;
-        for (unsigned c = 0; c < end_points.length; c++)
-        {
-          unsigned end_point = end_points[c];
+	/* infer deltas for unreferenced points */
+	unsigned start_point = 0;
+	for (unsigned c = 0; c < end_points.length; c++)
+	{
+	  unsigned end_point = end_points[c];
 
-          /* Check the number of unreferenced points in a contour. If no unref points or no ref points, nothing to do. */
-          unsigned unref_count = 0;
-          for (unsigned i = start_point; i <= end_point; i++)
-            if (!deltas[i].flag) unref_count++;
+	  /* Check the number of unreferenced points in a contour. If no unref points or no ref points, nothing to do. */
+	  unsigned unref_count = 0;
+	  for (unsigned i = start_point; i <= end_point; i++)
+	    if (!deltas[i].flag) unref_count++;
 
-          unsigned j = start_point;
-          if (unref_count == 0 || unref_count > end_point - start_point)
-            goto no_more_gaps;
+	  unsigned j = start_point;
+	  if (unref_count == 0 || unref_count > end_point - start_point)
+	    goto no_more_gaps;
 
-          for (;;)
-          {
-            /* Locate the next gap of unreferenced points between two referenced points prev and next.
-             * Note that a gap may wrap around at left (start_point) and/or at right (end_point).
-             */
-            unsigned int prev, next, i;
-            for (;;)
-            {
-              i = j;
-              j = next_index (i, start_point, end_point);
-              if (deltas[i].flag && !deltas[j].flag) break;
-            }
-            prev = j = i;
-            for (;;)
-            {
-              i = j;
-              j = next_index (i, start_point, end_point);
-              if (!deltas[i].flag && deltas[j].flag) break;
-            }
-            next = j;
-            /* Infer deltas for all unref points in the gap between prev and next */
-            i = prev;
-            for (;;)
-            {
-              i = next_index (i, start_point, end_point);
-              if (i == next) break;
-              deltas[i].x = infer_delta (orig_points.as_array (), deltas.as_array (), i, prev, next, &contour_point_t::x);
-              deltas[i].y = infer_delta (orig_points.as_array (), deltas.as_array (), i, prev, next, &contour_point_t::y);
-              if (--unref_count == 0) goto no_more_gaps;
-            }
-          }
-        no_more_gaps:
-          start_point = end_point + 1;
-        }
+	  for (;;)
+	  {
+	    /* Locate the next gap of unreferenced points between two referenced points prev and next.
+	     * Note that a gap may wrap around at left (start_point) and/or at right (end_point).
+	     */
+	    unsigned int prev, next, i;
+	    for (;;)
+	    {
+	      i = j;
+	      j = next_index (i, start_point, end_point);
+	      if (deltas[i].flag && !deltas[j].flag) break;
+	    }
+	    prev = j = i;
+	    for (;;)
+	    {
+	      i = j;
+	      j = next_index (i, start_point, end_point);
+	      if (!deltas[i].flag && deltas[j].flag) break;
+	    }
+	    next = j;
+	    /* Infer deltas for all unref points in the gap between prev and next */
+	    i = prev;
+	    for (;;)
+	    {
+	      i = next_index (i, start_point, end_point);
+	      if (i == next) break;
+	      deltas[i].x = infer_delta (orig_points.as_array (), deltas.as_array (), i, prev, next, &contour_point_t::x);
+	      deltas[i].y = infer_delta (orig_points.as_array (), deltas.as_array (), i, prev, next, &contour_point_t::y);
+	      if (--unref_count == 0) goto no_more_gaps;
+	    }
+	  }
+	no_more_gaps:
+	  start_point = end_point + 1;
+	}
 
-        /* apply specified / inferred deltas to points */
-        for (unsigned int i = 0; i < points.length; i++)
-        {
-          points.arrayZ[i].x += deltas.arrayZ[i].x;
-          points.arrayZ[i].y += deltas.arrayZ[i].y;
-        }
+	/* apply specified / inferred deltas to points */
+	for (unsigned int i = 0; i < points.length; i++)
+	{
+	  points.arrayZ[i].x += deltas.arrayZ[i].x;
+	  points.arrayZ[i].y += deltas.arrayZ[i].y;
+	}
       } while (iterator.move_to_next ());
 
       return true;
@@ -682,29 +682,29 @@ struct gvar
   };
 
   protected:
-  FixedVersion<>version;        /* Version number of the glyph variations table
-                                 * Set to 0x00010000u. */
-  HBUINT16      axisCount;      /* The number of variation axes for this font. This must be
-                                 * the same number as axisCount in the 'fvar' table. */
-  HBUINT16      sharedTupleCount;
-                                /* The number of shared tuple records. Shared tuple records
-                                 * can be referenced within glyph variation data tables for
-                                 * multiple glyphs, as opposed to other tuple records stored
-                                 * directly within a glyph variation data table. */
+  FixedVersion<>version;	/* Version number of the glyph variations table
+				 * Set to 0x00010000u. */
+  HBUINT16	axisCount;	/* The number of variation axes for this font. This must be
+				 * the same number as axisCount in the 'fvar' table. */
+  HBUINT16	sharedTupleCount;
+				/* The number of shared tuple records. Shared tuple records
+				 * can be referenced within glyph variation data tables for
+				 * multiple glyphs, as opposed to other tuple records stored
+				 * directly within a glyph variation data table. */
   NNOffset32To<UnsizedArrayOf<F2DOT14>>
-                sharedTuples;   /* Offset from the start of this table to the shared tuple records.
-                                 * Array of tuple records shared across all glyph variation data tables. */
-  HBUINT16      glyphCount;     /* The number of glyphs in this font. This must match the number of
-                                 * glyphs stored elsewhere in the font. */
-  HBUINT16      flags;          /* Bit-field that gives the format of the offset array that follows.
-                                 * If bit 0 is clear, the offsets are uint16; if bit 0 is set, the
-                                 * offsets are uint32. */
+		sharedTuples;	/* Offset from the start of this table to the shared tuple records.
+				 * Array of tuple records shared across all glyph variation data tables. */
+  HBUINT16	glyphCount;	/* The number of glyphs in this font. This must match the number of
+				 * glyphs stored elsewhere in the font. */
+  HBUINT16	flags;		/* Bit-field that gives the format of the offset array that follows.
+				 * If bit 0 is clear, the offsets are uint16; if bit 0 is set, the
+				 * offsets are uint32. */
   Offset32To<GlyphVariationData>
-                dataZ;          /* Offset from the start of this table to the array of
-                                 * GlyphVariationData tables. */
+		dataZ;		/* Offset from the start of this table to the array of
+				 * GlyphVariationData tables. */
   UnsizedArrayOf<HBUINT8>
-                offsetZ;        /* Offsets from the start of the GlyphVariationData array
-                                 * to each GlyphVariationData table. */
+		offsetZ;	/* Offsets from the start of the GlyphVariationData array
+				 * to each GlyphVariationData table. */
   public:
   DEFINE_SIZE_ARRAY (20, offsetZ);
 };

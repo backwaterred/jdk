@@ -32,7 +32,7 @@
  *
  * Creates a new subset input object.
  *
- * Return value: (transfer full): New subset input, or %NULL if failed. Destroy
+ * Return value: (transfer full): New subset input, or `NULL` if failed. Destroy
  * with hb_subset_input_destroy().
  *
  * Since: 1.8.0
@@ -48,7 +48,9 @@ hb_subset_input_create_or_fail (void)
   for (auto& set : input->sets_iter ())
     set = hb_set_create ();
 
-  if (input->in_error ())
+  input->axes_location = hb_hashmap_create<hb_tag_t, float> ();
+
+  if (!input->axes_location || input->in_error ())
   {
     hb_subset_input_destroy (input);
     return nullptr;
@@ -87,7 +89,6 @@ hb_subset_input_create_or_fail (void)
 
   hb_tag_t default_no_subset_tables[] = {
     HB_TAG ('a', 'v', 'a', 'r'),
-    HB_TAG ('f', 'v', 'a', 'r'),
     HB_TAG ('g', 'a', 's', 'p'),
     HB_TAG ('c', 'v', 't', ' '),
     HB_TAG ('f', 'p', 'g', 'm'),
@@ -96,7 +97,6 @@ hb_subset_input_create_or_fail (void)
     HB_TAG ('D', 'S', 'I', 'G'),
     HB_TAG ('M', 'V', 'A', 'R'),
     HB_TAG ('c', 'v', 'a', 'r'),
-    HB_TAG ('S', 'T', 'A', 'T'),
   };
   input->sets.no_subset_tables->add_array (default_no_subset_tables,
                                          ARRAY_LENGTH (default_no_subset_tables));
@@ -203,6 +203,8 @@ hb_subset_input_create_or_fail (void)
 
   input->sets.layout_features->add_array (default_layout_features, ARRAY_LENGTH (default_layout_features));
 
+  input->sets.layout_scripts->invert (); // Default to all scripts.
+
   if (input->in_error ())
   {
     hb_subset_input_destroy (input);
@@ -243,6 +245,8 @@ hb_subset_input_destroy (hb_subset_input_t *input)
 
   for (hb_set_t* set : input->sets_iter ())
     hb_set_destroy (set);
+
+  hb_hashmap_destroy (input->axes_location);
 
   hb_free (input);
 }
@@ -327,7 +331,7 @@ hb_subset_input_get_flags (hb_subset_input_t *input)
  **/
 HB_EXTERN void
 hb_subset_input_set_flags (hb_subset_input_t *input,
-                           unsigned value)
+			   unsigned value)
 {
   input->flags = (hb_subset_flags_t) value;
 }
@@ -342,16 +346,16 @@ hb_subset_input_set_flags (hb_subset_input_t *input,
  *
  * Attaches a user-data key/data pair to the given subset input object.
  *
- * Return value: %true if success, %false otherwise
+ * Return value: `true` if success, `false` otherwise
  *
  * Since: 2.9.0
  **/
 hb_bool_t
 hb_subset_input_set_user_data (hb_subset_input_t  *input,
-                               hb_user_data_key_t *key,
-                               void *              data,
-                               hb_destroy_func_t   destroy,
-                               hb_bool_t           replace)
+			       hb_user_data_key_t *key,
+			       void *		   data,
+			       hb_destroy_func_t   destroy,
+			       hb_bool_t	   replace)
 {
   return hb_object_set_user_data (input, key, data, destroy, replace);
 }
@@ -370,7 +374,108 @@ hb_subset_input_set_user_data (hb_subset_input_t  *input,
  **/
 void *
 hb_subset_input_get_user_data (const hb_subset_input_t *input,
-                               hb_user_data_key_t     *key)
+			       hb_user_data_key_t     *key)
 {
   return hb_object_get_user_data (input, key);
 }
+
+#ifdef HB_EXPERIMENTAL_API
+#ifndef HB_NO_VAR
+/**
+ * hb_subset_input_pin_axis_to_default: (skip)
+ * @input: a #hb_subset_input_t object.
+ * @axis_tag: Tag of the axis to be pinned
+ *
+ * Pin an axis to its default location in the given subset input object.
+ *
+ * Return value: `true` if success, `false` otherwise
+ *
+ * Since: EXPERIMENTAL
+ **/
+HB_EXTERN hb_bool_t
+hb_subset_input_pin_axis_to_default (hb_subset_input_t  *input,
+                                     hb_face_t          *face,
+                                     hb_tag_t            axis_tag)
+{
+  hb_ot_var_axis_info_t axis_info;
+  if (!hb_ot_var_find_axis_info (face, axis_tag, &axis_info))
+    return false;
+
+  return input->axes_location->set (axis_tag, axis_info.default_value);
+}
+
+/**
+ * hb_subset_input_pin_axis_location: (skip)
+ * @input: a #hb_subset_input_t object.
+ * @axis_tag: Tag of the axis to be pinned
+ * @axis_value: Location on the axis to be pinned at
+ *
+ * Pin an axis to a fixed location in the given subset input object.
+ *
+ * Return value: `true` if success, `false` otherwise
+ *
+ * Since: EXPERIMENTAL
+ **/
+HB_EXTERN hb_bool_t
+hb_subset_input_pin_axis_location (hb_subset_input_t  *input,
+                                   hb_face_t          *face,
+                                   hb_tag_t            axis_tag,
+                                   float               axis_value)
+{
+  hb_ot_var_axis_info_t axis_info;
+  if (!hb_ot_var_find_axis_info (face, axis_tag, &axis_info))
+    return false;
+
+  float val = hb_clamp(axis_value, axis_info.min_value, axis_info.max_value);
+  return input->axes_location->set (axis_tag, val);
+}
+#endif
+#endif
+
+#ifdef HB_EXPERIMENTAL_API
+/**
+ * hb_subset_preprocess
+ * @input: a #hb_face_t object.
+ *
+ * Preprocesses the face and attaches data that will be needed by the
+ * subsetter. Future subsetting operations can then use the precomputed data
+ * to speed up the subsetting operation.
+ *
+ * Since: EXPERIMENTAL
+ **/
+
+HB_EXTERN hb_face_t *
+hb_subset_preprocess (hb_face_t *source)
+{
+  hb_subset_input_t* input = hb_subset_input_create_or_fail ();
+
+  hb_set_clear (hb_subset_input_set(input, HB_SUBSET_SETS_UNICODE));
+  hb_set_invert (hb_subset_input_set(input, HB_SUBSET_SETS_UNICODE));
+
+  hb_set_clear (hb_subset_input_set(input,
+                                    HB_SUBSET_SETS_LAYOUT_FEATURE_TAG));
+  hb_set_invert (hb_subset_input_set(input,
+                                     HB_SUBSET_SETS_LAYOUT_FEATURE_TAG));
+
+  hb_set_clear (hb_subset_input_set(input,
+                                    HB_SUBSET_SETS_LAYOUT_SCRIPT_TAG));
+  hb_set_invert (hb_subset_input_set(input,
+                                     HB_SUBSET_SETS_LAYOUT_SCRIPT_TAG));
+
+  hb_set_clear (hb_subset_input_set(input,
+                                    HB_SUBSET_SETS_NAME_ID));
+  hb_set_invert (hb_subset_input_set(input,
+                                     HB_SUBSET_SETS_NAME_ID));
+
+  hb_subset_input_set_flags(input,
+                            HB_SUBSET_FLAGS_NOTDEF_OUTLINE |
+                            HB_SUBSET_FLAGS_GLYPH_NAMES |
+                            HB_SUBSET_FLAGS_RETAIN_GIDS);
+  input->attach_accelerator_data = true;
+
+  hb_face_t* new_source = hb_subset_or_fail (source, input);
+  hb_subset_input_destroy (input);
+
+  return new_source;
+}
+#endif

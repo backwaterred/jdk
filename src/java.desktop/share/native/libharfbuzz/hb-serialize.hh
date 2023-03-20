@@ -59,9 +59,9 @@ struct hb_serialize_context_t
   typedef unsigned objidx_t;
 
   enum whence_t {
-     Head,      /* Relative to the current object head (default). */
-     Tail,      /* Relative to the current object tail after packed. */
-     Absolute   /* Absolute: from the start of the serialize buffer. */
+     Head,	/* Relative to the current object head (default). */
+     Tail,	/* Relative to the current object tail after packed. */
+     Absolute	/* Absolute: from the start of the serialize buffer. */
    };
 
 
@@ -105,9 +105,9 @@ struct hb_serialize_context_t
       // Virtual links aren't considered for equality since they don't affect the functionality
       // of the object.
       return (tail - head == o.tail - o.head)
-          && (real_links.length == o.real_links.length)
-          && 0 == hb_memcmp (head, o.head, tail - head)
-          && real_links.as_bytes () == o.real_links.as_bytes ();
+	  && (real_links.length == o.real_links.length)
+	  && 0 == hb_memcmp (head, o.head, tail - head)
+	  && real_links.as_bytes () == o.real_links.as_bytes ();
     }
     uint32_t hash () const
     {
@@ -139,6 +139,14 @@ struct hb_serialize_context_t
         objidx = o.objidx;
       }
 #endif
+
+      HB_INTERNAL static int cmp (const void* a, const void* b)
+      {
+        int cmp = ((const link_t*)a)->position - ((const link_t*)b)->position;
+        if (cmp) return cmp;
+
+        return ((const link_t*)a)->objidx - ((const link_t*)b)->objidx;
+      }
     };
 
     char *head;
@@ -249,16 +257,16 @@ struct hb_serialize_context_t
 
   template <typename T1, typename... Ts> bool propagate_error (T1 &&o1, Ts&&... os)
   { return propagate_error (std::forward<T1> (o1)) &&
-           propagate_error (std::forward<Ts> (os)...); }
+	   propagate_error (std::forward<Ts> (os)...); }
 
   /* To be called around main operation. */
   template <typename Type>
   Type *start_serialize ()
   {
     DEBUG_MSG_LEVEL (SERIALIZE, this->start, 0, +1,
-                     "start [%p..%p] (%lu bytes)",
-                     this->start, this->end,
-                     (unsigned long) (this->end - this->start));
+		     "start [%p..%p] (%lu bytes)",
+		     this->start, this->end,
+		     (unsigned long) (this->end - this->start));
 
     assert (!current);
     return push<Type> ();
@@ -266,10 +274,10 @@ struct hb_serialize_context_t
   void end_serialize ()
   {
     DEBUG_MSG_LEVEL (SERIALIZE, this->start, 0, -1,
-                     "end [%p..%p] serialized %u bytes; %s",
-                     this->start, this->end,
-                     (unsigned) (this->head - this->start),
-                     successful () ? "successful" : "UNSUCCESSFUL");
+		     "end [%p..%p] serialized %u bytes; %s",
+		     this->start, this->end,
+		     (unsigned) (this->head - this->start),
+		     successful () ? "successful" : "UNSUCCESSFUL");
 
     propagate_error (packed, packed_map);
 
@@ -315,7 +323,7 @@ struct hb_serialize_context_t
   {
     object_t *obj = current;
     if (unlikely (!obj)) return;
-    if (unlikely (in_error())) return;
+    if (unlikely (in_error() && !only_overflow ())) return;
 
     current = current->next;
     revert (obj->head, obj->tail);
@@ -353,8 +361,8 @@ struct hb_serialize_context_t
       if (objidx)
       {
         merge_virtual_links (obj, objidx);
-        obj->fini ();
-        return objidx;
+	obj->fini ();
+	return objidx;
       }
     }
 
@@ -395,7 +403,7 @@ struct hb_serialize_context_t
   }
 
   void revert (char *snap_head,
-               char *snap_tail)
+	       char *snap_tail)
   {
     if (unlikely (in_error ())) return;
     assert (snap_head <= head);
@@ -409,7 +417,7 @@ struct hb_serialize_context_t
   {
     if (unlikely (in_error ())) return;
     while (packed.length > 1 &&
-           packed.tail ()->head < tail)
+	   packed.tail ()->head < tail)
     {
       packed_map.del (packed.tail ());
       assert (!packed.tail ()->next);
@@ -451,8 +459,8 @@ struct hb_serialize_context_t
 
   template <typename T>
   void add_link (T &ofs, objidx_t objidx,
-                 whence_t whence = Head,
-                 unsigned bias = 0)
+		 whence_t whence = Head,
+		 unsigned bias = 0)
   {
     if (unlikely (in_error ())) return;
 
@@ -504,35 +512,35 @@ struct hb_serialize_context_t
     for (const object_t* parent : ++hb_iter (packed))
       for (const object_t::link_t &link : parent->real_links)
       {
-        const object_t* child = packed[link.objidx];
-        if (unlikely (!child)) { err (HB_SERIALIZE_ERROR_OTHER); return; }
-        unsigned offset = 0;
-        switch ((whence_t) link.whence) {
-        case Head:     offset = child->head - parent->head; break;
-        case Tail:     offset = child->head - parent->tail; break;
-        case Absolute: offset = (head - start) + (child->head - tail); break;
-        }
+	const object_t* child = packed[link.objidx];
+	if (unlikely (!child)) { err (HB_SERIALIZE_ERROR_OTHER); return; }
+	unsigned offset = 0;
+	switch ((whence_t) link.whence) {
+	case Head:     offset = child->head - parent->head; break;
+	case Tail:     offset = child->head - parent->tail; break;
+	case Absolute: offset = (head - start) + (child->head - tail); break;
+	}
 
-        assert (offset >= link.bias);
-        offset -= link.bias;
-        if (link.is_signed)
-        {
-          assert (link.width == 2 || link.width == 4);
-          if (link.width == 4)
-            assign_offset<int32_t> (parent, link, offset);
-          else
-            assign_offset<int16_t> (parent, link, offset);
-        }
-        else
-        {
-          assert (link.width == 2 || link.width == 3 || link.width == 4);
-          if (link.width == 4)
-            assign_offset<uint32_t> (parent, link, offset);
-          else if (link.width == 3)
-            assign_offset<uint32_t, 3> (parent, link, offset);
-          else
-            assign_offset<uint16_t> (parent, link, offset);
-        }
+	assert (offset >= link.bias);
+	offset -= link.bias;
+	if (link.is_signed)
+	{
+	  assert (link.width == 2 || link.width == 4);
+	  if (link.width == 4)
+	    assign_offset<int32_t> (parent, link, offset);
+	  else
+	    assign_offset<int16_t> (parent, link, offset);
+	}
+	else
+	{
+	  assert (link.width == 2 || link.width == 3 || link.width == 4);
+	  if (link.width == 4)
+	    assign_offset<uint32_t> (parent, link, offset);
+	  else if (link.width == 3)
+	    assign_offset<uint32_t, 3> (parent, link, offset);
+	  else
+	    assign_offset<uint16_t> (parent, link, offset);
+	}
       }
   }
 
@@ -617,8 +625,8 @@ struct hb_serialize_context_t
   { return copy (*src, std::forward<Ts> (ds)...); }
 
   template<typename Iterator,
-           hb_requires (hb_is_iterator (Iterator)),
-           typename ...Ts>
+	   hb_requires (hb_is_iterator (Iterator)),
+	   typename ...Ts>
   void copy_all (Iterator it, Ts&&... ds)
   { for (decltype (*it) _ : it) copy (_, std::forward<Ts> (ds)...); }
 
@@ -634,7 +642,7 @@ struct hb_serialize_context_t
     assert ((char *) obj <= this->head);
     assert ((size_t) (this->head - (char *) obj) <= size);
     if (unlikely (((char *) obj + size < (char *) obj) ||
-                  !this->allocate_size<Type> (((char *) obj) + size - this->head))) return nullptr;
+		  !this->allocate_size<Type> (((char *) obj) + size - this->head))) return nullptr;
     return reinterpret_cast<Type *> (obj);
   }
   template <typename Type>
@@ -659,7 +667,7 @@ struct hb_serialize_context_t
     assert (successful ());
     /* Copy both items from head side and tail side... */
     unsigned int len = (this->head - this->start)
-                     + (this->end  - this->tail);
+		     + (this->end  - this->tail);
 
     // If len is zero don't hb_malloc as the memory won't get properly
     // cleaned up later.
@@ -679,8 +687,8 @@ struct hb_serialize_context_t
   {
     hb_bytes_t b = copy_bytes ();
     return hb_blob_create (b.arrayZ, b.length,
-                           HB_MEMORY_MODE_WRITABLE,
-                           (char *) b.arrayZ, hb_free);
+			   HB_MEMORY_MODE_WRITABLE,
+			   (char *) b.arrayZ, hb_free);
   }
 
   const hb_vector_t<object_t *>& object_graph() const

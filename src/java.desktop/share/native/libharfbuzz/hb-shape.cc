@@ -53,7 +53,7 @@ static inline void free_static_shaper_list ();
 static const char * const nil_shaper_list[] = {nullptr};
 
 static struct hb_shaper_list_lazy_loader_t : hb_lazy_loader_t<const char *,
-                                                              hb_shaper_list_lazy_loader_t>
+							      hb_shaper_list_lazy_loader_t>
 {
   static const char ** create ()
   {
@@ -106,12 +106,12 @@ hb_shape_list_shapers ()
  * @font: an #hb_font_t to use for shaping
  * @buffer: an #hb_buffer_t to shape
  * @features: (array length=num_features) (nullable): an array of user
- *    specified #hb_feature_t or %NULL
+ *    specified #hb_feature_t or `NULL`
  * @num_features: the length of @features array
- * @shaper_list: (array zero-terminated=1) (nullable): a %NULL-terminated
- *    array of shapers to use or %NULL
+ * @shaper_list: (array zero-terminated=1) (nullable): a `NULL`-terminated
+ *    array of shapers to use or `NULL`
  *
- * See hb_shape() for details. If @shaper_list is not %NULL, the specified
+ * See hb_shape() for details. If @shaper_list is not `NULL`, the specified
  * shapers will be used in the given order, otherwise the default shapers list
  * will be used.
  *
@@ -121,10 +121,10 @@ hb_shape_list_shapers ()
  **/
 hb_bool_t
 hb_shape_full (hb_font_t          *font,
-               hb_buffer_t        *buffer,
-               const hb_feature_t *features,
-               unsigned int        num_features,
-               const char * const *shaper_list)
+	       hb_buffer_t        *buffer,
+	       const hb_feature_t *features,
+	       unsigned int        num_features,
+	       const char * const *shaper_list)
 {
   if (unlikely (!buffer->len))
     return true;
@@ -139,9 +139,9 @@ hb_shape_full (hb_font_t          *font,
   }
 
   hb_shape_plan_t *shape_plan = hb_shape_plan_create_cached2 (font->face, &buffer->props,
-                                                              features, num_features,
-                                                              font->coords, font->num_coords,
-                                                              shaper_list);
+							      features, num_features,
+							      font->coords, font->num_coords,
+							      shaper_list);
 
   hb_bool_t res = hb_shape_plan_execute (shape_plan, font, buffer, features, num_features);
 
@@ -153,12 +153,12 @@ hb_shape_full (hb_font_t          *font,
   if (text_buffer)
   {
     if (res && buffer->successful && !buffer->shaping_failed
-            && text_buffer->successful
-            && !buffer->verify (text_buffer,
-                                font,
-                                features,
-                                num_features,
-                                shaper_list))
+	    && text_buffer->successful
+	    && !buffer->verify (text_buffer,
+				font,
+				features,
+				num_features,
+				shaper_list))
       res = false;
     hb_buffer_destroy (text_buffer);
   }
@@ -173,11 +173,11 @@ hb_shape_full (hb_font_t          *font,
  * @font: an #hb_font_t to use for shaping
  * @buffer: an #hb_buffer_t to shape
  * @features: (array length=num_features) (nullable): an array of user
- *    specified #hb_feature_t or %NULL
+ *    specified #hb_feature_t or `NULL`
  * @num_features: the length of @features array
  *
  * Shapes @buffer using @font turning its Unicode characters content to
- * positioned glyphs. If @features is not %NULL, it will be used to control the
+ * positioned glyphs. If @features is not `NULL`, it will be used to control the
  * features applied during shaping. If two @features have the same tag but
  * overlapping ranges the value of the feature with the higher index takes
  * precedence.
@@ -186,9 +186,9 @@ hb_shape_full (hb_font_t          *font,
  **/
 void
 hb_shape (hb_font_t           *font,
-          hb_buffer_t         *buffer,
-          const hb_feature_t  *features,
-          unsigned int         num_features)
+	  hb_buffer_t         *buffer,
+	  const hb_feature_t  *features,
+	  unsigned int         num_features)
 {
   hb_shape_full (font, buffer, features, num_features, nullptr);
 }

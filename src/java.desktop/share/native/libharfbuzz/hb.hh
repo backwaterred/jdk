@@ -113,13 +113,13 @@
 
 /* Ignored currently, but should be fixed at some point. */
 #ifndef HB_NO_PRAGMA_GCC_DIAGNOSTIC_IGNORED
-#pragma GCC diagnostic ignored "-Wconversion"                   // TODO fix
-#pragma GCC diagnostic ignored "-Wformat-signedness"            // TODO fix
-#pragma GCC diagnostic ignored "-Wshadow"                       // TODO fix
-#pragma GCC diagnostic ignored "-Wunsafe-loop-optimizations"    // TODO fix
-#pragma GCC diagnostic ignored "-Wunused-parameter"             // TODO fix
+#pragma GCC diagnostic ignored "-Wconversion"			// TODO fix
+#pragma GCC diagnostic ignored "-Wformat-signedness"		// TODO fix
+#pragma GCC diagnostic ignored "-Wshadow"			// TODO fix
+#pragma GCC diagnostic ignored "-Wunsafe-loop-optimizations"	// TODO fix
+#pragma GCC diagnostic ignored "-Wunused-parameter"		// TODO fix
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic ignored "-Wunused-result"                // TODO fix
+#pragma GCC diagnostic ignored "-Wunused-result"		// TODO fix
 #endif
 #endif
 
@@ -262,7 +262,7 @@ extern "C" void  hb_free_impl(void *ptr);
 #define HB_PRINTF_FUNC(format_idx, arg_idx)
 #endif
 #if defined(__GNUC__) && (__GNUC__ >= 4) || (__clang__)
-#define HB_UNUSED       __attribute__((unused))
+#define HB_UNUSED	__attribute__((unused))
 #elif defined(_MSC_VER) /* https://github.com/harfbuzz/harfbuzz/issues/635 */
 #define HB_UNUSED __pragma(warning(suppress: 4100 4101))
 #else
@@ -474,13 +474,13 @@ static_assert ((sizeof (hb_var_int_t) == 4), "");
 #include "hb-meta.hh"
 #include "hb-mutex.hh"
 #include "hb-number.hh"
-#include "hb-atomic.hh" // Requires: hb-meta
-#include "hb-null.hh"   // Requires: hb-meta
-#include "hb-algs.hh"   // Requires: hb-meta hb-null hb-number
-#include "hb-iter.hh"   // Requires: hb-algs hb-meta
-#include "hb-debug.hh"  // Requires: hb-algs hb-atomic
-#include "hb-array.hh"  // Requires: hb-algs hb-iter hb-null
-#include "hb-vector.hh" // Requires: hb-array hb-null
-#include "hb-object.hh" // Requires: hb-atomic hb-mutex hb-vector
+#include "hb-atomic.hh"	// Requires: hb-meta
+#include "hb-null.hh"	// Requires: hb-meta
+#include "hb-algs.hh"	// Requires: hb-meta hb-null hb-number
+#include "hb-iter.hh"	// Requires: hb-algs hb-meta
+#include "hb-debug.hh"	// Requires: hb-algs hb-atomic
+#include "hb-array.hh"	// Requires: hb-algs hb-iter hb-null
+#include "hb-vector.hh"	// Requires: hb-array hb-null
+#include "hb-object.hh"	// Requires: hb-atomic hb-mutex hb-vector
 
 #endif /* HB_HH */

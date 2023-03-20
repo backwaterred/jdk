@@ -100,11 +100,11 @@ struct CFF2FDSelect
     }
   }
 
-  HBUINT8       format;
+  HBUINT8	format;
   union {
-  FDSelect0     format0;
-  FDSelect3     format3;
-  FDSelect4     format4;
+  FDSelect0	format0;
+  FDSelect3	format3;
+  FDSelect4	format4;
   } u;
   public:
   DEFINE_SIZE_MIN (2);
@@ -130,7 +130,7 @@ struct CFF2VariationStore
 
   unsigned int get_size () const { return HBUINT16::static_size + size; }
 
-  HBUINT16      size;
+  HBUINT16	size;
   VariationStore  varStore;
 
   DEFINE_SIZE_MIN (2 + VariationStore::min_size);
@@ -156,27 +156,27 @@ struct cff2_top_dict_opset_t : top_dict_opset_t<>
   {
     switch (op) {
       case OpCode_FontMatrix:
-        {
-          dict_val_t val;
-          val.init ();
-          dictval.add_op (op, env.str_ref);
-          env.clear_args ();
-        }
-        break;
+	{
+	  dict_val_t val;
+	  val.init ();
+	  dictval.add_op (op, env.str_ref);
+	  env.clear_args ();
+	}
+	break;
 
       case OpCode_vstore:
-        dictval.vstoreOffset = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.vstoreOffset = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
       case OpCode_FDSelect:
-        dictval.FDSelectOffset = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.FDSelectOffset = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
 
       default:
-        SUPER::process_op (op, env, dictval);
-        /* Record this operand below if stack is empty, otherwise done */
-        if (!env.argStack.is_empty ()) return;
+	SUPER::process_op (op, env, dictval);
+	/* Record this operand below if stack is empty, otherwise done */
+	if (!env.argStack.is_empty ()) return;
     }
 
     if (unlikely (env.in_error ())) return;
@@ -205,15 +205,15 @@ struct cff2_font_dict_opset_t : dict_opset_t
   {
     switch (op) {
       case OpCode_Private:
-        dictval.privateDictInfo.offset = env.argStack.pop_uint ();
-        dictval.privateDictInfo.size = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.privateDictInfo.offset = env.argStack.pop_uint ();
+	dictval.privateDictInfo.size = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
 
       default:
-        SUPER::process_op (op, env);
-        if (!env.argStack.is_empty ())
-          return;
+	SUPER::process_op (op, env);
+	if (!env.argStack.is_empty ())
+	  return;
     }
 
     if (unlikely (env.in_error ())) return;
@@ -260,11 +260,11 @@ struct cff2_priv_dict_interp_env_t : num_interp_env_t
   }
 
   unsigned int get_ivs () const { return ivs; }
-  void   set_ivs (unsigned int ivs_) { ivs = ivs_; }
+  void	 set_ivs (unsigned int ivs_) { ivs = ivs_; }
 
   protected:
   unsigned int  ivs = 0;
-  bool    seen_vsindex = false;
+  bool	  seen_vsindex = false;
 };
 
 struct cff2_private_dict_opset_t : dict_opset_t
@@ -282,33 +282,33 @@ struct cff2_private_dict_opset_t : dict_opset_t
       case OpCode_BlueFuzz:
       case OpCode_ExpansionFactor:
       case OpCode_LanguageGroup:
-        val.single_val = env.argStack.pop_num ();
-        env.clear_args ();
-        break;
+	val.single_val = env.argStack.pop_num ();
+	env.clear_args ();
+	break;
       case OpCode_BlueValues:
       case OpCode_OtherBlues:
       case OpCode_FamilyBlues:
       case OpCode_FamilyOtherBlues:
       case OpCode_StemSnapH:
       case OpCode_StemSnapV:
-        env.clear_args ();
-        break;
+	env.clear_args ();
+	break;
       case OpCode_Subrs:
-        dictval.subrsOffset = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.subrsOffset = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
       case OpCode_vsindexdict:
-        env.process_vsindex ();
-        dictval.ivs = env.get_ivs ();
-        env.clear_args ();
-        break;
+	env.process_vsindex ();
+	dictval.ivs = env.get_ivs ();
+	env.clear_args ();
+	break;
       case OpCode_blenddict:
-        break;
+	break;
 
       default:
-        dict_opset_t::process_op (op, env);
-        if (!env.argStack.is_empty ()) return;
-        break;
+	dict_opset_t::process_op (op, env);
+	if (!env.argStack.is_empty ()) return;
+	break;
     }
 
     if (unlikely (env.in_error ())) return;
@@ -335,22 +335,22 @@ struct cff2_private_dict_opset_subset_t : dict_opset_t
       case OpCode_StemSnapV:
       case OpCode_LanguageGroup:
       case OpCode_ExpansionFactor:
-        env.clear_args ();
-        break;
+	env.clear_args ();
+	break;
 
       case OpCode_blenddict:
-        env.clear_args ();
-        return;
+	env.clear_args ();
+	return;
 
       case OpCode_Subrs:
-        dictval.subrsOffset = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.subrsOffset = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
 
       default:
-        SUPER::process_op (op, env);
-        if (!env.argStack.is_empty ()) return;
-        break;
+	SUPER::process_op (op, env);
+	if (!env.argStack.is_empty ()) return;
+	break;
     }
 
     if (unlikely (env.in_error ())) return;
@@ -387,7 +387,7 @@ struct cff2
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-                  likely (version.major == 2));
+		  likely (version.major == 2));
   }
 
   template <typename PRIVOPSET, typename PRIVDICTVAL>
@@ -411,12 +411,12 @@ struct cff2
         goto fail;
 
       { /* parse top dict */
-        hb_ubytes_t topDictStr = (cff2 + cff2->topDict).as_ubytes (cff2->topDictSize);
-        if (unlikely (!topDictStr.sanitize (&sc))) goto fail;
-        num_interp_env_t env (topDictStr);
-        cff2_top_dict_interpreter_t top_interp (env);
-        topDict.init ();
-        if (unlikely (!top_interp.interpret (topDict))) goto fail;
+	hb_ubytes_t topDictStr = (cff2 + cff2->topDict).as_ubytes (cff2->topDictSize);
+	if (unlikely (!topDictStr.sanitize (&sc))) goto fail;
+	num_interp_env_t env (topDictStr);
+	cff2_top_dict_interpreter_t top_interp (env);
+	topDict.init ();
+	if (unlikely (!top_interp.interpret (topDict))) goto fail;
       }
 
       globalSubrs = &StructAtOffset<CFF2Subrs> (cff2, cff2->topDict + cff2->topDictSize);
@@ -426,10 +426,10 @@ struct cff2
       fdSelect = &StructAtOffsetOrNull<CFF2FDSelect> (cff2, topDict.FDSelectOffset);
 
       if (((varStore != &Null (CFF2VariationStore)) && unlikely (!varStore->sanitize (&sc))) ||
-          (charStrings == &Null (CFF2CharStrings)) || unlikely (!charStrings->sanitize (&sc)) ||
-          (globalSubrs == &Null (CFF2Subrs)) || unlikely (!globalSubrs->sanitize (&sc)) ||
-          (fdArray == &Null (CFF2FDArray)) || unlikely (!fdArray->sanitize (&sc)) ||
-          (((fdSelect != &Null (CFF2FDSelect)) && unlikely (!fdSelect->sanitize (&sc, fdArray->count)))))
+	  (charStrings == &Null (CFF2CharStrings)) || unlikely (!charStrings->sanitize (&sc)) ||
+	  (globalSubrs == &Null (CFF2Subrs)) || unlikely (!globalSubrs->sanitize (&sc)) ||
+	  (fdArray == &Null (CFF2FDArray)) || unlikely (!fdArray->sanitize (&sc)) ||
+	  (((fdSelect != &Null (CFF2FDSelect)) && unlikely (!fdSelect->sanitize (&sc, fdArray->count)))))
         goto fail;
 
       num_glyphs = charStrings->count;
@@ -443,27 +443,27 @@ struct cff2
       /* parse font dicts and gather private dicts */
       for (unsigned int i = 0; i < fdCount; i++)
       {
-        const hb_ubytes_t fontDictStr = (*fdArray)[i];
-        if (unlikely (!fontDictStr.sanitize (&sc))) goto fail;
-        cff2_font_dict_values_t  *font;
-        num_interp_env_t env (fontDictStr);
-        cff2_font_dict_interpreter_t font_interp (env);
-        font = fontDicts.push ();
-        if (unlikely (font == &Crap (cff2_font_dict_values_t))) goto fail;
-        font->init ();
-        if (unlikely (!font_interp.interpret (*font))) goto fail;
+	const hb_ubytes_t fontDictStr = (*fdArray)[i];
+	if (unlikely (!fontDictStr.sanitize (&sc))) goto fail;
+	cff2_font_dict_values_t  *font;
+	num_interp_env_t env (fontDictStr);
+	cff2_font_dict_interpreter_t font_interp (env);
+	font = fontDicts.push ();
+	if (unlikely (font == &Crap (cff2_font_dict_values_t))) goto fail;
+	font->init ();
+	if (unlikely (!font_interp.interpret (*font))) goto fail;
 
-        const hb_ubytes_t privDictStr = StructAtOffsetOrNull<UnsizedByteStr> (cff2, font->privateDictInfo.offset).as_ubytes (font->privateDictInfo.size);
-        if (unlikely (!privDictStr.sanitize (&sc))) goto fail;
-        cff2_priv_dict_interp_env_t env2 (privDictStr);
-        dict_interpreter_t<PRIVOPSET, PRIVDICTVAL, cff2_priv_dict_interp_env_t> priv_interp (env2);
-        privateDicts[i].init ();
-        if (unlikely (!priv_interp.interpret (privateDicts[i]))) goto fail;
+	const hb_ubytes_t privDictStr = StructAtOffsetOrNull<UnsizedByteStr> (cff2, font->privateDictInfo.offset).as_ubytes (font->privateDictInfo.size);
+	if (unlikely (!privDictStr.sanitize (&sc))) goto fail;
+	cff2_priv_dict_interp_env_t env2 (privDictStr);
+	dict_interpreter_t<PRIVOPSET, PRIVDICTVAL, cff2_priv_dict_interp_env_t> priv_interp (env2);
+	privateDicts[i].init ();
+	if (unlikely (!priv_interp.interpret (privateDicts[i]))) goto fail;
 
-        privateDicts[i].localSubrs = &StructAtOffsetOrNull<CFF2Subrs> (&privDictStr[0], privateDicts[i].subrsOffset);
-        if (privateDicts[i].localSubrs != &Null (CFF2Subrs) &&
-          unlikely (!privateDicts[i].localSubrs->sanitize (&sc)))
-          goto fail;
+	privateDicts[i].localSubrs = &StructAtOffsetOrNull<CFF2Subrs> (&privDictStr[0], privateDicts[i].subrsOffset);
+	if (privateDicts[i].localSubrs != &Null (CFF2Subrs) &&
+	  unlikely (!privateDicts[i].localSubrs->sanitize (&sc)))
+	  goto fail;
       }
 
 
@@ -486,22 +486,22 @@ struct cff2
     bool is_valid () const { return blob; }
 
     protected:
-    hb_blob_t                   *blob = nullptr;
-    hb_sanitize_context_t       sc;
+    hb_blob_t			*blob = nullptr;
+    hb_sanitize_context_t	sc;
 
     public:
-    cff2_top_dict_values_t      topDict;
-    const CFF2Subrs             *globalSubrs = nullptr;
-    const CFF2VariationStore    *varStore = nullptr;
-    const CFF2CharStrings       *charStrings = nullptr;
-    const CFF2FDArray           *fdArray = nullptr;
-    const CFF2FDSelect          *fdSelect = nullptr;
-    unsigned int                fdCount = 0;
+    cff2_top_dict_values_t	topDict;
+    const CFF2Subrs		*globalSubrs = nullptr;
+    const CFF2VariationStore	*varStore = nullptr;
+    const CFF2CharStrings	*charStrings = nullptr;
+    const CFF2FDArray		*fdArray = nullptr;
+    const CFF2FDSelect		*fdSelect = nullptr;
+    unsigned int		fdCount = 0;
 
     hb_vector_t<cff2_font_dict_values_t>     fontDicts;
     hb_vector_t<PRIVDICTVAL>  privateDicts;
 
-    unsigned int              num_glyphs = 0;
+    unsigned int	      num_glyphs = 0;
   };
 
   struct accelerator_t : accelerator_templ_t<cff2_private_dict_opset_t, cff2_private_dict_values_t>
@@ -509,8 +509,8 @@ struct cff2
     accelerator_t (hb_face_t *face) : accelerator_templ_t (face) {}
 
     HB_INTERNAL bool get_extents (hb_font_t *font,
-                                  hb_codepoint_t glyph,
-                                  hb_glyph_extents_t *extents) const;
+				  hb_codepoint_t glyph,
+				  hb_glyph_extents_t *extents) const;
     HB_INTERNAL bool get_path (hb_font_t *font, hb_codepoint_t glyph, hb_draw_session_t &draw_session) const;
   };
 
@@ -519,9 +519,9 @@ struct cff2
   bool subset (hb_subset_context_t *c) const { return hb_subset_cff2 (c); }
 
   public:
-  FixedVersion<HBUINT8>         version;        /* Version of CFF2 table. set to 0x0200u */
-  NNOffsetTo<TopDict, HBUINT8>  topDict;        /* headerSize = Offset to Top DICT. */
-  HBUINT16                      topDictSize;    /* Top DICT size */
+  FixedVersion<HBUINT8>		version;	/* Version of CFF2 table. set to 0x0200u */
+  NNOffsetTo<TopDict, HBUINT8>	topDict;	/* headerSize = Offset to Top DICT. */
+  HBUINT16			topDictSize;	/* Top DICT size */
 
   public:
   DEFINE_SIZE_STATIC (5);

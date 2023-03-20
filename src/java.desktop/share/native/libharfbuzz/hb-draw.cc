@@ -39,61 +39,61 @@
 
 static void
 hb_draw_move_to_nil (hb_draw_funcs_t *dfuncs HB_UNUSED, void *draw_data HB_UNUSED,
-                     hb_draw_state_t *st HB_UNUSED,
-                     float to_x HB_UNUSED, float to_y HB_UNUSED,
-                     void *user_data HB_UNUSED) {}
+		     hb_draw_state_t *st HB_UNUSED,
+		     float to_x HB_UNUSED, float to_y HB_UNUSED,
+		     void *user_data HB_UNUSED) {}
 
 static void
 hb_draw_line_to_nil (hb_draw_funcs_t *dfuncs HB_UNUSED, void *draw_data HB_UNUSED,
-                     hb_draw_state_t *st HB_UNUSED,
-                     float to_x HB_UNUSED, float to_y HB_UNUSED,
-                     void *user_data HB_UNUSED) {}
+		     hb_draw_state_t *st HB_UNUSED,
+		     float to_x HB_UNUSED, float to_y HB_UNUSED,
+		     void *user_data HB_UNUSED) {}
 
 static void
 hb_draw_quadratic_to_nil (hb_draw_funcs_t *dfuncs, void *draw_data,
-                          hb_draw_state_t *st,
-                          float control_x, float control_y,
-                          float to_x, float to_y,
-                          void *user_data HB_UNUSED)
+			  hb_draw_state_t *st,
+			  float control_x, float control_y,
+			  float to_x, float to_y,
+			  void *user_data HB_UNUSED)
 {
 #define HB_ONE_THIRD 0.33333333f
   dfuncs->emit_cubic_to (draw_data, *st,
-                         (st->current_x + 2.f * control_x) * HB_ONE_THIRD,
-                         (st->current_y + 2.f * control_y) * HB_ONE_THIRD,
-                         (to_x + 2.f * control_x) * HB_ONE_THIRD,
-                         (to_y + 2.f * control_y) * HB_ONE_THIRD,
-                         to_x, to_y);
+			 (st->current_x + 2.f * control_x) * HB_ONE_THIRD,
+			 (st->current_y + 2.f * control_y) * HB_ONE_THIRD,
+			 (to_x + 2.f * control_x) * HB_ONE_THIRD,
+			 (to_y + 2.f * control_y) * HB_ONE_THIRD,
+			 to_x, to_y);
 #undef HB_ONE_THIRD
 }
 
 static void
 hb_draw_cubic_to_nil (hb_draw_funcs_t *dfuncs HB_UNUSED, void *draw_data HB_UNUSED,
-                      hb_draw_state_t *st HB_UNUSED,
-                      float control1_x HB_UNUSED, float control1_y HB_UNUSED,
-                      float control2_x HB_UNUSED, float control2_y HB_UNUSED,
-                      float to_x HB_UNUSED, float to_y HB_UNUSED,
-                      void *user_data HB_UNUSED) {}
+		      hb_draw_state_t *st HB_UNUSED,
+		      float control1_x HB_UNUSED, float control1_y HB_UNUSED,
+		      float control2_x HB_UNUSED, float control2_y HB_UNUSED,
+		      float to_x HB_UNUSED, float to_y HB_UNUSED,
+		      void *user_data HB_UNUSED) {}
 
 static void
 hb_draw_close_path_nil (hb_draw_funcs_t *dfuncs HB_UNUSED, void *draw_data HB_UNUSED,
-                        hb_draw_state_t *st HB_UNUSED,
-                        void *user_data HB_UNUSED) {}
+			hb_draw_state_t *st HB_UNUSED,
+			void *user_data HB_UNUSED) {}
 
 
-#define HB_DRAW_FUNC_IMPLEMENT(name)                                            \
-                                                                                \
-void                                                                            \
-hb_draw_funcs_set_##name##_func (hb_draw_funcs_t         *dfuncs,               \
-                                 hb_draw_##name##_func_t  func,                 \
-                                 void                    *user_data,            \
-                                 hb_destroy_func_t        destroy)              \
-{                                                                               \
-  if (hb_object_is_immutable (dfuncs))                                          \
-    return;                                                                     \
-                                                                                \
-  if (dfuncs->destroy && dfuncs->destroy->name)                                 \
+#define HB_DRAW_FUNC_IMPLEMENT(name)						\
+										\
+void										\
+hb_draw_funcs_set_##name##_func (hb_draw_funcs_t	 *dfuncs,		\
+				 hb_draw_##name##_func_t  func,			\
+				 void			 *user_data,		\
+				 hb_destroy_func_t	  destroy)		\
+{										\
+  if (hb_object_is_immutable (dfuncs))						\
+    return;									\
+										\
+  if (dfuncs->destroy && dfuncs->destroy->name)					\
     dfuncs->destroy->name (!dfuncs->user_data ? nullptr : dfuncs->user_data->name); \
-                                                                         \
+									 \
   if (user_data && !dfuncs->user_data)                                   \
   {                                                                      \
     dfuncs->user_data = (decltype (dfuncs->user_data)) hb_calloc (1, sizeof (*dfuncs->user_data)); \
@@ -106,20 +106,21 @@ hb_draw_funcs_set_##name##_func (hb_draw_funcs_t         *dfuncs,               
     if (unlikely (!dfuncs->destroy))                                     \
       goto fail;                                                         \
   }                                                                      \
-                                                                        \
-  if (func) {                                                           \
-    dfuncs->func.name = func;                                           \
-    if (dfuncs->user_data)                                              \
-      dfuncs->user_data->name = user_data;                              \
-    if (dfuncs->destroy)                                                \
-      dfuncs->destroy->name = destroy;                                  \
-  } else {                                                              \
-    dfuncs->func.name = hb_draw_##name##_nil;                           \
-    if (dfuncs->user_data)                                              \
-      dfuncs->user_data->name = nullptr;                                \
-    if (dfuncs->destroy)                                                \
-      dfuncs->destroy->name = nullptr;                                  \
-  }                                                                     \
+									\
+  if (func) {								\
+    dfuncs->func.name = func;						\
+    if (dfuncs->user_data)						\
+      dfuncs->user_data->name = user_data;				\
+    if (dfuncs->destroy)						\
+      dfuncs->destroy->name = destroy;					\
+  } else {								\
+    dfuncs->func.name = hb_draw_##name##_nil;				\
+    if (dfuncs->user_data)						\
+      dfuncs->user_data->name = nullptr;				\
+    if (dfuncs->destroy)						\
+      dfuncs->destroy->name = nullptr;					\
+  }									\
+  return;                                                                \
                                                                          \
 fail:                                                                    \
   if (destroy)                                                           \
@@ -137,7 +138,7 @@ HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS
  * Return value: (transfer full):
  * A newly allocated #hb_draw_funcs_t with a reference count of 1. The initial
  * reference count should be released with hb_draw_funcs_destroy when you are
- * done using the #hb_draw_funcs_t. This function never returns %NULL. If
+ * done using the #hb_draw_funcs_t. This function never returns `NULL`. If
  * memory cannot be allocated, a special singleton #hb_draw_funcs_t object will
  * be returned.
  *
@@ -208,6 +209,9 @@ hb_draw_funcs_destroy (hb_draw_funcs_t *dfuncs)
 #undef HB_DRAW_FUNC_IMPLEMENT
   }
 
+  hb_free (dfuncs->destroy);
+  hb_free (dfuncs->user_data);
+
   hb_free (dfuncs);
 }
 
@@ -234,7 +238,7 @@ hb_draw_funcs_make_immutable (hb_draw_funcs_t *dfuncs)
  *
  * Checks whether @dfuncs is immutable.
  *
- * Return value: %true if @dfuncs is immutable, %false otherwise
+ * Return value: `true` if @dfuncs is immutable, `false` otherwise
  *
  * Since: 4.0.0
  **/
@@ -259,11 +263,11 @@ hb_draw_funcs_is_immutable (hb_draw_funcs_t *dfuncs)
  **/
 void
 hb_draw_move_to (hb_draw_funcs_t *dfuncs, void *draw_data,
-                 hb_draw_state_t *st,
-                 float to_x, float to_y)
+		 hb_draw_state_t *st,
+		 float to_x, float to_y)
 {
   dfuncs->move_to (draw_data, *st,
-                   to_x, to_y);
+		   to_x, to_y);
 }
 
 /**
@@ -280,11 +284,11 @@ hb_draw_move_to (hb_draw_funcs_t *dfuncs, void *draw_data,
  **/
 void
 hb_draw_line_to (hb_draw_funcs_t *dfuncs, void *draw_data,
-                 hb_draw_state_t *st,
-                 float to_x, float to_y)
+		 hb_draw_state_t *st,
+		 float to_x, float to_y)
 {
   dfuncs->line_to (draw_data, *st,
-                   to_x, to_y);
+		   to_x, to_y);
 }
 
 /**
@@ -303,13 +307,13 @@ hb_draw_line_to (hb_draw_funcs_t *dfuncs, void *draw_data,
  **/
 void
 hb_draw_quadratic_to (hb_draw_funcs_t *dfuncs, void *draw_data,
-                      hb_draw_state_t *st,
-                      float control_x, float control_y,
-                      float to_x, float to_y)
+		      hb_draw_state_t *st,
+		      float control_x, float control_y,
+		      float to_x, float to_y)
 {
   dfuncs->quadratic_to (draw_data, *st,
-                        control_x, control_y,
-                        to_x, to_y);
+			control_x, control_y,
+			to_x, to_y);
 }
 
 /**
@@ -330,15 +334,15 @@ hb_draw_quadratic_to (hb_draw_funcs_t *dfuncs, void *draw_data,
  **/
 void
 hb_draw_cubic_to (hb_draw_funcs_t *dfuncs, void *draw_data,
-                  hb_draw_state_t *st,
-                  float control1_x, float control1_y,
-                  float control2_x, float control2_y,
-                  float to_x, float to_y)
+		  hb_draw_state_t *st,
+		  float control1_x, float control1_y,
+		  float control2_x, float control2_y,
+		  float to_x, float to_y)
 {
   dfuncs->cubic_to (draw_data, *st,
-                    control1_x, control1_y,
-                    control2_x, control2_y,
-                    to_x, to_y);
+		    control1_x, control1_y,
+		    control2_x, control2_y,
+		    to_x, to_y);
 }
 
 /**
@@ -353,7 +357,7 @@ hb_draw_cubic_to (hb_draw_funcs_t *dfuncs, void *draw_data,
  **/
 void
 hb_draw_close_path (hb_draw_funcs_t *dfuncs, void *draw_data,
-                    hb_draw_state_t *st)
+		    hb_draw_state_t *st)
 {
   dfuncs->close_path (draw_data, *st);
 }

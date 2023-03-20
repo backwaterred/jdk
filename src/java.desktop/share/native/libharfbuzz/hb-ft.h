@@ -61,7 +61,7 @@ HB_BEGIN_DECLS
  */
 HB_EXTERN hb_face_t *
 hb_ft_face_create (FT_Face           ft_face,
-                   hb_destroy_func_t destroy);
+		   hb_destroy_func_t destroy);
 
 /* This version is like hb_ft_face_create(), except that it caches
  * the hb-face using the generic pointer of the ft-face.  This means
@@ -100,7 +100,7 @@ hb_ft_face_create_referenced (FT_Face ft_face);
  * apply here.  Use hb_ft_font_create_referenced() if you can. */
 HB_EXTERN hb_font_t *
 hb_ft_font_create (FT_Face           ft_face,
-                   hb_destroy_func_t destroy);
+		   hb_destroy_func_t destroy);
 
 /* See notes on hb_ft_face_create_referenced() re lifecycle-management
  * issues. */

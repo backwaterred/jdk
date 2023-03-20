@@ -51,11 +51,11 @@ hb_ot_color_palette_get_count (hb_face_t *face);
 
 HB_EXTERN hb_ot_name_id_t
 hb_ot_color_palette_get_name_id (hb_face_t *face,
-                                 unsigned int palette_index);
+				 unsigned int palette_index);
 
 HB_EXTERN hb_ot_name_id_t
 hb_ot_color_palette_color_get_name_id (hb_face_t *face,
-                                       unsigned int color_index);
+				       unsigned int color_index);
 
 /**
  * hb_ot_color_palette_flags_t:
@@ -71,21 +71,21 @@ hb_ot_color_palette_color_get_name_id (hb_face_t *face,
  * Since: 2.1.0
  */
 typedef enum { /*< flags >*/
-  HB_OT_COLOR_PALETTE_FLAG_DEFAULT                      = 0x00000000u,
-  HB_OT_COLOR_PALETTE_FLAG_USABLE_WITH_LIGHT_BACKGROUND = 0x00000001u,
-  HB_OT_COLOR_PALETTE_FLAG_USABLE_WITH_DARK_BACKGROUND  = 0x00000002u
+  HB_OT_COLOR_PALETTE_FLAG_DEFAULT			= 0x00000000u,
+  HB_OT_COLOR_PALETTE_FLAG_USABLE_WITH_LIGHT_BACKGROUND	= 0x00000001u,
+  HB_OT_COLOR_PALETTE_FLAG_USABLE_WITH_DARK_BACKGROUND	= 0x00000002u
 } hb_ot_color_palette_flags_t;
 
 HB_EXTERN hb_ot_color_palette_flags_t
 hb_ot_color_palette_get_flags (hb_face_t *face,
-                               unsigned int palette_index);
+			       unsigned int palette_index);
 
 HB_EXTERN unsigned int
 hb_ot_color_palette_get_colors (hb_face_t    *face,
-                                unsigned int  palette_index,
-                                unsigned int  start_offset,
-                                unsigned int *color_count,  /* IN/OUT.  May be NULL. */
-                                hb_color_t   *colors        /* OUT.     May be NULL. */);
+				unsigned int  palette_index,
+				unsigned int  start_offset,
+				unsigned int *color_count,  /* IN/OUT.  May be NULL. */
+				hb_color_t   *colors        /* OUT.     May be NULL. */);
 
 
 /*
@@ -102,6 +102,10 @@ hb_ot_color_has_layers (hb_face_t *face);
  *
  * Pairs of glyph and color index.
  *
+ * A color index of 0xFFFF does not refer to a palette
+ * color, but indicates that the foreground color should
+ * be used.
+ *
  * Since: 2.1.0
  **/
 typedef struct hb_ot_color_layer_t {
@@ -111,10 +115,10 @@ typedef struct hb_ot_color_layer_t {
 
 HB_EXTERN unsigned int
 hb_ot_color_glyph_get_layers (hb_face_t           *face,
-                              hb_codepoint_t       glyph,
-                              unsigned int         start_offset,
-                              unsigned int        *layer_count, /* IN/OUT.  May be NULL. */
-                              hb_ot_color_layer_t *layers /* OUT.     May be NULL. */);
+			      hb_codepoint_t       glyph,
+			      unsigned int         start_offset,
+			      unsigned int        *layer_count, /* IN/OUT.  May be NULL. */
+			      hb_ot_color_layer_t *layers /* OUT.     May be NULL. */);
 
 /*
  * SVG

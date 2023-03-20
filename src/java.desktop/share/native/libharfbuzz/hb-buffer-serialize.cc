@@ -56,7 +56,7 @@ hb_buffer_serialize_list_formats ()
 /**
  * hb_buffer_serialize_format_from_string:
  * @str: (array length=len) (element-type uint8_t): a string to parse
- * @len: length of @str, or -1 if string is %NULL terminated
+ * @len: length of @str, or -1 if string is `NULL` terminated
  *
  * Parses a string into an #hb_buffer_serialize_format_t. Does not check if
  * @str is a valid buffer serialization format, use
@@ -78,11 +78,11 @@ hb_buffer_serialize_format_from_string (const char *str, int len)
  * hb_buffer_serialize_format_to_string:
  * @format: an #hb_buffer_serialize_format_t to convert.
  *
- * Converts @format to the string corresponding it, or %NULL if it is not a valid
+ * Converts @format to the string corresponding it, or `NULL` if it is not a valid
  * #hb_buffer_serialize_format_t.
  *
  * Return value: (transfer none):
- * A %NULL terminated string corresponding to @format. Should not be freed.
+ * A `NULL` terminated string corresponding to @format. Should not be freed.
  *
  * Since: 0.9.7
  **/
@@ -138,9 +138,9 @@ _hb_buffer_serialize_glyphs_json (hb_buffer_t *buffer,
       *p++ = '"';
       for (char *q = g; *q; q++)
       {
-        if (unlikely (*q == '"' || *q == '\\'))
-          *p++ = '\\';
-        *p++ = *q;
+	if (unlikely (*q == '"' || *q == '\\'))
+	  *p++ = '\\';
+	*p++ = *q;
       }
       *p++ = '"';
     }
@@ -154,10 +154,10 @@ _hb_buffer_serialize_glyphs_json (hb_buffer_t *buffer,
     if (!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS))
     {
       p += hb_max (0, snprintf (p, ARRAY_LENGTH (b) - (p - b), ",\"dx\":%d,\"dy\":%d",
-                   x+pos[i].x_offset, y+pos[i].y_offset));
+		   x+pos[i].x_offset, y+pos[i].y_offset));
       if (!(flags & HB_BUFFER_SERIALIZE_FLAG_NO_ADVANCES))
         p += hb_max (0, snprintf (p, ARRAY_LENGTH (b) - (p - b), ",\"ax\":%d,\"ay\":%d",
-                     pos[i].x_advance, pos[i].y_advance));
+		     pos[i].x_advance, pos[i].y_advance));
     }
 
     if (flags & HB_BUFFER_SERIALIZE_FLAG_GLYPH_FLAGS)
@@ -400,9 +400,9 @@ _hb_buffer_serialize_unicode_text (hb_buffer_t *buffer,
  * @buf: (out) (array length=buf_size) (element-type uint8_t): output string to
  *       write serialized buffer into.
  * @buf_size: the size of @buf.
- * @buf_consumed: (out) (optional): if not %NULL, will be set to the number of bytes written into @buf.
+ * @buf_consumed: (out) (optional): if not `NULL`, will be set to the number of bytes written into @buf.
  * @font: (nullable): the #hb_font_t used to shape this buffer, needed to
- *        read glyph names and extents. If %NULL, an empty font will be used.
+ *        read glyph names and extents. If `NULL`, an empty font will be used.
  * @format: the #hb_buffer_serialize_format_t to use for formatting the output.
  * @flags: the #hb_buffer_serialize_flags_t that control what glyph properties
  *         to serialize.
@@ -514,7 +514,7 @@ hb_buffer_serialize_glyphs (hb_buffer_t *buffer,
  * @buf: (out) (array length=buf_size) (element-type uint8_t): output string to
  *       write serialized buffer into.
  * @buf_size: the size of @buf.
- * @buf_consumed: (out) (optional): if not %NULL, will be set to the number of bytes written into @buf.
+ * @buf_consumed: (out) (optional): if not `NULL`, will be set to the number of bytes written into @buf.
  * @format: the #hb_buffer_serialize_format_t to use for formatting the output.
  * @flags: the #hb_buffer_serialize_flags_t that control what glyph properties
  *         to serialize.
@@ -637,9 +637,9 @@ _hb_buffer_serialize_invalid (hb_buffer_t *buffer,
  * @buf: (out) (array length=buf_size) (element-type uint8_t): output string to
  *       write serialized buffer into.
  * @buf_size: the size of @buf.
- * @buf_consumed: (out) (optional): if not %NULL, will be set to the number of bytes written into @buf.
+ * @buf_consumed: (out) (optional): if not `NULL`, will be set to the number of bytes written into @buf.
  * @font: (nullable): the #hb_font_t used to shape this buffer, needed to
- *        read glyph names and extents. If %NULL, an empty font will be used.
+ *        read glyph names and extents. If `NULL`, an empty font will be used.
  * @format: the #hb_buffer_serialize_format_t to use for formatting the output.
  * @flags: the #hb_buffer_serialize_flags_t that control what glyph properties
  *         to serialize.
@@ -671,16 +671,16 @@ hb_buffer_serialize (hb_buffer_t *buffer,
 
     case HB_BUFFER_CONTENT_TYPE_GLYPHS:
       return hb_buffer_serialize_glyphs (buffer, start, end, buf, buf_size,
-                                         buf_consumed, font, format, flags);
+					 buf_consumed, font, format, flags);
 
     case HB_BUFFER_CONTENT_TYPE_UNICODE:
       return hb_buffer_serialize_unicode (buffer, start, end, buf, buf_size,
-                                          buf_consumed, format, flags);
+					  buf_consumed, format, flags);
 
     case HB_BUFFER_CONTENT_TYPE_INVALID:
     default:
       return _hb_buffer_serialize_invalid (buffer, start, end, buf, buf_size,
-                                           buf_consumed, format, flags);
+					   buf_consumed, format, flags);
   }
 }
 
@@ -727,7 +727,7 @@ parse_hex (const char *pp, const char *end, uint32_t *pv)
  * hb_buffer_deserialize_glyphs:
  * @buffer: an #hb_buffer_t buffer.
  * @buf: (array length=buf_len): string to deserialize
- * @buf_len: the size of @buf, or -1 if it is %NULL-terminated
+ * @buf_len: the size of @buf, or -1 if it is `NULL`-terminated
  * @end_ptr: (out) (optional): output pointer to the character after last
  *                               consumed one.
  * @font: (nullable): font for getting glyph IDs
@@ -736,7 +736,7 @@ parse_hex (const char *pp, const char *end, uint32_t *pv)
  * Deserializes glyphs @buffer from textual representation in the format
  * produced by hb_buffer_serialize_glyphs().
  *
- * Return value: %true if @buf is not fully consumed, %false otherwise.
+ * Return value: `true` if @buf is not fully consumed, `false` otherwise.
  *
  * Since: 0.9.7
  **/
@@ -800,7 +800,7 @@ hb_buffer_deserialize_glyphs (hb_buffer_t *buffer,
  * hb_buffer_deserialize_unicode:
  * @buffer: an #hb_buffer_t buffer.
  * @buf: (array length=buf_len): string to deserialize
- * @buf_len: the size of @buf, or -1 if it is %NULL-terminated
+ * @buf_len: the size of @buf, or -1 if it is `NULL`-terminated
  * @end_ptr: (out) (optional): output pointer to the character after last
  *                               consumed one.
  * @format: the #hb_buffer_serialize_format_t of the input @buf
@@ -808,7 +808,7 @@ hb_buffer_deserialize_glyphs (hb_buffer_t *buffer,
  * Deserializes Unicode @buffer from textual representation in the format
  * produced by hb_buffer_serialize_unicode().
  *
- * Return value: %true if @buf is not fully consumed, %false otherwise.
+ * Return value: `true` if @buf is not fully consumed, `false` otherwise.
  *
  * Since: 2.7.3
  **/

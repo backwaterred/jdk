@@ -55,16 +55,16 @@
 # pragma warning(disable:4800)
 #endif
 #define HB_MARK_AS_FLAG_T(T) \
-        extern "C++" { \
-          static inline constexpr T operator | (T l, T r) { return T ((unsigned) l | (unsigned) r); } \
-          static inline constexpr T operator & (T l, T r) { return T ((unsigned) l & (unsigned) r); } \
-          static inline constexpr T operator ^ (T l, T r) { return T ((unsigned) l ^ (unsigned) r); } \
-          static inline constexpr unsigned operator ~ (T r) { return (~(unsigned) r); } \
-          static inline T& operator |= (T &l, T r) { l = l | r; return l; } \
-          static inline T& operator &= (T& l, T r) { l = l & r; return l; } \
-          static inline T& operator ^= (T& l, T r) { l = l ^ r; return l; } \
-        } \
-        static_assert (true, "")
+	extern "C++" { \
+	  static inline constexpr T operator | (T l, T r) { return T ((unsigned) l | (unsigned) r); } \
+	  static inline constexpr T operator & (T l, T r) { return T ((unsigned) l & (unsigned) r); } \
+	  static inline constexpr T operator ^ (T l, T r) { return T ((unsigned) l ^ (unsigned) r); } \
+	  static inline constexpr unsigned operator ~ (T r) { return (~(unsigned) r); } \
+	  static inline T& operator |= (T &l, T r) { l = l | r; return l; } \
+	  static inline T& operator &= (T& l, T r) { l = l & r; return l; } \
+	  static inline T& operator ^= (T& l, T r) { l = l ^ r; return l; } \
+	} \
+	static_assert (true, "")
 
 /* Useful for set-operations on small enums.
  * For example, for testing "x ∈ {x1, x2, x3}" use:
@@ -104,24 +104,25 @@ struct BEInt<Type, 2>
   public:
   BEInt () = default;
   constexpr BEInt (Type V) : v {uint8_t ((V >>  8) & 0xFF),
-                                uint8_t ((V      ) & 0xFF)} {}
+			        uint8_t ((V      ) & 0xFF)} {}
 
   struct __attribute__((packed)) packed_uint16_t { uint16_t v; };
   constexpr operator Type () const
   {
-#if ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && \
+#if defined(__OPTIMIZE__) && !defined(HB_NO_PACKED) && \
+    ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && \
     defined(__BYTE_ORDER) && \
     (__BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __BIG_ENDIAN)
     /* Spoon-feed the compiler a big-endian integer with alignment 1.
      * https://github.com/harfbuzz/harfbuzz/pull/1398 */
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-    return __builtin_bswap16 (((packed_uint16_t *) this)->v);
+    return __builtin_bswap16 (((packed_uint16_t *) v)->v);
 #else /* __BYTE_ORDER == __BIG_ENDIAN */
-    return ((packed_uint16_t *) this)->v;
+    return ((packed_uint16_t *) v)->v;
 #endif
 #else
     return (v[0] <<  8)
-         + (v[1]      );
+	 + (v[1]      );
 #endif
   }
   private: uint8_t v[2];
@@ -133,12 +134,12 @@ struct BEInt<Type, 3>
   public:
   BEInt () = default;
   constexpr BEInt (Type V) : v {uint8_t ((V >> 16) & 0xFF),
-                                uint8_t ((V >>  8) & 0xFF),
-                                uint8_t ((V      ) & 0xFF)} {}
+				uint8_t ((V >>  8) & 0xFF),
+				uint8_t ((V      ) & 0xFF)} {}
 
   constexpr operator Type () const { return (v[0] << 16)
-                                          + (v[1] <<  8)
-                                          + (v[2]      ); }
+					  + (v[1] <<  8)
+					  + (v[2]      ); }
   private: uint8_t v[3];
 };
 template <typename Type>
@@ -147,27 +148,28 @@ struct BEInt<Type, 4>
   public:
   BEInt () = default;
   constexpr BEInt (Type V) : v {uint8_t ((V >> 24) & 0xFF),
-                                uint8_t ((V >> 16) & 0xFF),
-                                uint8_t ((V >>  8) & 0xFF),
-                                uint8_t ((V      ) & 0xFF)} {}
+			        uint8_t ((V >> 16) & 0xFF),
+			        uint8_t ((V >>  8) & 0xFF),
+			        uint8_t ((V      ) & 0xFF)} {}
 
   struct __attribute__((packed)) packed_uint32_t { uint32_t v; };
   constexpr operator Type () const {
-#if ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && \
+#if defined(__OPTIMIZE__) && !defined(HB_NO_PACKED) && \
+    ((defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)) && \
     defined(__BYTE_ORDER) && \
     (__BYTE_ORDER == __LITTLE_ENDIAN || __BYTE_ORDER == __BIG_ENDIAN)
     /* Spoon-feed the compiler a big-endian integer with alignment 1.
      * https://github.com/harfbuzz/harfbuzz/pull/1398 */
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-    return __builtin_bswap32 (((packed_uint32_t *) this)->v);
+    return __builtin_bswap32 (((packed_uint32_t *) v)->v);
 #else /* __BYTE_ORDER == __BIG_ENDIAN */
-    return ((packed_uint32_t *) this)->v;
+    return ((packed_uint32_t *) v)->v;
 #endif
 #else
     return (v[0] << 24)
-         + (v[1] << 16)
-         + (v[2] <<  8)
-         + (v[3]      );
+	 + (v[1] << 16)
+	 + (v[2] <<  8)
+	 + (v[3]      );
 #endif
   }
   private: uint8_t v[4];
@@ -281,8 +283,8 @@ struct
   operator () (Appl&& a, Ts&&... ds) const HB_AUTO_RETURN
   (
     impl (std::forward<Appl> (a),
-          hb_prioritize,
-          std::forward<Ts> (ds)...)
+	  hb_prioritize,
+	  std::forward<Ts> (ds)...)
   )
 }
 HB_FUNCOBJ (hb_invoke);
@@ -295,28 +297,28 @@ struct hb_partial_t
   static_assert (Pos > 0, "");
 
   template <typename ...Ts,
-            unsigned P = Pos,
-            hb_enable_if (P == 1)> auto
+	    unsigned P = Pos,
+	    hb_enable_if (P == 1)> auto
   operator () (Ts&& ...ds) -> decltype (hb_invoke (hb_declval (Appl),
-                                                   hb_declval (V),
-                                                   hb_declval (Ts)...))
+						   hb_declval (V),
+						   hb_declval (Ts)...))
   {
     return hb_invoke (std::forward<Appl> (a),
-                      std::forward<V> (v),
-                      std::forward<Ts> (ds)...);
+		      std::forward<V> (v),
+		      std::forward<Ts> (ds)...);
   }
   template <typename T0, typename ...Ts,
-            unsigned P = Pos,
-            hb_enable_if (P == 2)> auto
+	    unsigned P = Pos,
+	    hb_enable_if (P == 2)> auto
   operator () (T0&& d0, Ts&& ...ds) -> decltype (hb_invoke (hb_declval (Appl),
-                                                            hb_declval (T0),
-                                                            hb_declval (V),
-                                                            hb_declval (Ts)...))
+							    hb_declval (T0),
+							    hb_declval (V),
+							    hb_declval (Ts)...))
   {
     return hb_invoke (std::forward<Appl> (a),
-                      std::forward<T0> (d0),
-                      std::forward<V> (v),
-                      std::forward<Ts> (ds)...);
+		      std::forward<T0> (d0),
+		      std::forward<V> (v),
+		      std::forward<Ts> (ds)...);
   }
 
   private:
@@ -376,7 +378,7 @@ struct
   impl (Pred&& p, Val &&v, hb_priority<0>) const HB_AUTO_RETURN
   (
     hb_invoke (std::forward<Pred> (p),
-               std::forward<Val> (v))
+	       std::forward<Val> (v))
   )
 
   public:
@@ -384,8 +386,8 @@ struct
   template <typename Pred, typename Val> auto
   operator () (Pred&& p, Val &&v) const HB_RETURN (bool,
     impl (std::forward<Pred> (p),
-          std::forward<Val> (v),
-          hb_prioritize)
+	  std::forward<Val> (v),
+	  hb_prioritize)
   )
 }
 HB_FUNCOBJ (hb_has);
@@ -398,7 +400,7 @@ struct
   impl (Pred&& p, Val &&v, hb_priority<1>) const HB_AUTO_RETURN
   (
     hb_has (std::forward<Pred> (p),
-            std::forward<Val> (v))
+	    std::forward<Val> (v))
   )
 
   template <typename Pred, typename Val> auto
@@ -412,8 +414,8 @@ struct
   template <typename Pred, typename Val> auto
   operator () (Pred&& p, Val &&v) const HB_RETURN (bool,
     impl (std::forward<Pred> (p),
-          std::forward<Val> (v),
-          hb_prioritize)
+	  std::forward<Val> (v),
+	  hb_prioritize)
   )
 }
 HB_FUNCOBJ (hb_match);
@@ -432,7 +434,7 @@ struct
   impl (Proj&& f, Val &&v, hb_priority<1>) const HB_AUTO_RETURN
   (
     hb_invoke (std::forward<Proj> (f),
-               std::forward<Val> (v))
+	       std::forward<Val> (v))
   )
 
   template <typename Proj, typename Val> auto
@@ -447,8 +449,8 @@ struct
   operator () (Proj&& f, Val &&v) const HB_AUTO_RETURN
   (
     impl (std::forward<Proj> (f),
-          std::forward<Val> (v),
-          hb_prioritize)
+	  std::forward<Val> (v),
+	  hb_prioritize)
   )
 }
 HB_FUNCOBJ (hb_get);
@@ -487,8 +489,8 @@ struct
   operator () (T1&& v1, T2 &&v2) const HB_AUTO_RETURN
   (
     impl (std::forward<T1> (v1),
-          std::forward<T2> (v2),
-          hb_prioritize)
+	  std::forward<T2> (v2),
+	  hb_prioritize)
   )
 }
 HB_FUNCOBJ (hb_equal);
@@ -502,14 +504,14 @@ struct hb_pair_t
   typedef hb_pair_t<T1, T2> pair_t;
 
   template <typename U1 = T1, typename U2 = T2,
-            hb_enable_if (std::is_default_constructible<U1>::value &&
-                          std::is_default_constructible<U2>::value)>
+	    hb_enable_if (std::is_default_constructible<U1>::value &&
+			  std::is_default_constructible<U2>::value)>
   hb_pair_t () : first (), second () {}
   hb_pair_t (T1 a, T2 b) : first (a), second (b) {}
 
   template <typename Q1, typename Q2,
-            hb_enable_if (hb_is_convertible (T1, Q1) &&
-                          hb_is_convertible (T2, Q2))>
+	    hb_enable_if (hb_is_convertible (T1, Q1) &&
+			  hb_is_convertible (T2, Q2))>
   operator hb_pair_t<Q1, Q2> () { return hb_pair_t<Q1, Q2> (first, second); }
 
   hb_pair_t<T1, T2> reverse () const
@@ -525,7 +527,6 @@ struct hb_pair_t
   T1 first;
   T2 second;
 };
-#define hb_pair_t(T1,T2) hb_pair_t<T1, T2>
 template <typename T1, typename T2> static inline hb_pair_t<T1, T2>
 hb_pair (T1&& a, T2&& b) { return hb_pair_t<T1, T2> (a, b); }
 
@@ -551,14 +552,14 @@ struct
 {
   template <typename T, typename T2> constexpr auto
   operator () (T&& a, T2&& b) const HB_AUTO_RETURN
-  (a <= b ? std::forward<T> (a) : std::forward<T2> (b))
+  (a <= b ? a : b)
 }
 HB_FUNCOBJ (hb_min);
 struct
 {
   template <typename T, typename T2> constexpr auto
   operator () (T&& a, T2&& b) const HB_AUTO_RETURN
-  (a >= b ? std::forward<T> (a) : std::forward<T2> (b))
+  (a >= b ? a : b)
 }
 HB_FUNCOBJ (hb_max);
 struct
@@ -669,8 +670,8 @@ hb_bit_storage (T v)
     for (int i = 4; i >= 0; i--)
       if (v & b[i])
       {
-        v >>= S[i];
-        r |= S[i];
+	v >>= S[i];
+	r |= S[i];
       }
     return r + 1;
   }
@@ -683,8 +684,8 @@ hb_bit_storage (T v)
     for (int i = 5; i >= 0; i--)
       if (v & b[i])
       {
-        v >>= S[i];
-        r |= S[i];
+	v >>= S[i];
+	r |= S[i];
       }
     return r + 1;
   }
@@ -692,7 +693,7 @@ hb_bit_storage (T v)
   {
     unsigned int shift = 64;
     return (v >> shift) ? hb_bit_storage<uint64_t> ((uint64_t) (v >> shift)) + shift :
-                          hb_bit_storage<uint64_t> ((uint64_t) v);
+			  hb_bit_storage<uint64_t> ((uint64_t) v);
   }
 
   assert (0);
@@ -765,7 +766,7 @@ hb_ctz (T v)
   {
     unsigned int shift = 64;
     return (uint64_t) v ? hb_bit_storage<uint64_t> ((uint64_t) v) :
-                          hb_bit_storage<uint64_t> ((uint64_t) (v >> shift)) + shift;
+			  hb_bit_storage<uint64_t> ((uint64_t) (v >> shift)) + shift;
   }
 
   assert (0);
@@ -893,10 +894,10 @@ _hb_cmp_method (const void *pkey, const void *pval, Ts... ds)
 template <typename V, typename K, typename ...Ts>
 static inline bool
 hb_bsearch_impl (unsigned *pos, /* Out */
-                 const K& key,
-                 V* base, size_t nmemb, size_t stride,
-                 int (*compar)(const void *_key, const void *_item, Ts... _ds),
-                 Ts... ds)
+		 const K& key,
+		 V* base, size_t nmemb, size_t stride,
+		 int (*compar)(const void *_key, const void *_item, Ts... _ds),
+		 Ts... ds)
 {
   /* This is our *only* bsearch implementation. */
 
@@ -926,28 +927,28 @@ hb_bsearch_impl (unsigned *pos, /* Out */
 template <typename V, typename K>
 static inline V*
 hb_bsearch (const K& key, V* base,
-            size_t nmemb, size_t stride = sizeof (V),
-            int (*compar)(const void *_key, const void *_item) = _hb_cmp_method<K, V>)
+	    size_t nmemb, size_t stride = sizeof (V),
+	    int (*compar)(const void *_key, const void *_item) = _hb_cmp_method<K, V>)
 {
   unsigned pos;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
   return hb_bsearch_impl (&pos, key, base, nmemb, stride, compar) ?
-         (V*) (((const char *) base) + (pos * stride)) : nullptr;
+	 (V*) (((const char *) base) + (pos * stride)) : nullptr;
 #pragma GCC diagnostic pop
 }
 template <typename V, typename K, typename ...Ts>
 static inline V*
 hb_bsearch (const K& key, V* base,
-            size_t nmemb, size_t stride,
-            int (*compar)(const void *_key, const void *_item, Ts... _ds),
-            Ts... ds)
+	    size_t nmemb, size_t stride,
+	    int (*compar)(const void *_key, const void *_item, Ts... _ds),
+	    Ts... ds)
 {
   unsigned pos;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
   return hb_bsearch_impl (&pos, key, base, nmemb, stride, compar, ds...) ?
-         (V*) (((const char *) base) + (pos * stride)) : nullptr;
+	 (V*) (((const char *) base) + (pos * stride)) : nullptr;
 #pragma GCC diagnostic pop
 }
 
@@ -972,7 +973,7 @@ void hb_qsort(void *base, size_t nel, size_t width,
               [void *arg]);
 */
 
-#define SORT_R_SWAP(a,b,tmp) ((tmp) = (a), (a) = (b), (b) = (tmp))
+#define SORT_R_SWAP(a,b,tmp) ((void) ((tmp) = (a)), (void) ((a) = (b)), (b) = (tmp))
 
 /* swap a and b */
 /* a and b must not be equal! */
@@ -1141,7 +1142,7 @@ static inline void sort_r_simple(void *base, size_t nel, size_t w,
 
 static inline void
 hb_qsort (void *base, size_t nel, size_t width,
-          int (*compar)(const void *_a, const void *_b))
+	  int (*compar)(const void *_a, const void *_b))
 {
 #if defined(__OPTIMIZE_SIZE__) && !defined(HB_USE_INTERNAL_QSORT)
   qsort (base, nel, width, compar);
@@ -1152,8 +1153,8 @@ hb_qsort (void *base, size_t nel, size_t width,
 
 static inline void
 hb_qsort (void *base, size_t nel, size_t width,
-          int (*compar)(const void *_a, const void *_b, void *_arg),
-          void *arg)
+	  int (*compar)(const void *_a, const void *_b, void *_arg),
+	  void *arg)
 {
 #ifdef HAVE_GNU_QSORT_R
   qsort_r (base, nel, width, compar, arg);

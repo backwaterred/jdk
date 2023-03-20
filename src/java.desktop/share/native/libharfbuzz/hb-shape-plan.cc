@@ -57,13 +57,13 @@
 
 bool
 hb_shape_plan_key_t::init (bool                           copy,
-                           hb_face_t                     *face,
-                           const hb_segment_properties_t *props,
-                           const hb_feature_t            *user_features,
-                           unsigned int                   num_user_features,
-                           const int                     *coords,
-                           unsigned int                   num_coords,
-                           const char * const            *shaper_list)
+			   hb_face_t                     *face,
+			   const hb_segment_properties_t *props,
+			   const hb_feature_t            *user_features,
+			   unsigned int                   num_user_features,
+			   const int                     *coords,
+			   unsigned int                   num_coords,
+			   const char * const            *shaper_list)
 {
   hb_feature_t *features = nullptr;
   if (copy && num_user_features && !(features = (hb_feature_t *) hb_calloc (num_user_features, sizeof (hb_feature_t))))
@@ -79,9 +79,9 @@ hb_shape_plan_key_t::init (bool                           copy,
     for (unsigned int i = 0; i < num_user_features; i++)
     {
       if (features[0].start != HB_FEATURE_GLOBAL_START)
-        features[0].start = 1;
+	features[0].start = 1;
       if (features[0].end   != HB_FEATURE_GLOBAL_END)
-        features[0].end   = 2;
+	features[0].end   = 2;
     }
   }
   this->shaper_func = nullptr;
@@ -95,35 +95,35 @@ hb_shape_plan_key_t::init (bool                           copy,
    */
 
 #define HB_SHAPER_PLAN(shaper) \
-        HB_STMT_START { \
-          if (face->data.shaper) \
-          { \
-            this->shaper_func = _hb_##shaper##_shape; \
-            this->shaper_name = #shaper; \
-            return true; \
-          } \
-        } HB_STMT_END
+	HB_STMT_START { \
+	  if (face->data.shaper) \
+	  { \
+	    this->shaper_func = _hb_##shaper##_shape; \
+	    this->shaper_name = #shaper; \
+	    return true; \
+	  } \
+	} HB_STMT_END
 
   if (unlikely (shaper_list))
   {
     for (; *shaper_list; shaper_list++)
       if (false)
-        ;
+	;
 #define HB_SHAPER_IMPLEMENT(shaper) \
       else if (0 == strcmp (*shaper_list, #shaper)) \
-        HB_SHAPER_PLAN (shaper);
+	HB_SHAPER_PLAN (shaper);
 #include "hb-shaper-list.hh"
 #undef HB_SHAPER_IMPLEMENT
   }
   else
   {
-    const hb_shaper_entry_t *shapers = _hb_shapers_get ();
+    const HB_UNUSED hb_shaper_entry_t *shapers = _hb_shapers_get ();
     for (unsigned int i = 0; i < HB_SHAPERS_COUNT; i++)
       if (false)
-        ;
+	;
 #define HB_SHAPER_IMPLEMENT(shaper) \
       else if (shapers[i].func == _hb_##shaper##_shape) \
-        HB_SHAPER_PLAN (shaper);
+	HB_SHAPER_PLAN (shaper);
 #include "hb-shaper-list.hh"
 #undef HB_SHAPER_IMPLEMENT
   }
@@ -142,11 +142,11 @@ hb_shape_plan_key_t::user_features_match (const hb_shape_plan_key_t *other)
   for (unsigned int i = 0; i < num_user_features; i++)
   {
     if (this->user_features[i].tag   != other->user_features[i].tag   ||
-        this->user_features[i].value != other->user_features[i].value ||
-        (this->user_features[i].start == HB_FEATURE_GLOBAL_START &&
-         this->user_features[i].end   == HB_FEATURE_GLOBAL_END) !=
-        (other->user_features[i].start == HB_FEATURE_GLOBAL_START &&
-         other->user_features[i].end   == HB_FEATURE_GLOBAL_END))
+	this->user_features[i].value != other->user_features[i].value ||
+	(this->user_features[i].start == HB_FEATURE_GLOBAL_START &&
+	 this->user_features[i].end   == HB_FEATURE_GLOBAL_END) !=
+	(other->user_features[i].start == HB_FEATURE_GLOBAL_START &&
+	 other->user_features[i].end   == HB_FEATURE_GLOBAL_END))
       return false;
   }
   return true;
@@ -156,11 +156,11 @@ bool
 hb_shape_plan_key_t::equal (const hb_shape_plan_key_t *other)
 {
   return hb_segment_properties_equal (&this->props, &other->props) &&
-         this->user_features_match (other) &&
+	 this->user_features_match (other) &&
 #ifndef HB_NO_OT_SHAPE
-         this->ot.equal (&other->ot) &&
+	 this->ot.equal (&other->ot) &&
 #endif
-         this->shaper_func == other->shaper_func;
+	 this->shaper_func == other->shaper_func;
 }
 
 
@@ -186,15 +186,15 @@ hb_shape_plan_key_t::equal (const hb_shape_plan_key_t *other)
  **/
 hb_shape_plan_t *
 hb_shape_plan_create (hb_face_t                     *face,
-                      const hb_segment_properties_t *props,
-                      const hb_feature_t            *user_features,
-                      unsigned int                   num_user_features,
-                      const char * const            *shaper_list)
+		      const hb_segment_properties_t *props,
+		      const hb_feature_t            *user_features,
+		      unsigned int                   num_user_features,
+		      const char * const            *shaper_list)
 {
   return hb_shape_plan_create2 (face, props,
-                                user_features, num_user_features,
-                                nullptr, 0,
-                                shaper_list);
+				user_features, num_user_features,
+				nullptr, 0,
+				shaper_list);
 }
 
 /**
@@ -207,7 +207,7 @@ hb_shape_plan_create (hb_face_t                     *face,
  * @num_coords: The number of variation-space coordinates
  * @shaper_list: (array zero-terminated=1): List of shapers to try
  *
- * The variable-font version of #hb_shape_plan_create.
+ * The variable-font version of #hb_shape_plan_create. 
  * Constructs a shaping plan for a combination of @face, @user_features, @props,
  * and @shaper_list, plus the variation-space coordinates @coords.
  *
@@ -217,19 +217,19 @@ hb_shape_plan_create (hb_face_t                     *face,
  **/
 hb_shape_plan_t *
 hb_shape_plan_create2 (hb_face_t                     *face,
-                       const hb_segment_properties_t *props,
-                       const hb_feature_t            *user_features,
-                       unsigned int                   num_user_features,
-                       const int                     *coords,
-                       unsigned int                   num_coords,
-                       const char * const            *shaper_list)
+		       const hb_segment_properties_t *props,
+		       const hb_feature_t            *user_features,
+		       unsigned int                   num_user_features,
+		       const int                     *coords,
+		       unsigned int                   num_coords,
+		       const char * const            *shaper_list)
 {
   DEBUG_MSG_FUNC (SHAPE_PLAN, nullptr,
-                  "face=%p num_features=%d num_coords=%d shaper_list=%p",
-                  face,
-                  num_user_features,
-                  num_coords,
-                  shaper_list);
+		  "face=%p num_features=%d num_coords=%d shaper_list=%p",
+		  face,
+		  num_user_features,
+		  num_coords,
+		  shaper_list);
 
   if (unlikely (props->direction == HB_DIRECTION_INVALID))
     return hb_shape_plan_get_empty ();
@@ -247,13 +247,13 @@ hb_shape_plan_create2 (hb_face_t                     *face,
   shape_plan->face_unsafe = face;
 
   if (unlikely (!shape_plan->key.init (true,
-                                       face,
-                                       props,
-                                       user_features,
-                                       num_user_features,
-                                       coords,
-                                       num_coords,
-                                       shaper_list)))
+				       face,
+				       props,
+				       user_features,
+				       num_user_features,
+				       coords,
+				       num_coords,
+				       shaper_list)))
     goto bail2;
 #ifndef HB_NO_OT_SHAPE
   if (unlikely (!shape_plan->ot.init0 (face, &shape_plan->key)))
@@ -318,10 +318,6 @@ hb_shape_plan_destroy (hb_shape_plan_t *shape_plan)
 {
   if (!hb_object_destroy (shape_plan)) return;
 
-#ifndef HB_NO_OT_SHAPE
-  shape_plan->ot.fini ();
-#endif
-  shape_plan->key.fini ();
   hb_free (shape_plan);
 }
 
@@ -333,18 +329,18 @@ hb_shape_plan_destroy (hb_shape_plan_t *shape_plan)
  * @destroy: (nullable): A callback to call when @data is not needed anymore
  * @replace: Whether to replace an existing data with the same key
  *
- * Attaches a user-data key/data pair to the given shaping plan.
+ * Attaches a user-data key/data pair to the given shaping plan. 
  *
- * Return value: %true if success, %false otherwise.
+ * Return value: `true` if success, `false` otherwise.
  *
  * Since: 0.9.7
  **/
 hb_bool_t
 hb_shape_plan_set_user_data (hb_shape_plan_t    *shape_plan,
-                             hb_user_data_key_t *key,
-                             void *              data,
-                             hb_destroy_func_t   destroy,
-                             hb_bool_t           replace)
+			     hb_user_data_key_t *key,
+			     void *              data,
+			     hb_destroy_func_t   destroy,
+			     hb_bool_t           replace)
 {
   return hb_object_set_user_data (shape_plan, key, data, destroy, replace);
 }
@@ -354,7 +350,7 @@ hb_shape_plan_set_user_data (hb_shape_plan_t    *shape_plan,
  * @shape_plan: A shaping plan
  * @key: The user-data key to query
  *
- * Fetches the user data associated with the specified key,
+ * Fetches the user data associated with the specified key, 
  * attached to the specified shaping plan.
  *
  * Return value: (transfer none): A pointer to the user data
@@ -362,8 +358,8 @@ hb_shape_plan_set_user_data (hb_shape_plan_t    *shape_plan,
  * Since: 0.9.7
  **/
 void *
-hb_shape_plan_get_user_data (hb_shape_plan_t    *shape_plan,
-                             hb_user_data_key_t *key)
+hb_shape_plan_get_user_data (const hb_shape_plan_t *shape_plan,
+			     hb_user_data_key_t    *key)
 {
   return hb_object_get_user_data (shape_plan, key);
 }
@@ -387,16 +383,16 @@ hb_shape_plan_get_shaper (hb_shape_plan_t *shape_plan)
 
 static bool
 _hb_shape_plan_execute_internal (hb_shape_plan_t    *shape_plan,
-                                 hb_font_t          *font,
-                                 hb_buffer_t        *buffer,
-                                 const hb_feature_t *features,
-                                 unsigned int        num_features)
+				 hb_font_t          *font,
+				 hb_buffer_t        *buffer,
+				 const hb_feature_t *features,
+				 unsigned int        num_features)
 {
   DEBUG_MSG_FUNC (SHAPE_PLAN, shape_plan,
-                  "num_features=%d shaper_func=%p, shaper_name=%s",
-                  num_features,
-                  shape_plan->key.shaper_func,
-                  shape_plan->key.shaper_name);
+		  "num_features=%d shaper_func=%p, shaper_name=%s",
+		  num_features,
+		  shape_plan->key.shaper_func,
+		  shape_plan->key.shaper_name);
 
   if (unlikely (!buffer->len))
     return true;
@@ -412,10 +408,10 @@ _hb_shape_plan_execute_internal (hb_shape_plan_t    *shape_plan,
   assert (hb_segment_properties_equal (&shape_plan->key.props, &buffer->props));
 
 #define HB_SHAPER_EXECUTE(shaper) \
-        HB_STMT_START { \
-          return font->data.shaper && \
-                 _hb_##shaper##_shape (shape_plan, font, buffer, features, num_features); \
-        } HB_STMT_END
+	HB_STMT_START { \
+	  return font->data.shaper && \
+		 _hb_##shaper##_shape (shape_plan, font, buffer, features, num_features); \
+	} HB_STMT_END
 
   if (false)
     ;
@@ -440,19 +436,19 @@ _hb_shape_plan_execute_internal (hb_shape_plan_t    *shape_plan,
  * Executes the given shaping plan on the specified buffer, using
  * the given @font and @features.
  *
- * Return value: %true if success, %false otherwise.
+ * Return value: `true` if success, `false` otherwise.
  *
  * Since: 0.9.7
  **/
 hb_bool_t
 hb_shape_plan_execute (hb_shape_plan_t    *shape_plan,
-                       hb_font_t          *font,
-                       hb_buffer_t        *buffer,
-                       const hb_feature_t *features,
-                       unsigned int        num_features)
+		       hb_font_t          *font,
+		       hb_buffer_t        *buffer,
+		       const hb_feature_t *features,
+		       unsigned int        num_features)
 {
   bool ret = _hb_shape_plan_execute_internal (shape_plan, font, buffer,
-                                              features, num_features);
+					      features, num_features);
 
   if (ret && buffer->content_type == HB_BUFFER_CONTENT_TYPE_UNICODE)
     buffer->content_type = HB_BUFFER_CONTENT_TYPE_GLYPHS;
@@ -482,15 +478,15 @@ hb_shape_plan_execute (hb_shape_plan_t    *shape_plan,
  **/
 hb_shape_plan_t *
 hb_shape_plan_create_cached (hb_face_t                     *face,
-                             const hb_segment_properties_t *props,
-                             const hb_feature_t            *user_features,
-                             unsigned int                   num_user_features,
-                             const char * const            *shaper_list)
+			     const hb_segment_properties_t *props,
+			     const hb_feature_t            *user_features,
+			     unsigned int                   num_user_features,
+			     const char * const            *shaper_list)
 {
   return hb_shape_plan_create_cached2 (face, props,
-                                       user_features, num_user_features,
-                                       nullptr, 0,
-                                       shaper_list);
+				       user_features, num_user_features,
+				       nullptr, 0,
+				       shaper_list);
 }
 
 /**
@@ -503,7 +499,7 @@ hb_shape_plan_create_cached (hb_face_t                     *face,
  * @num_coords: The number of variation-space coordinates
  * @shaper_list: (array zero-terminated=1): List of shapers to try
  *
- * The variable-font version of #hb_shape_plan_create_cached.
+ * The variable-font version of #hb_shape_plan_create_cached. 
  * Creates a cached shaping plan suitable for reuse, for a combination
  * of @face, @user_features, @props, and @shaper_list, plus the
  * variation-space coordinates @coords.
@@ -514,18 +510,18 @@ hb_shape_plan_create_cached (hb_face_t                     *face,
  **/
 hb_shape_plan_t *
 hb_shape_plan_create_cached2 (hb_face_t                     *face,
-                              const hb_segment_properties_t *props,
-                              const hb_feature_t            *user_features,
-                              unsigned int                   num_user_features,
-                              const int                     *coords,
-                              unsigned int                   num_coords,
-                              const char * const            *shaper_list)
+			      const hb_segment_properties_t *props,
+			      const hb_feature_t            *user_features,
+			      unsigned int                   num_user_features,
+			      const int                     *coords,
+			      unsigned int                   num_coords,
+			      const char * const            *shaper_list)
 {
   DEBUG_MSG_FUNC (SHAPE_PLAN, nullptr,
-                  "face=%p num_features=%d shaper_list=%p",
-                  face,
-                  num_user_features,
-                  shaper_list);
+		  "face=%p num_features=%d shaper_list=%p",
+		  face,
+		  num_user_features,
+		  shaper_list);
 
 retry:
   hb_face_t::plan_node_t *cached_plan_nodes = face->shape_plans;
@@ -536,27 +532,27 @@ retry:
   {
     hb_shape_plan_key_t key;
     if (!key.init (false,
-                   face,
-                   props,
-                   user_features,
-                   num_user_features,
-                   coords,
-                   num_coords,
-                   shaper_list))
+		   face,
+		   props,
+		   user_features,
+		   num_user_features,
+		   coords,
+		   num_coords,
+		   shaper_list))
       return hb_shape_plan_get_empty ();
 
     for (hb_face_t::plan_node_t *node = cached_plan_nodes; node; node = node->next)
       if (node->shape_plan->key.equal (&key))
       {
-        DEBUG_MSG_FUNC (SHAPE_PLAN, node->shape_plan, "fulfilled from cache");
-        return hb_shape_plan_reference (node->shape_plan);
+	DEBUG_MSG_FUNC (SHAPE_PLAN, node->shape_plan, "fulfilled from cache");
+	return hb_shape_plan_reference (node->shape_plan);
       }
   }
 
   hb_shape_plan_t *shape_plan = hb_shape_plan_create2 (face, props,
-                                                       user_features, num_user_features,
-                                                       coords, num_coords,
-                                                       shaper_list);
+						       user_features, num_user_features,
+						       coords, num_coords,
+						       shaper_list);
 
   if (unlikely (dont_cache))
     return shape_plan;

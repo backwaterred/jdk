@@ -56,7 +56,7 @@
  *
  * Tests whether a face has a `MATH` table.
  *
- * Return value: %true if the table is found, %false otherwise
+ * Return value: `true` if the table is found, `false` otherwise
  *
  * Since: 1.3.3
  **/
@@ -85,7 +85,7 @@ hb_ot_math_has_data (hb_face_t *face)
  **/
 hb_position_t
 hb_ot_math_get_constant (hb_font_t *font,
-                         hb_ot_math_constant_t constant)
+			 hb_ot_math_constant_t constant)
 {
   return font->face->table.MATH->get_constant(constant, font);
 }
@@ -104,7 +104,7 @@ hb_ot_math_get_constant (hb_font_t *font,
  **/
 hb_position_t
 hb_ot_math_get_glyph_italics_correction (hb_font_t *font,
-                                         hb_codepoint_t glyph)
+					 hb_codepoint_t glyph)
 {
   return font->face->table.MATH->get_glyph_info().get_italics_correction (glyph, font);
 }
@@ -130,7 +130,7 @@ hb_ot_math_get_glyph_italics_correction (hb_font_t *font,
  **/
 hb_position_t
 hb_ot_math_get_glyph_top_accent_attachment (hb_font_t *font,
-                                            hb_codepoint_t glyph)
+					    hb_codepoint_t glyph)
 {
   return font->face->table.MATH->get_glyph_info().get_top_accent_attachment (glyph, font);
 }
@@ -142,13 +142,13 @@ hb_ot_math_get_glyph_top_accent_attachment (hb_font_t *font,
  *
  * Tests whether the given glyph index is an extended shape in the face.
  *
- * Return value: %true if the glyph is an extended shape, %false otherwise
+ * Return value: `true` if the glyph is an extended shape, `false` otherwise
  *
  * Since: 1.3.3
  **/
 hb_bool_t
 hb_ot_math_is_glyph_extended_shape (hb_face_t *face,
-                                    hb_codepoint_t glyph)
+				    hb_codepoint_t glyph)
 {
   return face->table.MATH->get_glyph_info().is_extended_shape (glyph);
 }
@@ -161,7 +161,7 @@ hb_ot_math_is_glyph_extended_shape (hb_face_t *face,
  * @correction_height: the correction height to use to determine the kerning.
  *
  * Fetches the math kerning (cut-ins) value for the specified font, glyph index, and
- * @kern.
+ * @kern. 
  *
  * If the MathKern table is found, the function examines it to find a height
  * value that is greater or equal to @correction_height. If such a height
@@ -174,14 +174,14 @@ hb_ot_math_is_glyph_extended_shape (hb_face_t *face,
  **/
 hb_position_t
 hb_ot_math_get_glyph_kerning (hb_font_t *font,
-                              hb_codepoint_t glyph,
-                              hb_ot_math_kern_t kern,
-                              hb_position_t correction_height)
+			      hb_codepoint_t glyph,
+			      hb_ot_math_kern_t kern,
+			      hb_position_t correction_height)
 {
   return font->face->table.MATH->get_glyph_info().get_kerning (glyph,
-                                                               kern,
-                                                               correction_height,
-                                                               font);
+							       kern,
+							       correction_height,
+							       font);
 }
 
 /**
@@ -215,18 +215,18 @@ hb_ot_math_get_glyph_kerning (hb_font_t *font,
  **/
 unsigned int
 hb_ot_math_get_glyph_kernings (hb_font_t *font,
-                               hb_codepoint_t glyph,
-                               hb_ot_math_kern_t kern,
-                               unsigned int start_offset,
-                               unsigned int *entries_count, /* IN/OUT */
-                               hb_ot_math_kern_entry_t *kern_entries /* OUT */)
+			       hb_codepoint_t glyph,
+			       hb_ot_math_kern_t kern,
+			       unsigned int start_offset,
+			       unsigned int *entries_count, /* IN/OUT */
+			       hb_ot_math_kern_entry_t *kern_entries /* OUT */)
 {
   return font->face->table.MATH->get_glyph_info().get_kernings (glyph,
-                                                                kern,
-                                                                start_offset,
-                                                                entries_count,
-                                                                kern_entries,
-                                                                font);
+								kern,
+								start_offset,
+								entries_count,
+								kern_entries,
+								font);
 }
 
 /**
@@ -246,7 +246,7 @@ hb_ot_math_get_glyph_kernings (hb_font_t *font,
  * <note>The @direction parameter is only used to select between horizontal
  * or vertical directions for the construction. Even though all #hb_direction_t
  * values are accepted, only the result of #HB_DIRECTION_IS_HORIZONTAL is
- * considered.</note>
+ * considered.</note> 
  *
  * Return value: the total number of size variants available or zero
  *
@@ -254,16 +254,16 @@ hb_ot_math_get_glyph_kernings (hb_font_t *font,
  **/
 unsigned int
 hb_ot_math_get_glyph_variants (hb_font_t *font,
-                               hb_codepoint_t glyph,
-                               hb_direction_t direction,
-                               unsigned int start_offset,
-                               unsigned int *variants_count, /* IN/OUT */
-                               hb_ot_math_glyph_variant_t *variants /* OUT */)
+			       hb_codepoint_t glyph,
+			       hb_direction_t direction,
+			       unsigned int start_offset,
+			       unsigned int *variants_count, /* IN/OUT */
+			       hb_ot_math_glyph_variant_t *variants /* OUT */)
 {
   return font->face->table.MATH->get_variants().get_glyph_variants (glyph, direction, font,
-                                                                    start_offset,
-                                                                    variants_count,
-                                                                    variants);
+								    start_offset,
+								    variants_count,
+								    variants);
 }
 
 /**
@@ -278,7 +278,7 @@ hb_ot_math_get_glyph_variants (hb_font_t *font,
  * <note>The @direction parameter is only used to select between horizontal
  * or vertical directions for the construction. Even though all #hb_direction_t
  * values are accepted, only the result of #HB_DIRECTION_IS_HORIZONTAL is
- * considered.</note>
+ * considered.</note> 
  *
  * Return value: requested minimum connector overlap or zero
  *
@@ -286,7 +286,7 @@ hb_ot_math_get_glyph_variants (hb_font_t *font,
  **/
 hb_position_t
 hb_ot_math_get_min_connector_overlap (hb_font_t *font,
-                                      hb_direction_t direction)
+				      hb_direction_t direction)
 {
   return font->face->table.MATH->get_variants().get_min_connector_overlap (direction, font);
 }
@@ -310,7 +310,7 @@ hb_ot_math_get_min_connector_overlap (hb_font_t *font,
  * <note>The @direction parameter is only used to select between horizontal
  * or vertical directions for the construction. Even though all #hb_direction_t
  * values are accepted, only the result of #HB_DIRECTION_IS_HORIZONTAL is
- * considered.</note>
+ * considered.</note> 
  *
  * Return value: the total number of parts in the glyph assembly
  *
@@ -318,20 +318,20 @@ hb_ot_math_get_min_connector_overlap (hb_font_t *font,
  **/
 unsigned int
 hb_ot_math_get_glyph_assembly (hb_font_t *font,
-                               hb_codepoint_t glyph,
-                               hb_direction_t direction,
-                               unsigned int start_offset,
-                               unsigned int *parts_count, /* IN/OUT */
-                               hb_ot_math_glyph_part_t *parts, /* OUT */
-                               hb_position_t *italics_correction /* OUT */)
+			       hb_codepoint_t glyph,
+			       hb_direction_t direction,
+			       unsigned int start_offset,
+			       unsigned int *parts_count, /* IN/OUT */
+			       hb_ot_math_glyph_part_t *parts, /* OUT */
+			       hb_position_t *italics_correction /* OUT */)
 {
   return font->face->table.MATH->get_variants().get_glyph_parts (glyph,
-                                                                 direction,
-                                                                 font,
-                                                                 start_offset,
-                                                                 parts_count,
-                                                                 parts,
-                                                                 italics_correction);
+								 direction,
+								 font,
+								 start_offset,
+								 parts_count,
+								 parts,
+								 italics_correction);
 }
 
 

@@ -38,9 +38,9 @@ struct hb_utf8_t
 
   static const codepoint_t *
   next (const codepoint_t *text,
-        const codepoint_t *end,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const codepoint_t *end,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     /* Written to only accept well-formed sequences.
      * Based on ideas from ICU's U8_NEXT.
@@ -52,49 +52,49 @@ struct hb_utf8_t
     {
       if (hb_in_range<hb_codepoint_t> (c, 0xC2u, 0xDFu)) /* Two-byte */
       {
-        unsigned int t1;
-        if (likely (text < end &&
-                    (t1 = text[0] - 0x80u) <= 0x3Fu))
-        {
-          c = ((c&0x1Fu)<<6) | t1;
-          text++;
-        }
-        else
-          goto error;
+	unsigned int t1;
+	if (likely (text < end &&
+		    (t1 = text[0] - 0x80u) <= 0x3Fu))
+	{
+	  c = ((c&0x1Fu)<<6) | t1;
+	  text++;
+	}
+	else
+	  goto error;
       }
       else if (hb_in_range<hb_codepoint_t> (c, 0xE0u, 0xEFu)) /* Three-byte */
       {
-        unsigned int t1, t2;
-        if (likely (1 < end - text &&
-                    (t1 = text[0] - 0x80u) <= 0x3Fu &&
-                    (t2 = text[1] - 0x80u) <= 0x3Fu))
-        {
-          c = ((c&0xFu)<<12) | (t1<<6) | t2;
-          if (unlikely (c < 0x0800u || hb_in_range<hb_codepoint_t> (c, 0xD800u, 0xDFFFu)))
-            goto error;
-          text += 2;
-        }
-        else
-          goto error;
+	unsigned int t1, t2;
+	if (likely (1 < end - text &&
+		    (t1 = text[0] - 0x80u) <= 0x3Fu &&
+		    (t2 = text[1] - 0x80u) <= 0x3Fu))
+	{
+	  c = ((c&0xFu)<<12) | (t1<<6) | t2;
+	  if (unlikely (c < 0x0800u || hb_in_range<hb_codepoint_t> (c, 0xD800u, 0xDFFFu)))
+	    goto error;
+	  text += 2;
+	}
+	else
+	  goto error;
       }
       else if (hb_in_range<hb_codepoint_t> (c, 0xF0u, 0xF4u)) /* Four-byte */
       {
-        unsigned int t1, t2, t3;
-        if (likely (2 < end - text &&
-                    (t1 = text[0] - 0x80u) <= 0x3Fu &&
-                    (t2 = text[1] - 0x80u) <= 0x3Fu &&
-                    (t3 = text[2] - 0x80u) <= 0x3Fu))
-        {
-          c = ((c&0x7u)<<18) | (t1<<12) | (t2<<6) | t3;
-          if (unlikely (!hb_in_range<hb_codepoint_t> (c, 0x10000u, 0x10FFFFu)))
-            goto error;
-          text += 3;
-        }
-        else
-          goto error;
+	unsigned int t1, t2, t3;
+	if (likely (2 < end - text &&
+		    (t1 = text[0] - 0x80u) <= 0x3Fu &&
+		    (t2 = text[1] - 0x80u) <= 0x3Fu &&
+		    (t3 = text[2] - 0x80u) <= 0x3Fu))
+	{
+	  c = ((c&0x7u)<<18) | (t1<<12) | (t2<<6) | t3;
+	  if (unlikely (!hb_in_range<hb_codepoint_t> (c, 0x10000u, 0x10FFFFu)))
+	    goto error;
+	  text += 3;
+	}
+	else
+	  goto error;
       }
       else
-        goto error;
+	goto error;
     }
 
     *unicode = c;
@@ -107,9 +107,9 @@ struct hb_utf8_t
 
   static const codepoint_t *
   prev (const codepoint_t *text,
-        const codepoint_t *start,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const codepoint_t *start,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     const codepoint_t *end = text--;
     while (start < text && (*text & 0xc0) == 0x80 && end - text < 4)
@@ -138,8 +138,8 @@ struct hb_utf8_t
 
   static codepoint_t *
   encode (codepoint_t *text,
-          const codepoint_t *end,
-          hb_codepoint_t unicode)
+	  const codepoint_t *end,
+	  hb_codepoint_t unicode)
   {
     if (unlikely (unicode >= 0xD800u && (unicode <= 0xDFFFu || unicode > 0x10FFFFu)))
       unicode = 0xFFFDu;
@@ -149,27 +149,27 @@ struct hb_utf8_t
     {
       if (end - text >= 2)
       {
-        *text++ =  0xC0u + (0x1Fu & (unicode >>  6));
-        *text++ =  0x80u + (0x3Fu & (unicode      ));
+	*text++ =  0xC0u + (0x1Fu & (unicode >>  6));
+	*text++ =  0x80u + (0x3Fu & (unicode      ));
       }
     }
     else if (unicode < 0x10000u)
     {
       if (end - text >= 3)
       {
-        *text++ =  0xE0u + (0x0Fu & (unicode >> 12));
-        *text++ =  0x80u + (0x3Fu & (unicode >>  6));
-        *text++ =  0x80u + (0x3Fu & (unicode      ));
+	*text++ =  0xE0u + (0x0Fu & (unicode >> 12));
+	*text++ =  0x80u + (0x3Fu & (unicode >>  6));
+	*text++ =  0x80u + (0x3Fu & (unicode      ));
       }
     }
     else
     {
       if (end - text >= 4)
       {
-        *text++ =  0xF0u + (0x07u & (unicode >> 18));
-        *text++ =  0x80u + (0x3Fu & (unicode >> 12));
-        *text++ =  0x80u + (0x3Fu & (unicode >>  6));
-        *text++ =  0x80u + (0x3Fu & (unicode      ));
+	*text++ =  0xF0u + (0x07u & (unicode >> 18));
+	*text++ =  0x80u + (0x3Fu & (unicode >> 12));
+	*text++ =  0x80u + (0x3Fu & (unicode >>  6));
+	*text++ =  0x80u + (0x3Fu & (unicode      ));
       }
     }
     return text;
@@ -185,9 +185,9 @@ struct hb_utf16_xe_t
 
   static const codepoint_t *
   next (const codepoint_t *text,
-        const codepoint_t *end,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const codepoint_t *end,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     hb_codepoint_t c = *text++;
 
@@ -203,10 +203,10 @@ struct hb_utf16_xe_t
       hb_codepoint_t l = *text;
       if (likely (hb_in_range<hb_codepoint_t> (l, 0xDC00u, 0xDFFFu)))
       {
-        /* Low-surrogate in l */
-        *unicode = (c << 10) + l - ((0xD800u << 10) - 0x10000u + 0xDC00u);
-         text++;
-         return text;
+	/* Low-surrogate in l */
+	*unicode = (c << 10) + l - ((0xD800u << 10) - 0x10000u + 0xDC00u);
+	 text++;
+	 return text;
       }
     }
 
@@ -217,9 +217,9 @@ struct hb_utf16_xe_t
 
   static const codepoint_t *
   prev (const codepoint_t *text,
-        const codepoint_t *start,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const codepoint_t *start,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     hb_codepoint_t c = *--text;
 
@@ -235,10 +235,10 @@ struct hb_utf16_xe_t
       hb_codepoint_t h = text[-1];
       if (likely (hb_in_range<hb_codepoint_t> (h, 0xD800u, 0xDBFFu)))
       {
-        /* High-surrogate in h */
-        *unicode = (h << 10) + c - ((0xD800u << 10) - 0x10000u + 0xDC00u);
-        text--;
-        return text;
+	/* High-surrogate in h */
+	*unicode = (h << 10) + c - ((0xD800u << 10) - 0x10000u + 0xDC00u);
+	text--;
+	return text;
       }
     }
 
@@ -264,8 +264,8 @@ struct hb_utf16_xe_t
 
   static codepoint_t *
   encode (codepoint_t *text,
-          const codepoint_t *end,
-          hb_codepoint_t unicode)
+	  const codepoint_t *end,
+	  hb_codepoint_t unicode)
   {
     if (unlikely (unicode >= 0xD800u && (unicode <= 0xDFFFu || unicode > 0x10FFFFu)))
       unicode = 0xFFFDu;
@@ -293,9 +293,9 @@ struct hb_utf32_xe_t
 
   static const TCodepoint *
   next (const TCodepoint *text,
-        const TCodepoint *end HB_UNUSED,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const TCodepoint *end HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     hb_codepoint_t c = *unicode = *text++;
     if (validate && unlikely (c >= 0xD800u && (c <= 0xDFFFu || c > 0x10FFFFu)))
@@ -305,9 +305,9 @@ struct hb_utf32_xe_t
 
   static const TCodepoint *
   prev (const TCodepoint *text,
-        const TCodepoint *start HB_UNUSED,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const TCodepoint *start HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     hb_codepoint_t c = *unicode = *--text;
     if (validate && unlikely (c >= 0xD800u && (c <= 0xDFFFu || c > 0x10FFFFu)))
@@ -331,8 +331,8 @@ struct hb_utf32_xe_t
 
   static codepoint_t *
   encode (codepoint_t *text,
-          const codepoint_t *end HB_UNUSED,
-          hb_codepoint_t unicode)
+	  const codepoint_t *end HB_UNUSED,
+	  hb_codepoint_t unicode)
   {
     if (validate && unlikely (unicode >= 0xD800u && (unicode <= 0xDFFFu || unicode > 0x10FFFFu)))
       unicode = 0xFFFDu;
@@ -351,9 +351,9 @@ struct hb_latin1_t
 
   static const codepoint_t *
   next (const codepoint_t *text,
-        const codepoint_t *end HB_UNUSED,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement HB_UNUSED)
+	const codepoint_t *end HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement HB_UNUSED)
   {
     *unicode = *text++;
     return text;
@@ -361,9 +361,9 @@ struct hb_latin1_t
 
   static const codepoint_t *
   prev (const codepoint_t *text,
-        const codepoint_t *start HB_UNUSED,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement HB_UNUSED)
+	const codepoint_t *start HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement HB_UNUSED)
   {
     *unicode = *--text;
     return text;
@@ -385,8 +385,8 @@ struct hb_latin1_t
 
   static codepoint_t *
   encode (codepoint_t *text,
-          const codepoint_t *end HB_UNUSED,
-          hb_codepoint_t unicode)
+	  const codepoint_t *end HB_UNUSED,
+	  hb_codepoint_t unicode)
   {
     if (unlikely (unicode >= 0x0100u))
       unicode = '?';
@@ -402,9 +402,9 @@ struct hb_ascii_t
 
   static const codepoint_t *
   next (const codepoint_t *text,
-        const codepoint_t *end HB_UNUSED,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement HB_UNUSED)
+	const codepoint_t *end HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement HB_UNUSED)
   {
     *unicode = *text++;
     if (*unicode >= 0x0080u)
@@ -414,9 +414,9 @@ struct hb_ascii_t
 
   static const codepoint_t *
   prev (const codepoint_t *text,
-        const codepoint_t *start HB_UNUSED,
-        hb_codepoint_t *unicode,
-        hb_codepoint_t replacement)
+	const codepoint_t *start HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
     *unicode = *--text;
     if (*unicode >= 0x0080u)
@@ -440,8 +440,8 @@ struct hb_ascii_t
 
   static codepoint_t *
   encode (codepoint_t *text,
-          const codepoint_t *end HB_UNUSED,
-          hb_codepoint_t unicode)
+	  const codepoint_t *end HB_UNUSED,
+	  hb_codepoint_t unicode)
   {
     if (unlikely (unicode >= 0x0080u))
       unicode = '?';

@@ -38,7 +38,7 @@ struct dict_val_t : op_str_t
   void init () { single_val.set_int (0); }
   void fini () {}
 
-  number_t            single_val;
+  number_t	      single_val;
 };
 
 typedef dict_val_t num_dict_val_t;
@@ -66,16 +66,16 @@ struct dict_opset_t : opset_t<number_t>
   {
     switch (op) {
       case OpCode_longintdict:  /* 5-byte integer */
-        env.argStack.push_longint_from_substr (env.str_ref);
-        break;
+	env.argStack.push_longint_from_substr (env.str_ref);
+	break;
 
       case OpCode_BCD:  /* real number */
-        env.argStack.push_real (parse_bcd (env.str_ref));
-        break;
+	env.argStack.push_real (parse_bcd (env.str_ref));
+	break;
 
       default:
-        opset_t<number_t>::process_op (op, env);
-        break;
+	opset_t<number_t>::process_op (op, env);
+	break;
     }
   }
 
@@ -93,33 +93,33 @@ struct dict_opset_t : opset_t<number_t>
       unsigned nibble;
       if (!(i & 1))
       {
-        if (unlikely (!str_ref.avail ())) break;
+	if (unlikely (!str_ref.avail ())) break;
 
-        byte = str_ref[0];
-        str_ref.inc ();
-        nibble = byte >> 4;
+	byte = str_ref[0];
+	str_ref.inc ();
+	nibble = byte >> 4;
       }
       else
-        nibble = byte & 0x0F;
+	nibble = byte & 0x0F;
 
       if (unlikely (nibble == RESERVED)) break;
       else if (nibble == END)
       {
-        const char *p = buf;
-        double pv;
-        if (unlikely (!hb_parse_double (&p, p + count, &pv, true/* whole buffer */)))
-          break;
-        return pv;
+	const char *p = buf;
+	double pv;
+	if (unlikely (!hb_parse_double (&p, p + count, &pv, true/* whole buffer */)))
+	  break;
+	return pv;
       }
       else
       {
-        buf[count] = "0123456789.EE?-?"[nibble];
-        if (nibble == EXP_NEG)
-        {
-          ++count;
-          if (unlikely (count == ARRAY_LENGTH (buf))) break;
-          buf[count] = '-';
-        }
+	buf[count] = "0123456789.EE?-?"[nibble];
+	if (nibble == EXP_NEG)
+	{
+	  ++count;
+	  if (unlikely (count == ARRAY_LENGTH (buf))) break;
+	  buf[count] = '-';
+	}
       }
     }
 
@@ -145,9 +145,9 @@ struct dict_opset_t : opset_t<number_t>
       case OpCode_ForceBold:
       case OpCode_LanguageGroup:
       case OpCode_ExpansionFactor:
-        return true;
+	return true;
       default:
-        return false;
+	return false;
     }
   }
 };
@@ -159,19 +159,19 @@ struct top_dict_opset_t : dict_opset_t
   {
     switch (op) {
       case OpCode_CharStrings:
-        dictval.charStringsOffset = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.charStringsOffset = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
       case OpCode_FDArray:
-        dictval.FDArrayOffset = env.argStack.pop_uint ();
-        env.clear_args ();
-        break;
+	dictval.FDArrayOffset = env.argStack.pop_uint ();
+	env.clear_args ();
+	break;
       case OpCode_FontMatrix:
-        env.clear_args ();
-        break;
+	env.clear_args ();
+	break;
       default:
-        dict_opset_t::process_op (op, env);
-        break;
+	dict_opset_t::process_op (op, env);
+	break;
     }
   }
 };
@@ -188,7 +188,7 @@ struct dict_interpreter_t : interpreter_t<ENV>
     {
       OPSET::process_op (SUPER::env.fetch_op (), SUPER::env, param);
       if (unlikely (SUPER::env.in_error ()))
-        return false;
+	return false;
     }
 
     return true;

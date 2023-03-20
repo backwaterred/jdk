@@ -24,6 +24,10 @@
  * Google Author(s): Garret Rieger
  */
 
+#include "../hb-set.hh"
+#include "../hb-priority-queue.hh"
+#include "../hb-serialize.hh"
+
 #ifndef GRAPH_GRAPH_HH
 #define GRAPH_GRAPH_HH
 
@@ -45,6 +49,51 @@ struct graph_t
     unsigned end = 0;
     unsigned priority = 0;
 
+    void normalize ()
+    {
+      obj.real_links.qsort ();
+      for (auto& l : obj.real_links)
+      {
+        for (unsigned i = 0; i < l.width; i++)
+        {
+          obj.head[l.position + i] = 0;
+        }
+      }
+    }
+
+    bool equals (const vertex_t& other,
+                 const graph_t& graph,
+                 const graph_t& other_graph,
+                 unsigned depth) const
+    {
+      if (!(as_bytes () == other.as_bytes ()))
+      {
+        DEBUG_MSG (SUBSET_REPACK, nullptr,
+                   "vertex [%lu] bytes != [%lu] bytes, depth = %u",
+                   (unsigned long) table_size (),
+                   (unsigned long) other.table_size (),
+                   depth);
+
+        auto a = as_bytes ();
+        auto b = other.as_bytes ();
+        while (a || b)
+        {
+          DEBUG_MSG (SUBSET_REPACK, nullptr,
+                     "  0x%x %s 0x%x", *a, (*a == *b) ? "==" : "!=", *b);
+          a++;
+          b++;
+        }
+        return false;
+      }
+
+      return links_equal (obj.real_links, other.obj.real_links, graph, other_graph, depth);
+    }
+
+    hb_bytes_t as_bytes () const
+    {
+      return hb_bytes_t (obj.head, table_size ());
+    }
+
     friend void swap (vertex_t& a, vertex_t& b)
     {
       hb_swap (a.obj, b.obj);
@@ -54,6 +103,18 @@ struct graph_t
       hb_swap (a.start, b.start);
       hb_swap (a.end, b.end);
       hb_swap (a.priority, b.priority);
+    }
+
+    hb_hashmap_t<unsigned, unsigned>
+    position_to_index_map () const
+    {
+      hb_hashmap_t<unsigned, unsigned> result;
+
+      for (const auto& l : obj.real_links) {
+        result.set (l.position, l.objidx);
+      }
+
+      return result;
     }
 
     bool is_shared () const
@@ -73,6 +134,22 @@ struct graph_t
         if (parents[i] != parent_index) continue;
         parents.remove (i);
         break;
+      }
+    }
+
+    void remove_real_link (unsigned child_index, const void* offset)
+    {
+      for (unsigned i = 0; i < obj.real_links.length; i++)
+      {
+        auto& link = obj.real_links.arrayZ[i];
+        if (link.objidx != child_index)
+          continue;
+
+        if ((obj.head + link.position) != offset)
+          continue;
+
+        obj.real_links.remove (i);
+        return;
       }
     }
 
@@ -107,6 +184,10 @@ struct graph_t
       return priority >= 3;
     }
 
+    size_t table_size () const {
+      return obj.tail - obj.head;
+    }
+
     int64_t modified_distance (unsigned order) const
     {
       // TODO(garretrieger): once priority is high enough, should try
@@ -131,6 +212,57 @@ struct graph_t
 
       return -table_size;
     }
+
+   private:
+    bool links_equal (const hb_vector_t<hb_serialize_context_t::object_t::link_t>& this_links,
+                      const hb_vector_t<hb_serialize_context_t::object_t::link_t>& other_links,
+                      const graph_t& graph,
+                      const graph_t& other_graph,
+                      unsigned depth) const
+    {
+      auto a = this_links.iter ();
+      auto b = other_links.iter ();
+
+      while (a && b)
+      {
+        const auto& link_a = *a;
+        const auto& link_b = *b;
+
+        if (link_a.width != link_b.width ||
+            link_a.is_signed != link_b.is_signed ||
+            link_a.whence != link_b.whence ||
+            link_a.position != link_b.position ||
+            link_a.bias != link_b.bias)
+          return false;
+
+        if (!graph.vertices_[link_a.objidx].equals (
+                other_graph.vertices_[link_b.objidx], graph, other_graph, depth + 1))
+          return false;
+
+        a++;
+        b++;
+      }
+
+      if (bool (a) != bool (b))
+        return false;
+
+      return true;
+    }
+  };
+
+  template <typename T>
+  struct vertex_and_table_t
+  {
+    vertex_and_table_t () : index (0), vertex (nullptr), table (nullptr)
+    {}
+
+    unsigned index;
+    vertex_t* vertex;
+    T* table;
+
+    operator bool () {
+       return table && vertex;
+    }
   };
 
   /*
@@ -145,7 +277,8 @@ struct graph_t
       : parents_invalid (true),
         distance_invalid (true),
         positions_invalid (true),
-        successful (true)
+        successful (true),
+        buffers ()
   {
     num_roots_for_space_.push (1);
     bool removed_nil = false;
@@ -177,6 +310,20 @@ struct graph_t
   ~graph_t ()
   {
     vertices_.fini ();
+    for (char* b : buffers)
+      hb_free (b);
+  }
+
+  bool operator== (const graph_t& other) const
+  {
+    return root ().equals (other.root (), *this, other, 0);
+  }
+
+  // Sorts links of all objects in a consistent manner and zeroes all offsets.
+  void normalize ()
+  {
+    for (auto& v : vertices_.writer ())
+      v.normalize ();
   }
 
   bool in_error () const
@@ -199,10 +346,42 @@ struct graph_t
     return vertices_.length - 1;
   }
 
-  const hb_serialize_context_t::object_t& object(unsigned i) const
+  const hb_serialize_context_t::object_t& object (unsigned i) const
   {
     return vertices_[i].obj;
   }
+
+  void add_buffer (char* buffer)
+  {
+    buffers.push (buffer);
+  }
+
+  /*
+   * Adds a 16 bit link from parent_id to child_id
+   */
+  template<typename T>
+  void add_link (T* offset,
+                 unsigned parent_id,
+                 unsigned child_id)
+  {
+    auto& v = vertices_[parent_id];
+    auto* link = v.obj.real_links.push ();
+    link->width = 2;
+    link->objidx = child_id;
+    link->position = (char*) offset - (char*) v.obj.head;
+    vertices_[child_id].parents.push (parent_id);
+  }
+
+  /*
+   * Generates a new topological sorting of graph ordered by the shortest
+   * distance to each node if positions are marked as invalid.
+   */
+  void sort_shortest_distance_if_needed ()
+  {
+    if (!positions_invalid) return;
+    sort_shortest_distance ();
+  }
+
 
   /*
    * Generates a new topological sorting of graph ordered by the shortest
@@ -256,37 +435,145 @@ struct graph_t
 
     check_success (!queue.in_error ());
     check_success (!sorted_graph.in_error ());
-    if (!check_success (new_id == -1))
-      print_orphaned_nodes ();
 
     remap_all_obj_indices (id_map, &sorted_graph);
-
     hb_swap (vertices_, sorted_graph);
+
+    if (!check_success (new_id == -1))
+      print_orphaned_nodes ();
   }
 
   /*
-   * Assign unique space numbers to each connected subgraph of 32 bit offset(s).
+   * Finds the set of nodes (placed into roots) that should be assigned unique spaces.
+   * More specifically this looks for the top most 24 bit or 32 bit links in the graph.
+   * Some special casing is done that is specific to the layout of GSUB/GPOS tables.
    */
-  bool assign_32bit_spaces ()
+  void find_space_roots (hb_set_t& visited, hb_set_t& roots)
   {
-    unsigned root_index = root_idx ();
-    hb_set_t visited;
-    hb_set_t roots;
-    for (unsigned i = 0; i <= root_index; i++)
+    int root_index = (int) root_idx ();
+    for (int i = root_index; i >= 0; i--)
     {
+      if (visited.has (i)) continue;
+
       // Only real links can form 32 bit spaces
       for (auto& l : vertices_[i].obj.real_links)
       {
-        if (l.width == 4 && !l.is_signed)
+        if (l.is_signed || l.width < 3)
+          continue;
+
+        if (i == root_index && l.width == 3)
+          // Ignore 24bit links from the root node, this skips past the single 24bit
+          // pointer to the lookup list.
+          continue;
+
+        if (l.width == 3)
         {
-          roots.add (l.objidx);
-          find_subgraph (l.objidx, visited);
+          // A 24bit offset forms a root, unless there is 32bit offsets somewhere
+          // in it's subgraph, then those become the roots instead. This is to make sure
+          // that extension subtables beneath a 24bit lookup become the spaces instead
+          // of the offset to the lookup.
+          hb_set_t sub_roots;
+          find_32bit_roots (l.objidx, sub_roots);
+          if (sub_roots) {
+            for (unsigned sub_root_idx : sub_roots) {
+              roots.add (sub_root_idx);
+              find_subgraph (sub_root_idx, visited);
+            }
+            continue;
+          }
         }
+
+        roots.add (l.objidx);
+        find_subgraph (l.objidx, visited);
+      }
+    }
+  }
+
+  template <typename T, typename ...Ts>
+  vertex_and_table_t<T> as_table (unsigned parent, const void* offset, Ts... ds)
+  {
+    return as_table_from_index<T> (index_for_offset (parent, offset), std::forward<Ts>(ds)...);
+  }
+
+  template <typename T, typename ...Ts>
+  vertex_and_table_t<T> as_mutable_table (unsigned parent, const void* offset, Ts... ds)
+  {
+    return as_table_from_index<T> (mutable_index_for_offset (parent, offset), std::forward<Ts>(ds)...);
+  }
+
+  template <typename T, typename ...Ts>
+  vertex_and_table_t<T> as_table_from_index (unsigned index, Ts... ds)
+  {
+    if (index >= vertices_.length)
+      return vertex_and_table_t<T> ();
+
+    vertex_and_table_t<T> r;
+    r.vertex = &vertices_[index];
+    r.table = (T*) r.vertex->obj.head;
+    r.index = index;
+    if (!r.table)
+      return vertex_and_table_t<T> ();
+
+    if (!r.table->sanitize (*(r.vertex), std::forward<Ts>(ds)...))
+      return vertex_and_table_t<T> ();
+
+    return r;
+  }
+
+  // Finds the object id of the object pointed to by the offset at 'offset'
+  // within object[node_idx].
+  unsigned index_for_offset (unsigned node_idx, const void* offset) const
+  {
+    const auto& node = object (node_idx);
+    if (offset < node.head || offset >= node.tail) return -1;
+
+    unsigned length = node.real_links.length;
+    for (unsigned i = 0; i < length; i++)
+    {
+      // Use direct access for increased performance, this is a hot method.
+      const auto& link = node.real_links.arrayZ[i];
+      if (offset != node.head + link.position)
+        continue;
+      return link.objidx;
+    }
+
+    return -1;
+  }
+
+  // Finds the object id of the object pointed to by the offset at 'offset'
+  // within object[node_idx]. Ensures that the returned object is safe to mutate.
+  // That is, if the original child object is shared by parents other than node_idx
+  // it will be duplicated and the duplicate will be returned instead.
+  unsigned mutable_index_for_offset (unsigned node_idx, const void* offset)
+  {
+    unsigned child_idx = index_for_offset (node_idx, offset);
+    auto& child = vertices_[child_idx];
+    for (unsigned p : child.parents)
+    {
+      if (p != node_idx) {
+        return duplicate (node_idx, child_idx);
       }
     }
 
-    // Mark everything not in the subgraphs of 32 bit roots as visited.
-    // This prevents 32 bit subgraphs from being connected via nodes not in the 32 bit subgraphs.
+    return child_idx;
+  }
+
+
+  /*
+   * Assign unique space numbers to each connected subgraph of 24 bit and/or 32 bit offset(s).
+   * Currently, this is implemented specifically tailored to the structure of a GPOS/GSUB
+   * (including with 24bit offsets) table.
+   */
+  bool assign_spaces ()
+  {
+    update_parents ();
+
+    hb_set_t visited;
+    hb_set_t roots;
+    find_space_roots (visited, roots);
+
+    // Mark everything not in the subgraphs of the roots as visited. This prevents
+    // subgraphs from being connected via nodes not in those subgraphs.
     visited.invert ();
 
     if (!roots) return false;
@@ -422,6 +709,68 @@ struct graph_t
       find_subgraph (link.objidx, subgraph);
   }
 
+  size_t find_subgraph_size (unsigned node_idx, hb_set_t& subgraph, unsigned max_depth = -1)
+  {
+    if (subgraph.has (node_idx)) return 0;
+    subgraph.add (node_idx);
+
+    const auto& o = vertices_[node_idx].obj;
+    size_t size = o.tail - o.head;
+    if (max_depth == 0)
+      return size;
+
+    for (const auto& link : o.all_links ())
+      size += find_subgraph_size (link.objidx, subgraph, max_depth - 1);
+    return size;
+  }
+
+  /*
+   * Finds the topmost children of 32bit offsets in the subgraph starting
+   * at node_idx. Found indices are placed into 'found'.
+   */
+  void find_32bit_roots (unsigned node_idx, hb_set_t& found)
+  {
+    for (const auto& link : vertices_[node_idx].obj.all_links ())
+    {
+      if (!link.is_signed && link.width == 4) {
+        found.add (link.objidx);
+        continue;
+      }
+      find_32bit_roots (link.objidx, found);
+    }
+  }
+
+  /*
+   * Moves the child of old_parent_idx pointed to by old_offset to a new
+   * vertex at the new_offset.
+   */
+  template<typename O>
+  void move_child (unsigned old_parent_idx,
+                   const O* old_offset,
+                   unsigned new_parent_idx,
+                   const O* new_offset)
+  {
+    distance_invalid = true;
+    positions_invalid = true;
+
+    auto& old_v = vertices_[old_parent_idx];
+    auto& new_v = vertices_[new_parent_idx];
+
+    unsigned child_id = index_for_offset (old_parent_idx,
+                                          old_offset);
+
+    auto* new_link = new_v.obj.real_links.push ();
+    new_link->width = O::static_size;
+    new_link->objidx = child_id;
+    new_link->position = (const char*) new_offset - (const char*) new_v.obj.head;
+
+    auto& child = vertices_[child_id];
+    child.parents.push (new_parent_idx);
+
+    old_v.remove_real_link (child_id, old_offset);
+    child.remove_parent (old_parent_idx);
+  }
+
   /*
    * duplicates all nodes in the subgraph reachable from node_idx. Does not re-assign
    * links. index_map is updated with mappings from old id to new id. If a duplication has already
@@ -490,7 +839,20 @@ struct graph_t
    * parent to the clone. The copy is a shallow copy, objects
    * linked from child are not duplicated.
    */
-  bool duplicate (unsigned parent_idx, unsigned child_idx)
+  unsigned duplicate_if_shared (unsigned parent_idx, unsigned child_idx)
+  {
+    unsigned new_idx = duplicate (parent_idx, child_idx);
+    if (new_idx == (unsigned) -1) return child_idx;
+    return new_idx;
+  }
+
+
+  /*
+   * Creates a copy of child and re-assigns the link from
+   * parent to the clone. The copy is a shallow copy, objects
+   * linked from child are not duplicated.
+   */
+  unsigned duplicate (unsigned parent_idx, unsigned child_idx)
   {
     update_parents ();
 
@@ -506,7 +868,7 @@ struct graph_t
       // to child are from parent.
       DEBUG_MSG (SUBSET_REPACK, nullptr, "  Not duplicating %d => %d",
                  parent_idx, child_idx);
-      return false;
+      return -1;
     }
 
     DEBUG_MSG (SUBSET_REPACK, nullptr, "  Duplicating %d => %d",
@@ -526,7 +888,40 @@ struct graph_t
       reassign_link (l, parent_idx, clone_idx);
     }
 
-    return true;
+    return clone_idx;
+  }
+
+
+  /*
+   * Adds a new node to the graph, not connected to anything.
+   */
+  unsigned new_node (char* head, char* tail)
+  {
+    positions_invalid = true;
+    distance_invalid = true;
+
+    auto* clone = vertices_.push ();
+    if (vertices_.in_error ()) {
+      return -1;
+    }
+
+    clone->obj.head = head;
+    clone->obj.tail = tail;
+    clone->distance = 0;
+    clone->space = 0;
+
+    unsigned clone_idx = vertices_.length - 2;
+
+    // The last object is the root of the graph, so swap back the root to the end.
+    // The root's obj idx does change, however since it's root nothing else refers to it.
+    // all other obj idx's will be unaffected.
+    hb_swap (vertices_[vertices_.length - 2], *clone);
+
+    // Since the root moved, update the parents arrays of all children on the root.
+    for (const auto& l : root ().obj.all_links ())
+      vertices_[l.objidx].remap_parent (root_idx () - 1, root_idx ());
+
+    return clone_idx;
   }
 
   /*
@@ -622,7 +1017,7 @@ struct graph_t
  private:
 
   /*
-   * Returns the numbers of incoming edges that are 32bits wide.
+   * Returns the numbers of incoming edges that are 24 or 32 bits wide.
    */
   unsigned wide_parents (unsigned node_idx, hb_set_t& parents) const
   {
@@ -636,7 +1031,9 @@ struct graph_t
       // Only real links can be wide
       for (const auto& l : vertices_[p].obj.real_links)
       {
-        if (l.objidx == node_idx && l.width == 4 && !l.is_signed)
+        if (l.objidx == node_idx
+            && (l.width == 3 || l.width == 4)
+            && !l.is_signed)
         {
           count++;
           parents.add (p);
@@ -853,6 +1250,7 @@ struct graph_t
   bool positions_invalid;
   bool successful;
   hb_vector_t<unsigned> num_roots_for_space_;
+  hb_vector_t<char*> buffers;
 };
 
 }

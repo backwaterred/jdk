@@ -51,9 +51,9 @@ struct FTStringRange
 
   protected:
   NNOffset16To<UnsizedArrayOf<HBUINT8>>
-                tag;            /* Offset from the start of the table to
-                                 * the beginning of the string */
-  HBUINT16      length;         /* String length (in bytes) */
+		tag;		/* Offset from the start of the table to
+				 * the beginning of the string */
+  HBUINT16	length;		/* String length (in bytes) */
   public:
   DEFINE_SIZE_STATIC (4);
 };
@@ -66,22 +66,22 @@ struct ltag
   {
     const FTStringRange &range = tagRanges[i];
     return hb_language_from_string ((const char *) (this+range.tag).arrayZ,
-                                    range.length);
+				    range.length);
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
     return_trace (likely (c->check_struct (this) &&
-                          version >= 1 &&
-                          tagRanges.sanitize (c, this)));
+			  version >= 1 &&
+			  tagRanges.sanitize (c, this)));
   }
 
   protected:
-  HBUINT32      version;        /* Table version; currently 1 */
-  HBUINT32      flags;          /* Table flags; currently none defined */
+  HBUINT32	version;	/* Table version; currently 1 */
+  HBUINT32	flags;		/* Table flags; currently none defined */
   Array32Of<FTStringRange>
-                tagRanges;      /* Range for each tag's string */
+		tagRanges;	/* Range for each tag's string */
   public:
   DEFINE_SIZE_ARRAY (12, tagRanges);
 };

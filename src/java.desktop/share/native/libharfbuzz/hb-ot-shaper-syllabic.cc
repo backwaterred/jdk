@@ -31,11 +31,11 @@
 
 void
 hb_syllabic_insert_dotted_circles (hb_font_t *font,
-                                   hb_buffer_t *buffer,
-                                   unsigned int broken_syllable_type,
-                                   unsigned int dottedcircle_category,
-                                   int repha_category,
-                                   int dottedcircle_position)
+				   hb_buffer_t *buffer,
+				   unsigned int broken_syllable_type,
+				   unsigned int dottedcircle_category,
+				   int repha_category,
+				   int dottedcircle_position)
 {
   if (unlikely (buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
     return;
@@ -72,10 +72,10 @@ hb_syllabic_insert_dotted_circles (hb_font_t *font,
       /* Insert dottedcircle after possible Repha. */
       if (repha_category != -1)
       {
-        while (buffer->idx < buffer->len && buffer->successful &&
-               last_syllable == buffer->cur().syllable() &&
-               buffer->cur().ot_shaper_var_u8_category() == (unsigned) repha_category)
-          (void) buffer->next_glyph ();
+	while (buffer->idx < buffer->len && buffer->successful &&
+	       last_syllable == buffer->cur().syllable() &&
+	       buffer->cur().ot_shaper_var_u8_category() == (unsigned) repha_category)
+	  (void) buffer->next_glyph ();
       }
 
       (void) buffer->output_info (ginfo);
@@ -88,8 +88,8 @@ hb_syllabic_insert_dotted_circles (hb_font_t *font,
 
 HB_INTERNAL void
 hb_syllabic_clear_var (const hb_ot_shape_plan_t *plan,
-                       hb_font_t *font,
-                       hb_buffer_t *buffer)
+		       hb_font_t *font,
+		       hb_buffer_t *buffer)
 {
   HB_BUFFER_DEALLOCATE_VAR (buffer, syllable);
 }

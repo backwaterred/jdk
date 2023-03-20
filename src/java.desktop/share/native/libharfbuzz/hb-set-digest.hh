@@ -63,12 +63,12 @@ struct hb_set_digest_bits_pattern_t
   static constexpr unsigned mask_bytes = sizeof (mask_t);
   static constexpr unsigned mask_bits = sizeof (mask_t) * 8;
   static constexpr unsigned num_bits = 0
-                                     + (mask_bytes >= 1 ? 3 : 0)
-                                     + (mask_bytes >= 2 ? 1 : 0)
-                                     + (mask_bytes >= 4 ? 1 : 0)
-                                     + (mask_bytes >= 8 ? 1 : 0)
-                                     + (mask_bytes >= 16? 1 : 0)
-                                     + 0;
+				     + (mask_bytes >= 1 ? 3 : 0)
+				     + (mask_bytes >= 2 ? 1 : 0)
+				     + (mask_bytes >= 4 ? 1 : 0)
+				     + (mask_bytes >= 8 ? 1 : 0)
+				     + (mask_bytes >= 16? 1 : 0)
+				     + 0;
 
   static_assert ((shift < sizeof (hb_codepoint_t) * 8), "");
   static_assert ((shift + num_bits <= sizeof (hb_codepoint_t) * 8), "");

@@ -37,7 +37,7 @@
 extern HB_INTERNAL const hb_codepoint_t minus_1;
 
 template <typename K, typename V,
-          bool minus_one = false>
+	  bool minus_one = false>
 struct hb_hashmap_t
 {
   hb_hashmap_t ()  { init (); }
@@ -54,7 +54,7 @@ struct hb_hashmap_t
       set (item.first, item.second);
   }
   template <typename Iterable,
-            hb_requires (hb_is_iterable (Iterable))>
+	    hb_requires (hb_is_iterable (Iterable))>
   hb_hashmap_t (const Iterable &o) : hb_hashmap_t ()
   {
     auto iter = hb_iter (o);
@@ -78,10 +78,10 @@ struct hb_hashmap_t
     bool is_real () const { return is_used_ && !is_tombstone_; }
 
     template <bool v = minus_one,
-              hb_enable_if (v == false)>
+	      hb_enable_if (v == false)>
     static inline const V& default_value () { return Null(V); };
     template <bool v = minus_one,
-              hb_enable_if (v == true)>
+	      hb_enable_if (v == true)>
     static inline const V& default_value ()
     {
       static_assert (hb_is_same (V, hb_codepoint_t), "");
@@ -124,21 +124,20 @@ struct hb_hashmap_t
     hb_swap (a.prime, b.prime);
     hb_swap (a.items, b.items);
   }
-  void init_shallow ()
+  void init ()
   {
+    hb_object_init (this);
+
     successful = true;
     population = occupancy = 0;
     mask = 0;
     prime = 0;
     items = nullptr;
   }
-  void init ()
+  void fini ()
   {
-    hb_object_init (this);
-    init_shallow ();
-  }
-  void fini_shallow ()
-  {
+    hb_object_fini (this);
+
     if (likely (items)) {
       unsigned size = mask + 1;
       for (unsigned i = 0; i < size; i++)
@@ -147,11 +146,6 @@ struct hb_hashmap_t
       items = nullptr;
     }
     population = occupancy = 0;
-  }
-  void fini ()
-  {
-    hb_object_fini (this);
-    fini_shallow ();
   }
 
   void reset ()
@@ -190,13 +184,13 @@ struct hb_hashmap_t
     if (old_items)
       for (unsigned int i = 0; i < old_size; i++)
       {
-        if (old_items[i].is_real ())
-        {
-          set_with_hash (old_items[i].key,
-                         old_items[i].hash,
-                         std::move (old_items[i].value));
-        }
-        old_items[i].~item_t ();
+	if (old_items[i].is_real ())
+	{
+	  set_with_hash (old_items[i].key,
+			 old_items[i].hash,
+			 std::move (old_items[i].value));
+	}
+	old_items[i].~item_t ();
       }
 
     hb_free (old_items);
@@ -219,13 +213,11 @@ struct hb_hashmap_t
   /* Has interface. */
   typedef const V& value_t;
   value_t operator [] (K k) const { return get (k); }
-  bool has (K key, const V **vp = nullptr) const
+  template <typename VV=V>
+  bool has (K key, VV **vp = nullptr) const
   {
     if (unlikely (!items))
-    {
-      if (vp) *vp = &item_t::default_value ();
       return false;
-    }
     unsigned int i = bucket_for (key);
     if (items[i].is_real () && items[i] == key)
     {
@@ -233,10 +225,7 @@ struct hb_hashmap_t
       return true;
     }
     else
-    {
-      if (vp) *vp = &item_t::default_value ();
       return false;
-    }
   }
   /* Projection. */
   V operator () (K k) const { return get (k); }
@@ -247,7 +236,7 @@ struct hb_hashmap_t
 
     if (items)
       for (auto &_ : hb_iter (items, mask + 1))
-        _.clear ();
+	_.clear ();
 
     population = occupancy = 0;
   }
@@ -259,7 +248,7 @@ struct hb_hashmap_t
   {
     uint32_t h = 0;
     for (const auto &item : + hb_array (items, mask ? mask + 1 : 0)
-                            | hb_filter (&item_t::is_real))
+			    | hb_filter (&item_t::is_real))
       h ^= item.total_hash ();
     return h;
   }
@@ -301,12 +290,24 @@ struct hb_hashmap_t
     | hb_map (&item_t::key)
     | hb_map (hb_ridentity)
   )
+  auto keys_ref () const HB_AUTO_RETURN
+  (
+    + hb_array (items, mask ? mask + 1 : 0)
+    | hb_filter (&item_t::is_real)
+    | hb_map (&item_t::key)
+  )
   auto values () const HB_AUTO_RETURN
   (
     + hb_array (items, mask ? mask + 1 : 0)
     | hb_filter (&item_t::is_real)
     | hb_map (&item_t::value)
     | hb_map (hb_ridentity)
+  )
+  auto values_ref () const HB_AUTO_RETURN
+  (
+    + hb_array (items, mask ? mask + 1 : 0)
+    | hb_filter (&item_t::is_real)
+    | hb_map (&item_t::value)
   )
 
   /* Sink interface. */
@@ -329,7 +330,7 @@ struct hb_hashmap_t
     {
       occupancy--;
       if (!items[i].is_tombstone ())
-        population--;
+	population--;
     }
 
     items[i].key = key;
@@ -359,9 +360,9 @@ struct hb_hashmap_t
     while (items[i].is_used ())
     {
       if (items[i].hash == hash && items[i] == key)
-        return i;
+	return i;
       if (tombstone == (unsigned) -1 && items[i].is_tombstone ())
-        tombstone = i;
+	tombstone = i;
       i = (i + ++step) & mask;
     }
     return tombstone == (unsigned) -1 ? i : tombstone;
@@ -424,12 +425,12 @@ struct hb_hashmap_t
  */
 
 struct hb_map_t : hb_hashmap_t<hb_codepoint_t,
-                               hb_codepoint_t,
-                               true>
+			       hb_codepoint_t,
+			       true>
 {
   using hashmap = hb_hashmap_t<hb_codepoint_t,
-                               hb_codepoint_t,
-                               true>;
+			       hb_codepoint_t,
+			       true>;
 
   ~hb_map_t () = default;
   hb_map_t () : hashmap () {}
@@ -439,8 +440,41 @@ struct hb_map_t : hb_hashmap_t<hb_codepoint_t,
   hb_map_t& operator= (hb_map_t&&) = default;
   hb_map_t (std::initializer_list<hb_pair_t<hb_codepoint_t, hb_codepoint_t>> lst) : hashmap (lst) {}
   template <typename Iterable,
-            hb_requires (hb_is_iterable (Iterable))>
+	    hb_requires (hb_is_iterable (Iterable))>
   hb_map_t (const Iterable &o) : hashmap (o) {}
 };
+
+template <typename K, typename V>
+static inline
+hb_hashmap_t<K, V>* hb_hashmap_create ()
+{
+  using hashmap = hb_hashmap_t<K, V>;
+  hashmap* map;
+  if (!(map = hb_object_create<hashmap> ()))
+    return nullptr;
+
+  return map;
+}
+
+template <typename K, typename V>
+static inline
+void hb_hashmap_destroy (hb_hashmap_t<K, V>* map)
+{
+  if (!hb_object_destroy (map))
+    return;
+
+  hb_free (map);
+}
+
+namespace hb {
+
+template <typename K, typename V>
+struct vtable<hb_hashmap_t<K, V>>
+{
+  static constexpr auto destroy = hb_hashmap_destroy<K,V>;
+};
+
+}
+
 
 #endif /* HB_MAP_HH */

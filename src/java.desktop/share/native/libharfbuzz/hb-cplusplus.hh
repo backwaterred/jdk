@@ -69,17 +69,17 @@ struct shared_ptr
   operator T * () const { return p; }
   T& operator * () const { return *get (); }
   T* operator -> () const { return get (); }
-  operator bool () { return p; }
-  bool operator == (const shared_ptr &o) { return p == o.p; }
-  bool operator != (const shared_ptr &o) { return p != o.p; }
+  operator bool () const { return p; }
+  bool operator == (const shared_ptr &o) const { return p == o.p; }
+  bool operator != (const shared_ptr &o) const { return p != o.p; }
 
   static T* get_empty() { return v::get_empty (); }
   T* reference() { return v::reference (p); }
   void destroy() { v::destroy (p); }
   void set_user_data (hb_user_data_key_t *key,
-                      void *value,
-                      hb_destroy_func_t destroy,
-                      hb_bool_t replace) { v::set_user_data (p, key, value, destroy, replace); }
+		      void *value,
+		      hb_destroy_func_t destroy,
+		      hb_bool_t replace) { v::set_user_data (p, key, value, destroy, replace); } 
   void * get_user_data (hb_user_data_key_t *key) { return v::get_user_data (p, key); }
 
   private:
@@ -122,16 +122,16 @@ template<typename T> struct is_unique_ptr : std::false_type {};
 template<typename T> struct is_unique_ptr<unique_ptr<T>> : std::true_type {};
 
 template <typename T,
-          T * (*_get_empty) (void),
-          T * (*_reference) (T *),
-          void (*_destroy) (T *),
-          hb_bool_t (*_set_user_data) (T *,
-                                       hb_user_data_key_t *,
-                                       void *,
-                                       hb_destroy_func_t,
-                                       hb_bool_t),
-          void * (*_get_user_data) (T *,
-                                    hb_user_data_key_t *)>
+	  T * (*_get_empty) (void),
+	  T * (*_reference) (T *),
+	  void (*_destroy) (T *),
+	  hb_bool_t (*_set_user_data) (T *,
+				       hb_user_data_key_t *,
+				       void *,
+				       hb_destroy_func_t,
+				       hb_bool_t),
+	  void * (*_get_user_data) (const T *,
+				    hb_user_data_key_t *)>
 struct vtable_t
 {
   static constexpr auto get_empty = _get_empty;
@@ -142,14 +142,14 @@ struct vtable_t
 };
 
 #define HB_DEFINE_VTABLE(name) \
-        template<> \
-        struct vtable<hb_##name##_t> \
-             : vtable_t<hb_##name##_t, \
-                        &hb_##name##_get_empty, \
-                        &hb_##name##_reference, \
-                        &hb_##name##_destroy, \
-                        &hb_##name##_set_user_data, \
-                        &hb_##name##_get_user_data> {}
+	template<> \
+	struct vtable<hb_##name##_t> \
+	     : vtable_t<hb_##name##_t, \
+			&hb_##name##_get_empty, \
+			&hb_##name##_reference, \
+			&hb_##name##_destroy, \
+			&hb_##name##_set_user_data, \
+			&hb_##name##_get_user_data> {}
 
 HB_DEFINE_VTABLE (buffer);
 HB_DEFINE_VTABLE (blob);
@@ -164,10 +164,37 @@ HB_DEFINE_VTABLE (unicode_funcs);
 #undef HB_DEFINE_VTABLE
 
 
+#ifdef HB_SUBSET_H
+
+#define HB_DEFINE_VTABLE(name) \
+	template<> \
+	struct vtable<hb_##name##_t> \
+	     : vtable_t<hb_##name##_t, \
+			nullptr, \
+			&hb_##name##_reference, \
+			&hb_##name##_destroy, \
+			&hb_##name##_set_user_data, \
+			&hb_##name##_get_user_data> {}
+
+
+HB_DEFINE_VTABLE (subset_input);
+HB_DEFINE_VTABLE (subset_plan);
+
+#undef HB_DEFINE_VTABLE
+
+#endif
+
+
 } // namespace hb
 
+/* Workaround for GCC < 7, see:
+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56480
+ * https://stackoverflow.com/a/25594741 */
+namespace std {
+
+
 template<typename T>
-struct std::hash<hb::shared_ptr<T>>
+struct hash<hb::shared_ptr<T>>
 {
     std::size_t operator()(const hb::shared_ptr<T>& v) const noexcept
     {
@@ -177,7 +204,7 @@ struct std::hash<hb::shared_ptr<T>>
 };
 
 template<typename T>
-struct std::hash<hb::unique_ptr<T>>
+struct hash<hb::unique_ptr<T>>
 {
     std::size_t operator()(const hb::unique_ptr<T>& v) const noexcept
     {
@@ -186,6 +213,8 @@ struct std::hash<hb::unique_ptr<T>>
     }
 };
 
+
+} // namespace std
 
 #endif /* __cplusplus */
 

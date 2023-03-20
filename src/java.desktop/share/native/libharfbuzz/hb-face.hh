@@ -52,12 +52,12 @@ struct hb_face_t
   void                      *user_data;
   hb_destroy_func_t          destroy;
 
-  unsigned int index;                   /* Face index in a collection, zero-based. */
-  mutable hb_atomic_int_t upem;         /* Units-per-EM. */
-  mutable hb_atomic_int_t num_glyphs;   /* Number of glyphs. */
+  unsigned int index;			/* Face index in a collection, zero-based. */
+  mutable hb_atomic_int_t upem;		/* Units-per-EM. */
+  mutable hb_atomic_int_t num_glyphs;	/* Number of glyphs. */
 
   hb_shaper_object_dataset_t<hb_face_t> data;/* Various shaper data. */
-  hb_ot_face_t table;                   /* All the face's tables. */
+  hb_ot_face_t table;			/* All the face's tables. */
 
   /* Cache */
   struct plan_node_t
@@ -83,7 +83,7 @@ struct hb_face_t
 
   unsigned int get_upem () const
   {
-    unsigned int ret = upem.get_relaxed ();
+    unsigned int ret = upem;
     if (unlikely (!ret))
     {
       return load_upem ();
@@ -93,7 +93,7 @@ struct hb_face_t
 
   unsigned int get_num_glyphs () const
   {
-    unsigned int ret = num_glyphs.get_relaxed ();
+    unsigned int ret = num_glyphs;
     if (unlikely (ret == UINT_MAX))
       return load_num_glyphs ();
     return ret;

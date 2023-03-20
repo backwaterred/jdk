@@ -43,11 +43,11 @@
 #define HB_OT_TAG_vmtx HB_TAG('v','m','t','x')
 
 
-HB_INTERNAL int
-_glyf_get_side_bearing_var (hb_font_t *font, hb_codepoint_t glyph, bool is_vertical);
+HB_INTERNAL bool
+_glyf_get_leading_bearing_with_var_unscaled (hb_font_t *font, hb_codepoint_t glyph, bool is_vertical, int *lsb);
 
 HB_INTERNAL unsigned
-_glyf_get_advance_var (hb_font_t *font, hb_codepoint_t glyph, bool is_vertical);
+_glyf_get_advance_with_var_unscaled (hb_font_t *font, hb_codepoint_t glyph, bool is_vertical);
 
 
 namespace OT {
@@ -55,14 +55,14 @@ namespace OT {
 
 struct LongMetric
 {
-  UFWORD        advance; /* Advance width/height. */
-  FWORD         sb; /* Leading (left/top) side bearing. */
+  UFWORD	advance; /* Advance width/height. */
+  FWORD		sb; /* Leading (left/top) side bearing. */
   public:
   DEFINE_SIZE_STATIC (4);
 };
 
 
-template <typename T, typename H>
+template <typename T/*Data table type*/, typename H/*Header table type*/, typename V/*Var table type*/>
 struct hmtxvmtx
 {
   bool sanitize (hb_sanitize_context_t *c HB_UNUSED) const
@@ -73,9 +73,11 @@ struct hmtxvmtx
     return_trace (true);
   }
 
+  const hb_hashmap_t<unsigned, hb_pair_t<unsigned, int>>* get_mtx_map (const hb_subset_plan_t *plan) const
+  { return T::is_horizontal ? plan->hmtx_map : plan->vmtx_map; }
 
   bool subset_update_header (hb_subset_plan_t *plan,
-                             unsigned int num_hmetrics) const
+			     unsigned int num_hmetrics) const
   {
     hb_blob_t *src_blob = hb_sanitize_context_t ().reference_table<H> (plan->source, H::tableTag);
     hb_blob_t *dest_blob = hb_blob_copy_writable_or_fail (src_blob);
@@ -96,26 +98,26 @@ struct hmtxvmtx
   }
 
   template<typename Iterator,
-           hb_requires (hb_is_iterator (Iterator))>
+	   hb_requires (hb_is_iterator (Iterator))>
   void serialize (hb_serialize_context_t *c,
-                  Iterator it,
-                  unsigned num_long_metrics)
+		  Iterator it,
+		  unsigned num_long_metrics)
   {
     unsigned idx = 0;
     for (auto _ : it)
     {
       if (idx < num_long_metrics)
       {
-        LongMetric lm;
-        lm.advance = _.first;
-        lm.sb = _.second;
-        if (unlikely (!c->embed<LongMetric> (&lm))) return;
+	LongMetric lm;
+	lm.advance = _.first;
+	lm.sb = _.second;
+	if (unlikely (!c->embed<LongMetric> (&lm))) return;
       }
       else
       {
-        FWORD *sb = c->allocate_size<FWORD> (FWORD::static_size);
-        if (unlikely (!sb)) return;
-        *sb = _.second;
+	FWORD *sb = c->allocate_size<FWORD> (FWORD::static_size);
+	if (unlikely (!sb)) return;
+	*sb = _.second;
       }
       idx++;
     }
@@ -130,28 +132,35 @@ struct hmtxvmtx
 
     accelerator_t _mtx (c->plan->source);
     unsigned num_long_metrics;
+    const hb_hashmap_t<unsigned, hb_pair_t<unsigned, int>> *mtx_map = get_mtx_map (c->plan);
     {
       /* Determine num_long_metrics to encode. */
       auto& plan = c->plan;
+
       num_long_metrics = plan->num_output_glyphs ();
-      hb_codepoint_t old_gid = 0;
-      unsigned int last_advance = plan->old_gid_for_new_gid (num_long_metrics - 1, &old_gid) ? _mtx.get_advance (old_gid) : 0;
+      unsigned int last_advance = get_new_gid_advance_unscaled (plan, mtx_map, num_long_metrics - 1, _mtx);
       while (num_long_metrics > 1 &&
-             last_advance == (plan->old_gid_for_new_gid (num_long_metrics - 2, &old_gid) ? _mtx.get_advance (old_gid) : 0))
+	     last_advance == get_new_gid_advance_unscaled (plan, mtx_map, num_long_metrics - 2, _mtx))
       {
-        num_long_metrics--;
+	num_long_metrics--;
       }
     }
 
     auto it =
     + hb_range (c->plan->num_output_glyphs ())
-    | hb_map ([c, &_mtx] (unsigned _)
-              {
-                hb_codepoint_t old_gid;
-                if (!c->plan->old_gid_for_new_gid (_, &old_gid))
-                  return hb_pair (0u, 0);
-                return hb_pair (_mtx.get_advance (old_gid), _mtx.get_side_bearing (old_gid));
-              })
+    | hb_map ([c, &_mtx, mtx_map] (unsigned _)
+	      {
+		if (!mtx_map->has (_))
+		{
+		  hb_codepoint_t old_gid;
+		  if (!c->plan->old_gid_for_new_gid (_, &old_gid))
+		    return hb_pair (0u, 0);
+		  int lsb = 0;
+		  (void) _mtx.get_leading_bearing_without_var_unscaled (old_gid, &lsb);
+		  return hb_pair (_mtx.get_advance_without_var_unscaled (old_gid), +lsb);
+		}
+		return mtx_map->get (_);
+	      })
     ;
 
     table_prime->serialize (c->serializer, it, num_long_metrics);
@@ -173,7 +182,7 @@ struct hmtxvmtx
     accelerator_t (hb_face_t *face)
     {
       table = hb_sanitize_context_t ().reference_table<hmtxvmtx> (face, T::tableTag);
-      var_table = hb_sanitize_context_t ().reference_table<HVARVVAR> (face, T::variationsTag);
+      var_table = hb_sanitize_context_t ().reference_table<V> (face, T::variationsTag);
 
       default_advance = T::is_horizontal ? hb_face_get_upem (face) / 2 : hb_face_get_upem (face);
 
@@ -184,15 +193,15 @@ struct hmtxvmtx
         len--;
 
       num_long_metrics = T::is_horizontal ?
-                         face->table.hhea->numberOfLongMetrics :
+			 face->table.hhea->numberOfLongMetrics :
 #ifndef HB_NO_VERTICAL
-                         face->table.vhea->numberOfLongMetrics
+			 face->table.vhea->numberOfLongMetrics
 #else
-                         0
+			 0
 #endif
-                         ;
+			 ;
       if (unlikely (num_long_metrics * 4 > len))
-        num_long_metrics = len / 4;
+	num_long_metrics = len / 4;
       len -= num_long_metrics * 4;
 
       num_bearings = face->table.maxp->get_num_glyphs ();
@@ -206,7 +215,7 @@ struct hmtxvmtx
       /* We MUST set num_bearings to zero if num_long_metrics is zero.
        * Our get_advance() depends on that. */
       if (unlikely (!num_long_metrics))
-        num_bearings = num_long_metrics = 0;
+	num_bearings = num_long_metrics = 0;
 
       num_advances = num_bearings + len / 2;
       num_glyphs = face->get_num_glyphs ();
@@ -221,48 +230,58 @@ struct hmtxvmtx
 
     bool has_data () const { return (bool) num_bearings; }
 
-    int get_side_bearing (hb_codepoint_t glyph) const
+    bool get_leading_bearing_without_var_unscaled (hb_codepoint_t glyph,
+						   int *lsb) const
     {
       if (glyph < num_long_metrics)
-        return table->longMetricZ[glyph].sb;
+      {
+	*lsb = table->longMetricZ[glyph].sb;
+	return true;
+      }
 
       if (unlikely (glyph >= num_bearings))
-        return 0;
+	return false;
 
       const FWORD *bearings = (const FWORD *) &table->longMetricZ[num_long_metrics];
-      return bearings[glyph - num_long_metrics];
+      *lsb = bearings[glyph - num_long_metrics];
+      return true;
     }
 
-    int get_side_bearing (hb_font_t *font, hb_codepoint_t glyph) const
+    bool get_leading_bearing_with_var_unscaled (hb_font_t *font,
+						hb_codepoint_t glyph,
+						int *lsb) const
     {
-      int side_bearing = get_side_bearing (glyph);
+      if (!font->num_coords)
+	return get_leading_bearing_without_var_unscaled (glyph, lsb);
 
 #ifndef HB_NO_VAR
-      if (unlikely (glyph >= num_bearings) || !font->num_coords)
-        return side_bearing;
+      float delta;
+      if (var_table->get_lsb_delta_unscaled (glyph, font->coords, font->num_coords, &delta) &&
+	  get_leading_bearing_without_var_unscaled (glyph, lsb))
+      {
+	*lsb += roundf (delta);
+	return true;
+      }
 
-      if (var_table.get_length ())
-        return side_bearing + var_table->get_side_bearing_var (glyph, font->coords, font->num_coords);
-
-      return _glyf_get_side_bearing_var (font, glyph, T::tableTag == HB_OT_TAG_vmtx);
+      return _glyf_get_leading_bearing_with_var_unscaled (font, glyph, T::tableTag == HB_OT_TAG_vmtx, lsb);
 #else
-      return side_bearing;
+      return false;
 #endif
     }
 
-    unsigned int get_advance (hb_codepoint_t glyph) const
+    unsigned int get_advance_without_var_unscaled (hb_codepoint_t glyph) const
     {
       /* OpenType case. */
       if (glyph < num_bearings)
-        return table->longMetricZ[hb_min (glyph, (uint32_t) num_long_metrics - 1)].advance;
+	return table->longMetricZ[hb_min (glyph, (uint32_t) num_long_metrics - 1)].advance;
 
       /* If num_advances is zero, it means we don't have the metrics table
        * for this direction: return default advance.  Otherwise, there's a
        * well-defined answer. */
       if (unlikely (!num_advances))
-        return default_advance;
+	return default_advance;
 
-#ifdef HB_NO_BORING_EXPANSION
+#ifdef HB_NO_BEYOND_64K
       return 0;
 #endif
 
@@ -275,7 +294,7 @@ struct hmtxvmtx
       /* TODO Optimize */
 
       if (num_bearings == num_advances)
-        return get_advance (num_bearings - 1);
+        return get_advance_without_var_unscaled (num_bearings - 1);
 
       const FWORD *bearings = (const FWORD *) &table->longMetricZ[num_long_metrics];
       const UFWORD *advances = (const UFWORD *) &bearings[num_bearings - num_long_metrics];
@@ -283,20 +302,22 @@ struct hmtxvmtx
       return advances[hb_min (glyph - num_bearings, num_advances - num_bearings - 1)];
     }
 
-    unsigned int get_advance (hb_codepoint_t  glyph,
-                              hb_font_t      *font,
-                              VariationStore::cache_t *store_cache = nullptr) const
+    unsigned get_advance_with_var_unscaled (hb_codepoint_t  glyph,
+					    hb_font_t      *font,
+					    VariationStore::cache_t *store_cache = nullptr) const
     {
-      unsigned int advance = get_advance (glyph);
+      unsigned int advance = get_advance_without_var_unscaled (glyph);
 
 #ifndef HB_NO_VAR
       if (unlikely (glyph >= num_bearings) || !font->num_coords)
-        return advance;
+	return advance;
 
       if (var_table.get_length ())
-        return advance + roundf (var_table->get_advance_var (glyph, font, store_cache)); // TODO Optimize?!
+	return advance + roundf (var_table->get_advance_delta_unscaled (glyph,
+									font->coords, font->num_coords,
+									store_cache)); // TODO Optimize?!
 
-      return _glyf_get_advance_var (font, glyph, T::tableTag == HB_OT_TAG_vmtx);
+      return _glyf_get_advance_with_var_unscaled (font, glyph, T::tableTag == HB_OT_TAG_vmtx);
 #else
       return advance;
 #endif
@@ -313,45 +334,63 @@ struct hmtxvmtx
 
     public:
     hb_blob_ptr_t<hmtxvmtx> table;
-    hb_blob_ptr_t<HVARVVAR> var_table;
+    hb_blob_ptr_t<V> var_table;
   };
+
+  /* get advance: when no variations, call get_advance_without_var_unscaled.
+   * when there're variations, get advance value from mtx_map in subset_plan*/
+  unsigned get_new_gid_advance_unscaled (const hb_subset_plan_t *plan,
+                                         const hb_hashmap_t<unsigned, hb_pair_t<unsigned, int>> *mtx_map,
+                                         unsigned new_gid,
+                                         const accelerator_t &_mtx) const
+  {
+    if (mtx_map->is_empty () ||
+        (new_gid == 0 && !mtx_map->has (new_gid)))
+    {
+      hb_codepoint_t old_gid = 0;
+      return plan->old_gid_for_new_gid (new_gid, &old_gid) ?
+             _mtx.get_advance_without_var_unscaled (old_gid) : 0;
+    }
+    else
+    { return mtx_map->get (new_gid).first; }
+  }
 
   protected:
   UnsizedArrayOf<LongMetric>
-                longMetricZ;    /* Paired advance width and leading
-                                 * bearing values for each glyph. The
-                                 * value numOfHMetrics comes from
-                                 * the 'hhea' table. If the font is
-                                 * monospaced, only one entry need
-                                 * be in the array, but that entry is
-                                 * required. The last entry applies to
-                                 * all subsequent glyphs. */
-/*UnsizedArrayOf<FWORD> leadingBearingX;*/
-                                /* Here the advance is assumed
-                                 * to be the same as the advance
-                                 * for the last entry above. The
-                                 * number of entries in this array is
-                                 * derived from numGlyphs (from 'maxp'
-                                 * table) minus numberOfLongMetrics.
-                                 * This generally is used with a run
-                                 * of monospaced glyphs (e.g., Kanji
-                                 * fonts or Courier fonts). Only one
-                                 * run is allowed and it must be at
-                                 * the end. This allows a monospaced
-                                 * font to vary the side bearing
-                                 * values for each glyph. */
+		longMetricZ;	/* Paired advance width and leading
+				 * bearing values for each glyph. The
+				 * value numOfHMetrics comes from
+				 * the 'hhea' table. If the font is
+				 * monospaced, only one entry need
+				 * be in the array, but that entry is
+				 * required. The last entry applies to
+				 * all subsequent glyphs. */
+/*UnsizedArrayOf<FWORD>	leadingBearingX;*/
+				/* Here the advance is assumed
+				 * to be the same as the advance
+				 * for the last entry above. The
+				 * number of entries in this array is
+				 * derived from numGlyphs (from 'maxp'
+				 * table) minus numberOfLongMetrics.
+				 * This generally is used with a run
+				 * of monospaced glyphs (e.g., Kanji
+				 * fonts or Courier fonts). Only one
+				 * run is allowed and it must be at
+				 * the end. This allows a monospaced
+				 * font to vary the side bearing
+				 * values for each glyph. */
 /*UnsizedArrayOf<UFWORD>advancesX;*/
-                                /* TODO Document. */
+				/* TODO Document. */
   public:
   DEFINE_SIZE_ARRAY (0, longMetricZ);
 };
 
-struct hmtx : hmtxvmtx<hmtx, hhea> {
+struct hmtx : hmtxvmtx<hmtx, hhea, HVAR> {
   static constexpr hb_tag_t tableTag = HB_OT_TAG_hmtx;
   static constexpr hb_tag_t variationsTag = HB_OT_TAG_HVAR;
   static constexpr bool is_horizontal = true;
 };
-struct vmtx : hmtxvmtx<vmtx, vhea> {
+struct vmtx : hmtxvmtx<vmtx, vhea, VVAR> {
   static constexpr hb_tag_t tableTag = HB_OT_TAG_vmtx;
   static constexpr hb_tag_t variationsTag = HB_OT_TAG_VVAR;
   static constexpr bool is_horizontal = false;

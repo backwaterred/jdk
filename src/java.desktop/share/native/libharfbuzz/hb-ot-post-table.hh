@@ -63,12 +63,12 @@ struct postV2Tail
   bool subset (hb_subset_context_t *c) const;
 
   protected:
-  Array16Of<HBUINT16>   glyphNameIndex; /* This is not an offset, but is the
-                                         * ordinal number of the glyph in 'post'
-                                         * string tables. */
+  Array16Of<HBUINT16>	glyphNameIndex;	/* This is not an offset, but is the
+					 * ordinal number of the glyph in 'post'
+					 * string tables. */
 /*UnsizedArrayOf<HBUINT8>
-                        namesX;*/       /* Glyph names with length bytes [variable]
-                                         * (a Pascal string). */
+			namesX;*/	/* Glyph names with length bytes [variable]
+					 * (a Pascal string). */
 
   public:
   DEFINE_SIZE_ARRAY (2, glyphNameIndex);
@@ -102,6 +102,14 @@ struct post
     if (!serialize (c->serializer, glyph_names))
       return_trace (false);
 
+    if (c->plan->user_axes_location->has (HB_TAG ('s','l','n','t')) &&
+        !c->plan->pinned_at_default)
+    {
+      float italic_angle = c->plan->user_axes_location->get (HB_TAG ('s','l','n','t'));
+      italic_angle = hb_max (-90.f, hb_min (italic_angle, 90.f));
+      post_prime->italicAngle.set_float (italic_angle);
+    }
+
     if (glyph_names && version.major == 2)
       return_trace (v2X.subset (c));
 
@@ -127,18 +135,18 @@ struct post
 
       const uint8_t *end = (const uint8_t *) (const void *) table + table_length;
       for (const uint8_t *data = pool;
-           index_to_offset.length < 65535 && data < end && data + *data < end;
-           data += 1 + *data)
-        index_to_offset.push (data - pool);
+	   index_to_offset.length < 65535 && data < end && data + *data < end;
+	   data += 1 + *data)
+	index_to_offset.push (data - pool);
     }
     ~accelerator_t ()
     {
-      hb_free (gids_sorted_by_name.get ());
+      hb_free (gids_sorted_by_name.get_acquire ());
       table.destroy ();
     }
 
     bool get_glyph_name (hb_codepoint_t glyph,
-                         char *buf, unsigned int buf_len) const
+			 char *buf, unsigned int buf_len) const
     {
       hb_bytes_t s = find_glyph_name (glyph);
       if (!s.length) return false;
@@ -150,7 +158,7 @@ struct post
     }
 
     bool get_glyph_from_name (const char *name, int len,
-                              hb_codepoint_t *glyph) const
+			      hb_codepoint_t *glyph) const
     {
       unsigned int count = get_glyph_count ();
       if (unlikely (!count)) return false;
@@ -160,31 +168,31 @@ struct post
       if (unlikely (!len)) return false;
 
     retry:
-      uint16_t *gids = gids_sorted_by_name.get ();
+      uint16_t *gids = gids_sorted_by_name.get_acquire ();
 
       if (unlikely (!gids))
       {
-        gids = (uint16_t *) hb_malloc (count * sizeof (gids[0]));
-        if (unlikely (!gids))
-          return false; /* Anything better?! */
+	gids = (uint16_t *) hb_malloc (count * sizeof (gids[0]));
+	if (unlikely (!gids))
+	  return false; /* Anything better?! */
 
-        for (unsigned int i = 0; i < count; i++)
-          gids[i] = i;
-        hb_qsort (gids, count, sizeof (gids[0]), cmp_gids, (void *) this);
+	for (unsigned int i = 0; i < count; i++)
+	  gids[i] = i;
+	hb_qsort (gids, count, sizeof (gids[0]), cmp_gids, (void *) this);
 
-        if (unlikely (!gids_sorted_by_name.cmpexch (nullptr, gids)))
-        {
-          hb_free (gids);
-          goto retry;
-        }
+	if (unlikely (!gids_sorted_by_name.cmpexch (nullptr, gids)))
+	{
+	  hb_free (gids);
+	  goto retry;
+	}
       }
 
       hb_bytes_t st (name, len);
       auto* gid = hb_bsearch (st, gids, count, sizeof (gids[0]), cmp_key, (void *) this);
       if (gid)
       {
-        *glyph = *gid;
-        return true;
+	*glyph = *gid;
+	return true;
       }
 
       return false;
@@ -197,10 +205,10 @@ struct post
     unsigned int get_glyph_count () const
     {
       if (version == 0x00010000)
-        return format1_names_length;
+	return format1_names_length;
 
       if (version == 0x00020000)
-        return glyphNameIndex->len;
+	return glyphNameIndex->len;
 
       return 0;
     }
@@ -225,22 +233,22 @@ struct post
     {
       if (version == 0x00010000)
       {
-        if (glyph >= format1_names_length)
-          return hb_bytes_t ();
+	if (glyph >= format1_names_length)
+	  return hb_bytes_t ();
 
-        return format1_names (glyph);
+	return format1_names (glyph);
       }
 
       if (version != 0x00020000 || glyph >= glyphNameIndex->len)
-        return hb_bytes_t ();
+	return hb_bytes_t ();
 
       unsigned int index = glyphNameIndex->arrayZ[glyph];
       if (index < format1_names_length)
-        return format1_names (index);
+	return format1_names (index);
       index -= format1_names_length;
 
       if (index >= index_to_offset.length)
-        return hb_bytes_t ();
+	return hb_bytes_t ();
       unsigned int offset = index_to_offset[index];
 
       const uint8_t *data = pool + offset;
@@ -263,45 +271,45 @@ struct post
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
-    return_trace (likely (c->check_struct (this) &&
-                          (version.to_int () == 0x00010000 ||
-                           (version.to_int () == 0x00020000 && v2X.sanitize (c)) ||
-                           version.to_int () == 0x00030000)));
+    return_trace (c->check_struct (this) &&
+		  (version.to_int () == 0x00010000 ||
+		   (version.to_int () == 0x00020000 && v2X.sanitize (c)) ||
+		   version.to_int () == 0x00030000));
   }
 
   public:
-  FixedVersion<>version;                /* 0x00010000 for version 1.0
-                                         * 0x00020000 for version 2.0
-                                         * 0x00025000 for version 2.5 (deprecated)
-                                         * 0x00030000 for version 3.0 */
-  HBFixed       italicAngle;            /* Italic angle in counter-clockwise degrees
-                                         * from the vertical. Zero for upright text,
-                                         * negative for text that leans to the right
-                                         * (forward). */
-  FWORD         underlinePosition;      /* This is the suggested distance of the top
-                                         * of the underline from the baseline
-                                         * (negative values indicate below baseline).
-                                         * The PostScript definition of this FontInfo
-                                         * dictionary key (the y coordinate of the
-                                         * center of the stroke) is not used for
-                                         * historical reasons. The value of the
-                                         * PostScript key may be calculated by
-                                         * subtracting half the underlineThickness
-                                         * from the value of this field. */
-  FWORD         underlineThickness;     /* Suggested values for the underline
-                                           thickness. */
-  HBUINT32      isFixedPitch;           /* Set to 0 if the font is proportionally
-                                         * spaced, non-zero if the font is not
-                                         * proportionally spaced (i.e. monospaced). */
-  HBUINT32      minMemType42;           /* Minimum memory usage when an OpenType font
-                                         * is downloaded. */
-  HBUINT32      maxMemType42;           /* Maximum memory usage when an OpenType font
-                                         * is downloaded. */
-  HBUINT32      minMemType1;            /* Minimum memory usage when an OpenType font
-                                         * is downloaded as a Type 1 font. */
-  HBUINT32      maxMemType1;            /* Maximum memory usage when an OpenType font
-                                         * is downloaded as a Type 1 font. */
-  postV2Tail    v2X;
+  FixedVersion<>version;		/* 0x00010000 for version 1.0
+					 * 0x00020000 for version 2.0
+					 * 0x00025000 for version 2.5 (deprecated)
+					 * 0x00030000 for version 3.0 */
+  F16DOT16	italicAngle;		/* Italic angle in counter-clockwise degrees
+					 * from the vertical. Zero for upright text,
+					 * negative for text that leans to the right
+					 * (forward). */
+  FWORD		underlinePosition;	/* This is the suggested distance of the top
+					 * of the underline from the baseline
+					 * (negative values indicate below baseline).
+					 * The PostScript definition of this FontInfo
+					 * dictionary key (the y coordinate of the
+					 * center of the stroke) is not used for
+					 * historical reasons. The value of the
+					 * PostScript key may be calculated by
+					 * subtracting half the underlineThickness
+					 * from the value of this field. */
+  FWORD		underlineThickness;	/* Suggested values for the underline
+					   thickness. */
+  HBUINT32	isFixedPitch;		/* Set to 0 if the font is proportionally
+					 * spaced, non-zero if the font is not
+					 * proportionally spaced (i.e. monospaced). */
+  HBUINT32	minMemType42;		/* Minimum memory usage when an OpenType font
+					 * is downloaded. */
+  HBUINT32	maxMemType42;		/* Maximum memory usage when an OpenType font
+					 * is downloaded. */
+  HBUINT32	minMemType1;		/* Minimum memory usage when an OpenType font
+					 * is downloaded as a Type 1 font. */
+  HBUINT32	maxMemType1;		/* Maximum memory usage when an OpenType font
+					 * is downloaded as a Type 1 font. */
+  postV2Tail	v2X;
   DEFINE_SIZE_MIN (32);
 };
 
