@@ -823,7 +823,7 @@ inline freeze_result FreezeBase::recurse_freeze_java_frame(const frame& f, frame
   assert(FKind::is_instance(f), "");
 
   assert(fsize > 0, "");
-  assert(argsize >= 0, "");
+  assert(argsize >= 0, "Expected non-negative argsize: %", argsize);
   _freeze_size += fsize;
   NOT_PRODUCT(_frames++;)
 
@@ -1121,7 +1121,7 @@ freeze_result FreezeBase::recurse_freeze_compiled_frame(frame& f, frame& caller,
   intptr_t* const stack_frame_top = ContinuationHelper::CompiledFrame::frame_top(f, callee_argsize, callee_interpreted);
   intptr_t* const stack_frame_bottom = ContinuationHelper::CompiledFrame::frame_bottom(f);
   // including metadata between f and its stackargs
-  const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top AIX_ONLY(-8);
+  const int argsize = ContinuationHelper::CompiledFrame::stack_argsize(f) + frame::metadata_words_at_top AIX_ONLY(- !callee_interpreted ?  8 : 0);
   const int fsize = stack_frame_bottom + argsize - stack_frame_top;
 
   log_develop_trace(continuations)("recurse_freeze_compiled_frame %s _size: %d fsize: %d argsize: %d",
