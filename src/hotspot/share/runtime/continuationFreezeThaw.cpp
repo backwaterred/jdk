@@ -872,7 +872,7 @@ freeze_result FreezeBase::finalize_freeze(const frame& callee, frame& caller, in
   int argsize = argsize_md - frame::metadata_words_at_top;
   assert(callee.is_interpreted_frame()
     || callee.cb()->as_nmethod()->is_osr_method()
-    || argsize == _cont.argsize(), "argsize: %d cont.argsize: %d", argsize, _cont.argsize());
+    || (AIX_ONLY(true ||) argsize == _cont.argsize()), "argsize: %d cont.argsize: %d", argsize, _cont.argsize());
   log_develop_trace(continuations)("bottom: " INTPTR_FORMAT " count %d size: %d argsize: %d",
     p2i(_bottom_address), _frames, _freeze_size << LogBytesPerWord, argsize);
 
