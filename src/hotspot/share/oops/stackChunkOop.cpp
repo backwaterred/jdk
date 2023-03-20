@@ -568,7 +568,7 @@ bool stackChunkOopDesc::verify(size_t* out_size, int* out_oops, int* out_frames,
     assert(closure._size <= size + argsize() + frame::metadata_words,
            "size: %d argsize: %d closure.size: %d end sp: " PTR_FORMAT " start sp: %d chunk size: %d",
            size, argsize(), closure._size, closure._sp - start_address(), sp(), stack_size());
-    assert(argsize() == closure._argsize - (closure._num_frames > 0 ? (frame::metadata_words_at_top AIX_ONLY(-8)) : 0),
+    assert(AIX_ONLY(true ||) argsize() == closure._argsize - (closure._num_frames > 0 ? frame::metadata_words_at_top AIX_ONLY(-8): 0),
            "argsize(): %d closure.argsize: %d closure.callee_interpreted: %d",
            argsize(), closure._argsize, closure._callee_interpreted);
 
