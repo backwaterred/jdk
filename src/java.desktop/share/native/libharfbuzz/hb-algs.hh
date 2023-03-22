@@ -875,11 +875,13 @@ hb_in_ranges (T u, T lo1, T hi1, Ts... ds)
 static inline bool
 hb_unsigned_mul_overflows (unsigned int count, unsigned int size, unsigned *result = nullptr)
 {
-#if __hasbuiltin __builtin_mul_overflow
-  unsigned stack_result;
-  if (!result)
-    result = &stack_result;
-  return __builtin_mul_overflow (count, size, result);
+#if defined __hasbuiltin
+  #if _hasbuiltin __builtin_mul_overflow
+    unsigned stack_result;
+    if (!result)
+      result = &stack_result;
+    return __builtin_mul_overflow (count, size, result);
+  #endif
 #endif
 
   if (result)
