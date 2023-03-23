@@ -45,8 +45,7 @@
 #include FT_MULTIPLE_MASTERS_H
 #include FT_OUTLINE_H
 #include FT_TRUETYPE_TABLES_H
-#include FT_SYNTHESIS_H
-#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21300
+#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21101
 #include FT_COLOR_H
 #endif
 
@@ -85,7 +84,7 @@
  */
 
 
-using hb_ft_advance_cache_t = hb_cache_t<16, 8, 8, false>;
+using hb_ft_advance_cache_t = hb_cache_t<16, 24, 8, false>;
 
 struct hb_ft_font_t
 {
@@ -129,6 +128,8 @@ static void
 _hb_ft_font_destroy (void *data)
 {
   hb_ft_font_t *ft_font = (hb_ft_font_t *) data;
+
+  ft_font->advance_cache.fini ();
 
   if (ft_font->unref)
     _hb_ft_face_destroy (ft_font->ft_face);
@@ -448,7 +449,6 @@ hb_ft_get_glyph_h_advances (hb_font_t* font, void* font_data,
 			    void *user_data HB_UNUSED)
 {
   const hb_ft_font_t *ft_font = (const hb_ft_font_t *) font_data;
-  hb_position_t *orig_first_advance = first_advance;
   hb_lock_t lock (ft_font->lock);
   FT_Face ft_face = ft_font->ft_face;
   int load_flags = ft_font->load_flags;
@@ -481,25 +481,12 @@ hb_ft_get_glyph_h_advances (hb_font_t* font, void* font_data,
       /* Work around bug that FreeType seems to return negative advance
        * for variable-set fonts if x_scale is negative! */
       v = abs (v);
-      v = (int) (v * x_mult + (1<<9)) >> 10;
       ft_font->advance_cache.set (glyph, v);
     }
 
-    *first_advance = v;
+    *first_advance = (int) (v * x_mult + (1<<9)) >> 10;
     first_glyph = &StructAtOffsetUnaligned<hb_codepoint_t> (first_glyph, glyph_stride);
     first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
-  }
-
-  if (font->x_strength && !font->embolden_in_place)
-  {
-    /* Emboldening. */
-    hb_position_t x_strength = font->x_scale >= 0 ? font->x_strength : -font->x_strength;
-    first_advance = orig_first_advance;
-    for (unsigned int i = 0; i < count; i++)
-    {
-      *first_advance += *first_advance ? x_strength : 0;
-      first_advance = &StructAtOffsetUnaligned<hb_position_t> (first_advance, advance_stride);
-    }
   }
 }
 
@@ -536,8 +523,7 @@ hb_ft_get_glyph_v_advance (hb_font_t *font,
   /* Note: FreeType's vertical metrics grows downward while other FreeType coordinates
    * have a Y growing upward.  Hence the extra negation. */
 
-  hb_position_t y_strength = font->y_scale >= 0 ? font->y_strength : -font->y_strength;
-  return ((-v + (1<<9)) >> 10) + (font->embolden_in_place ? 0 : y_strength);
+  return (-v + (1<<9)) >> 10;
 }
 #endif
 
@@ -656,22 +642,6 @@ hb_ft_get_glyph_extents (hb_font_t *font,
   extents->y_bearing = floorf (y1);
   extents->width = ceilf (x2) - extents->x_bearing;
   extents->height = ceilf (y2) - extents->y_bearing;
-
-  if (font->x_strength || font->y_strength)
-  {
-    /* Y */
-    int y_shift = font->y_strength;
-    if (font->y_scale < 0) y_shift = -y_shift;
-    extents->y_bearing += y_shift;
-    extents->height -= y_shift;
-
-    /* X */
-    int x_shift = font->x_strength;
-    if (font->x_scale < 0) x_shift = -x_shift;
-    if (font->embolden_in_place)
-      extents->x_bearing -= x_shift / 2;
-    extents->width += x_shift;
-  }
 
   return true;
 }
@@ -794,7 +764,7 @@ hb_ft_get_font_h_extents (hb_font_t *font HB_UNUSED,
     metrics->line_gap = ft_face->size->metrics.height - (metrics->ascender - metrics->descender);
   }
 
-  metrics->ascender  = (hb_position_t) (y_mult * (metrics->ascender + font->y_strength));
+  metrics->ascender  = (hb_position_t) (y_mult * metrics->ascender);
   metrics->descender = (hb_position_t) (y_mult * metrics->descender);
   metrics->line_gap  = (hb_position_t) (y_mult * metrics->line_gap);
 
@@ -846,7 +816,7 @@ _hb_ft_cubic_to (const FT_Vector *control1,
 }
 
 static void
-hb_ft_draw_glyph (hb_font_t *font,
+hb_ft_draw_glyph (hb_font_t *font HB_UNUSED,
 		  void *font_data,
 		  hb_codepoint_t glyph,
 		  hb_draw_funcs_t *draw_funcs, void *draw_data,
@@ -874,38 +844,6 @@ hb_ft_draw_glyph (hb_font_t *font,
 
   hb_draw_session_t draw_session (draw_funcs, draw_data, font->slant_xy);
 
-  /* Embolden */
-  if (font->x_strength || font->y_strength)
-  {
-    FT_Outline_EmboldenXY (&ft_face->glyph->outline, font->x_strength, font->y_strength);
-
-    int x_shift = 0;
-    int y_shift = 0;
-    if (font->embolden_in_place)
-    {
-      /* Undo the FreeType shift. */
-      x_shift = -font->x_strength / 2;
-      y_shift = 0;
-      if (font->y_scale < 0) y_shift = -font->y_strength;
-    }
-    else
-    {
-      /* FreeType applied things in the wrong direction for negative scale; fix up. */
-      if (font->x_scale < 0) x_shift = -font->x_strength;
-      if (font->y_scale < 0) y_shift = -font->y_strength;
-    }
-    if (x_shift || y_shift)
-    {
-      auto &outline = ft_face->glyph->outline;
-      for (auto &point : hb_iter (outline.points, outline.contours[outline.n_contours - 1] + 1))
-      {
-	point.x += x_shift;
-	point.y += y_shift;
-      }
-    }
-  }
-
-
   FT_Outline_Decompose (&ft_face->glyph->outline,
 			&outline_funcs,
 			&draw_session);
@@ -913,7 +851,7 @@ hb_ft_draw_glyph (hb_font_t *font,
 #endif
 
 #ifndef HB_NO_PAINT
-#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21300
+#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21101
 
 #include "hb-ft-colr.hh"
 
@@ -1034,7 +972,7 @@ static struct hb_ft_font_funcs_lazy_loader_t : hb_font_funcs_lazy_loader_t<hb_ft
 #endif
 
 #ifndef HB_NO_PAINT
-#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21300
+#if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) >= 21101
     hb_font_funcs_set_paint_glyph_func (funcs, hb_ft_paint_glyph, nullptr, nullptr);
 #endif
 #endif

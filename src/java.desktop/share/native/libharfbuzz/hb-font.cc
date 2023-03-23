@@ -1061,8 +1061,7 @@ hb_font_get_nominal_glyph (hb_font_t      *font,
  * @glyph_stride: The stride between successive glyph IDs
  *
  * Fetches the nominal glyph IDs for a sequence of Unicode code points. Glyph
- * IDs must be returned in a #hb_codepoint_t output parameter. Stopes at the
- * first unsupported glyph ID.
+ * IDs must be returned in a #hb_codepoint_t output parameter.
  *
  * Return value: the number of code points processed
  *
@@ -1344,9 +1343,6 @@ hb_font_get_glyph_contour_point (hb_font_t      *font,
  *
  * Fetches the glyph-name string for a glyph ID in the specified @font.
  *
- * According to the OpenType specification, glyph names are limited to 63
- * characters and can only contain (a subset of) ASCII.
- *
  * Return value: `true` if data found, `false` otherwise
  *
  * Since: 0.9.2
@@ -1396,7 +1392,6 @@ hb_font_get_glyph_from_name (hb_font_t      *font,
  * objects, with @draw_data passed to them.
  *
  * Since: 4.0.0
- * Deprecated: 7.0.0: Use hb_font_draw_glyph() instead
  */
 void
 hb_font_get_glyph_shape (hb_font_t *font,
@@ -1418,7 +1413,7 @@ hb_font_get_glyph_shape (hb_font_t *font,
  * The outline is returned by way of calls to the callbacks of the @dfuncs
  * objects, with @draw_data passed to them.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  **/
 void
 hb_font_draw_glyph (hb_font_t *font,
@@ -1434,7 +1429,7 @@ hb_font_draw_glyph (hb_font_t *font,
  * @glyph: The glyph ID
  * @pfuncs: #hb_paint_funcs_t to paint with
  * @paint_data: User data to pass to paint callbacks
- * @palette_index: The index of the font's color palette to use
+ * @palette: The index of the font's color palette to use
  * @foreground: The foreground color, unpremultipled
  *
  * Paints the glyph.
@@ -1444,19 +1439,19 @@ hb_font_draw_glyph (hb_font_t *font,
  * to them.
  *
  * If the font has color palettes (see hb_ot_color_has_palettes()),
- * then @palette_index selects the palette to use. If the font only
- * has one palette, this will be 0.
+ * then @palette selects the palette to use. If the font doesn't
+ * have palettes, passing 0 is fine.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 void
 hb_font_paint_glyph (hb_font_t *font,
                      hb_codepoint_t glyph,
                      hb_paint_funcs_t *pfuncs, void *paint_data,
-                     unsigned int palette_index,
+                     unsigned int palette,
                      hb_color_t foreground)
 {
-  font->paint_glyph (glyph, pfuncs, paint_data, palette_index, foreground);
+  font->paint_glyph (glyph, pfuncs, paint_data, palette, foreground);
 }
 
 /* A bit higher-level, and with fallback */
@@ -1717,9 +1712,6 @@ hb_font_get_glyph_contour_point_for_origin (hb_font_t      *font,
  * If the glyph ID has no name in @font, a string of the form `gidDDD` is
  * generated, with `DDD` being the glyph ID.
  *
- * According to the OpenType specification, glyph names are limited to 63
- * characters and can only contain (a subset of) ASCII.
- *
  * Since: 0.9.2
  **/
 void
@@ -1773,13 +1765,8 @@ DEFINE_NULL_INSTANCE (hb_font_t) =
 
   1000, /* x_scale */
   1000, /* y_scale */
-  0.f, /* x_embolden */
-  0.f, /* y_embolden */
-  true, /* embolden_in_place */
-  0, /* x_strength */
-  0, /* y_strength */
-  0.f, /* slant */
-  0.f, /* slant_xy; */
+  0., /* slant */
+  0., /* slant_xy; */
   1.f, /* x_multf */
   1.f, /* y_multf */
   1<<16, /* x_mult */
@@ -1789,7 +1776,6 @@ DEFINE_NULL_INSTANCE (hb_font_t) =
   0, /* y_ppem */
   0, /* ptem */
 
-  HB_FONT_NO_VAR_NAMED_INSTANCE, /* instance_index */
   0, /* num_coords */
   nullptr, /* coords */
   nullptr, /* design_coords */
@@ -1817,10 +1803,8 @@ _hb_font_create (hb_face_t *face)
   font->klass = hb_font_funcs_get_empty ();
   font->data.init0 (font);
   font->x_scale = font->y_scale = face->get_upem ();
-  font->embolden_in_place = true;
   font->x_multf = font->y_multf = 1.f;
   font->x_mult = font->y_mult = 1 << 16;
-  font->instance_index = HB_FONT_NO_VAR_NAMED_INSTANCE;
 
   return font;
 }
@@ -1902,9 +1886,6 @@ hb_font_create_sub_font (hb_font_t *parent)
 
   font->x_scale = parent->x_scale;
   font->y_scale = parent->y_scale;
-  font->x_embolden = parent->x_embolden;
-  font->y_embolden = parent->y_embolden;
-  font->embolden_in_place = parent->embolden_in_place;
   font->slant = parent->slant;
   font->x_ppem = parent->x_ppem;
   font->y_ppem = parent->y_ppem;
@@ -2453,76 +2434,6 @@ hb_font_get_ptem (hb_font_t *font)
 }
 
 /**
- * hb_font_set_synthetic_bold:
- * @font: #hb_font_t to work upon
- * @x_embolden: the amount to embolden horizontally
- * @y_embolden: the amount to embolden vertically
- * @in_place: whether to embolden glyphs in-place
- *
- * Sets the "synthetic boldness" of a font.
- *
- * Positive values for @x_embolden / @y_embolden make a font
- * bolder, negative values thinner. Typical values are in the
- * 0.01 to 0.05 range. The default value is zero.
- *
- * Synthetic boldness is applied by offsetting the contour
- * points of the glyph shape.
- *
- * Synthetic boldness is applied when rendering a glyph via
- * hb_font_draw_glyph().
- *
- * If @in_place is `false`, then glyph advance-widths are also
- * adjusted, otherwise they are not.  The in-place mode is
- * useful for simulating [font grading](https://fonts.google.com/knowledge/glossary/grade).
- *
- *
- * Since: 7.0.0
- **/
-void
-hb_font_set_synthetic_bold (hb_font_t *font,
-			    float x_embolden,
-			    float y_embolden,
-			    hb_bool_t in_place)
-{
-  if (hb_object_is_immutable (font))
-    return;
-
-  if (font->x_embolden == x_embolden &&
-      font->y_embolden == y_embolden &&
-      font->embolden_in_place == in_place)
-    return;
-
-  font->serial++;
-
-  font->x_embolden = x_embolden;
-  font->y_embolden = y_embolden;
-  font->embolden_in_place = in_place;
-  font->mults_changed ();
-}
-
-/**
- * hb_font_get_synthetic_bold:
- * @font: #hb_font_t to work upon
- * @x_embolden: (out): return location for horizontal value
- * @y_embolden: (out): return location for vertical value
- * @in_place: (out): return location for in-place value
- *
- * Fetches the "synthetic boldness" parameters of a font.
- *
- * Since: 7.0.0
- **/
-void
-hb_font_get_synthetic_bold (hb_font_t *font,
-			    float *x_embolden,
-			    float *y_embolden,
-			    hb_bool_t *in_place)
-{
-  if (x_embolden) *x_embolden = font->x_embolden;
-  if (y_embolden) *y_embolden = font->y_embolden;
-  if (in_place) *in_place = font->embolden_in_place;
-}
-
-/**
  * hb_font_set_synthetic_slant:
  * @font: #hb_font_t to work upon
  * @slant: synthetic slant value.
@@ -2602,7 +2513,7 @@ hb_font_set_variations (hb_font_t            *font,
 
   font->serial_coords = ++font->serial;
 
-  if (!variations_length && font->instance_index == HB_FONT_NO_VAR_NAMED_INSTANCE)
+  if (!variations_length)
   {
     hb_font_set_var_coords_normalized (font, nullptr, 0);
     return;
@@ -2622,18 +2533,9 @@ hb_font_set_variations (hb_font_t            *font,
     return;
   }
 
-  /* Initialize design coords. */
+  /* Initialize design coords to default from fvar. */
   for (unsigned int i = 0; i < coords_length; i++)
     design_coords[i] = axes[i].get_default ();
-  if (font->instance_index != HB_FONT_NO_VAR_NAMED_INSTANCE)
-  {
-    unsigned count = coords_length;
-    /* This may fail if index is out-of-range;
-     * That's why we initialize design_coords from fvar above
-     * unconditionally. */
-    hb_ot_var_named_instance_get_design_coords (font->face, font->instance_index,
-						&count, design_coords);
-  }
 
   for (unsigned int i = 0; i < variations_length; i++)
   {
@@ -2641,11 +2543,13 @@ hb_font_set_variations (hb_font_t            *font,
     const auto v = variations[i].value;
     for (unsigned axis_index = 0; axis_index < coords_length; axis_index++)
       if (axes[axis_index].axisTag == tag)
+      {
 	design_coords[axis_index] = v;
+	normalized[axis_index] = fvar.normalize_axis_value (axis_index, v);
+      }
   }
   font->face->table.avar->map_coords (normalized, coords_length);
 
-  hb_ot_var_normalize_coords (font->face, coords_length, design_coords, normalized);
   _hb_font_adopt_var_coords (font, normalized, design_coords, coords_length);
 }
 
@@ -2696,40 +2600,28 @@ hb_font_set_var_coords_design (hb_font_t    *font,
  * @font: a font.
  * @instance_index: named instance index.
  *
- * Sets design coords of a font from a named-instance index.
+ * Sets design coords of a font from a named instance index.
  *
  * Since: 2.6.0
  */
 void
 hb_font_set_var_named_instance (hb_font_t *font,
-				unsigned int instance_index)
+				unsigned instance_index)
 {
   if (hb_object_is_immutable (font))
     return;
 
-  if (font->instance_index == instance_index)
-    return;
-
   font->serial_coords = ++font->serial;
 
-  font->instance_index = instance_index;
-  hb_font_set_variations (font, nullptr, 0);
-}
+  unsigned int coords_length = hb_ot_var_named_instance_get_design_coords (font->face, instance_index, nullptr, nullptr);
 
-/**
- * hb_font_get_var_named_instance:
- * @font: a font.
- *
- * Returns the currently-set named-instance index of the font.
- *
- * Return value: Named-instance index or %HB_FONT_NO_VAR_NAMED_INSTANCE.
- *
- * Since: 7.0.0
- **/
-unsigned int
-hb_font_get_var_named_instance (hb_font_t *font)
-{
-  return font->instance_index;
+  float *coords = coords_length ? (float *) hb_calloc (coords_length, sizeof (float)) : nullptr;
+  if (unlikely (coords_length && !coords))
+    return;
+
+  hb_ot_var_named_instance_get_design_coords (font->face, instance_index, &coords_length, coords);
+  hb_font_set_var_coords_design (font, coords, coords_length);
+  hb_free (coords);
 }
 
 /**

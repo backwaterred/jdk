@@ -30,6 +30,7 @@
 
 #include "../../../hb.hh"
 #include "../../../hb-open-type.hh"
+#include "../../../hb-ot-layout-common.hh"
 #include "../../../hb-ot-var-common.hh"
 #include "../../../hb-paint.hh"
 #include "../../../hb-paint-extents.hh"
@@ -66,7 +67,7 @@ public:
   hb_paint_funcs_t *funcs;
   void *data;
   hb_font_t *font;
-  unsigned int palette_index;
+  unsigned int palette;
   hb_color_t foreground;
   VarStoreInstancer &instancer;
   int depth_left = HB_MAX_NESTING_LEVEL;
@@ -83,7 +84,7 @@ public:
     funcs (funcs_),
     data (data_),
     font (font_),
-    palette_index (palette_),
+    palette (palette_),
     foreground (foreground_),
     instancer (instancer_)
   { }
@@ -96,14 +97,10 @@ public:
 
     if (color_index != 0xffff)
     {
-      if (!funcs->custom_palette_color (data, color_index, &color))
-      {
-	unsigned int clen = 1;
-	hb_face_t *face = hb_font_get_face (font);
+      unsigned int clen = 1;
+      hb_face_t *face = hb_font_get_face (font);
 
-	hb_ot_color_palette_get_colors (face, palette_index, color_index, &clen, &color);
-      }
-
+      hb_ot_color_palette_get_colors (face, palette, color_index, &clen, &color);
       *is_foreground = false;
     }
 
@@ -342,7 +339,7 @@ struct ColorStop
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (*this);
     if (unlikely (!out)) return_trace (false);
-    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes.get (paletteIndex),
+    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes->get (paletteIndex),
                                                HB_SERIALIZE_ERROR_INT_OVERFLOW));
   }
 
@@ -584,7 +581,7 @@ struct PaintSolid
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (*this);
     if (unlikely (!out)) return_trace (false);
-    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes.get (paletteIndex),
+    return_trace (c->serializer->check_assign (out->paletteIndex, c->plan->colr_palettes->get (paletteIndex),
                                                HB_SERIALIZE_ERROR_INT_OVERFLOW));
   }
 
@@ -1323,8 +1320,8 @@ struct ClipBox
   template <typename context_t, typename ...Ts>
   typename context_t::return_t dispatch (context_t *c, Ts&&... ds) const
   {
-    if (unlikely (!c->may_dispatch (this, &u.format))) return c->no_dispatch_return_value ();
     TRACE_DISPATCH (this, u.format);
+    if (unlikely (!c->may_dispatch (this, &u.format))) return_trace (c->no_dispatch_return_value ());
     switch (u.format) {
     case 1: return_trace (c->dispatch (u.format1, std::forward<Ts> (ds)...));
     case 2: return_trace (c->dispatch (u.format2, std::forward<Ts> (ds)...));
@@ -1526,8 +1523,8 @@ struct Paint
   template <typename context_t, typename ...Ts>
   typename context_t::return_t dispatch (context_t *c, Ts&&... ds) const
   {
-    if (unlikely (!c->may_dispatch (this, &u.format))) return c->no_dispatch_return_value ();
     TRACE_DISPATCH (this, u.format);
+    if (unlikely (!c->may_dispatch (this, &u.format))) return_trace (c->no_dispatch_return_value ());
     switch (u.format) {
     case 1: return_trace (c->dispatch (u.paintformat1, std::forward<Ts> (ds)...));
     case 2: return_trace (c->dispatch (u.paintformat2, std::forward<Ts> (ds)...));
@@ -1934,7 +1931,7 @@ struct COLR
 				  if (unlikely (!c->plan->new_gid_for_old_gid (out_layers[i].glyphId, &new_gid)))
 				    return hb_pair_t<bool, hb_vector_t<LayerRecord>> (false, out_layers);
 				  out_layers[i].glyphId = new_gid;
-				  out_layers[i].colorIdx = c->plan->colr_palettes.get (layers[i].colorIdx);
+				  out_layers[i].colorIdx = c->plan->colr_palettes->get (layers[i].colorIdx);
 				}
 
 				return hb_pair_t<bool, hb_vector_t<LayerRecord>> (true, out_layers);
@@ -1967,7 +1964,7 @@ struct COLR
     colr_prime->layerList.serialize_subset (c, layerList, this);
     colr_prime->clipList.serialize_subset (c, clipList, this);
     colr_prime->varIdxMap.serialize_copy (c->serializer, varIdxMap, this);
-    colr_prime->varStore.serialize_copy (c->serializer, varStore, this);
+    //TODO: subset varStore once it's implemented in fonttools
     return_trace (true);
   }
 
@@ -1994,7 +1991,9 @@ struct COLR
 				 this+varIdxMap,
 				 hb_array (font->coords, font->num_coords));
 
-    if (get_clip (glyph, extents, instancer))
+    if ((this+clipList).get_extents (glyph,
+				     extents,
+				     instancer))
     {
       font->scale_glyph_extents (extents);
       return true;
@@ -2002,25 +2001,15 @@ struct COLR
 
     auto *extents_funcs = hb_paint_extents_get_funcs ();
     hb_paint_extents_context_t extents_data;
-    bool ret = paint_glyph (font, glyph, extents_funcs, &extents_data, 0, HB_COLOR(0,0,0,0));
+    paint_glyph (font, glyph, extents_funcs, &extents_data, 0, HB_COLOR(0,0,0,0));
 
     hb_extents_t e = extents_data.get_extents ();
-    if (e.is_void ())
-    {
-      extents->x_bearing = 0;
-      extents->y_bearing = 0;
-      extents->width = 0;
-      extents->height = 0;
-    }
-    else
-    {
-      extents->x_bearing = e.xmin;
-      extents->y_bearing = e.ymax;
-      extents->width = e.xmax - e.xmin;
-      extents->height = e.ymin - e.ymax;
-    }
+    extents->x_bearing = e.xmin;
+    extents->y_bearing = e.ymax;
+    extents->width = e.xmax - e.xmin;
+    extents->height = e.ymin - e.ymax;
 
-    return ret;
+    return true;
   }
 
   bool
@@ -2036,22 +2025,13 @@ struct COLR
     return false;
   }
 
-  bool get_clip (hb_codepoint_t glyph,
-		 hb_glyph_extents_t *extents,
-		 const VarStoreInstancer instancer) const
-  {
-    return (this+clipList).get_extents (glyph,
-					extents,
-					instancer);
-  }
-
   bool
-  paint_glyph (hb_font_t *font, hb_codepoint_t glyph, hb_paint_funcs_t *funcs, void *data, unsigned int palette_index, hb_color_t foreground, bool clip = true) const
+  paint_glyph (hb_font_t *font, hb_codepoint_t glyph, hb_paint_funcs_t *funcs, void *data, unsigned int palette, hb_color_t foreground, bool clip = true) const
   {
     VarStoreInstancer instancer (this+varStore,
 	                         this+varIdxMap,
 	                         hb_array (font->coords, font->num_coords));
-    hb_paint_context_t c (this, funcs, data, font, palette_index, foreground, instancer);
+    hb_paint_context_t c (this, funcs, data, font, palette, foreground, instancer);
 
     if (version == 1)
     {
@@ -2068,7 +2048,9 @@ struct COLR
 	if (clip)
 	{
 	  hb_glyph_extents_t extents;
-	  if (get_clip (glyph, &extents, instancer))
+	  if ((this+clipList).get_extents (glyph,
+					   &extents,
+					   instancer))
 	  {
 	    font->scale_glyph_extents (&extents);
 	    c.funcs->push_clip_rectangle (c.data,
@@ -2084,7 +2066,7 @@ struct COLR
 
 	    paint_glyph (font, glyph,
 			 extents_funcs, &extents_data,
-			 palette_index, foreground,
+			 palette, foreground,
 			 false);
 
 	    hb_extents_t extents = extents_data.get_extents ();
@@ -2181,21 +2163,9 @@ void PaintColrGlyph::paint_glyph (hb_paint_context_t *c) const
   const COLR *colr_table = c->get_colr_table ();
   const Paint *paint = colr_table->get_base_glyph_paint (gid);
 
-  hb_glyph_extents_t extents = {0};
-  bool has_clip_box = colr_table->get_clip (gid, &extents, c->instancer);
-
-  if (has_clip_box)
-    c->funcs->push_clip_rectangle (c->data,
-				   extents.x_bearing,
-				   extents.y_bearing + extents.height,
-				   extents.x_bearing + extents.width,
-				   extents.y_bearing);
-
+  // TODO apply clipbox
   if (paint)
     c->recurse (*paint);
-
-  if (has_clip_box)
-    c->funcs->pop_clip (c->data);
 }
 
 } /* namespace OT */

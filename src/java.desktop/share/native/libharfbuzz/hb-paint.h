@@ -33,7 +33,6 @@
 
 HB_BEGIN_DECLS
 
-
 /**
  * hb_paint_funcs_t:
  *
@@ -54,11 +53,7 @@ HB_BEGIN_DECLS
  * The paint-image callback is only needed for glyphs
  * with image blobs in the CBDT, sbix or SVG tables.
  *
- * The custom-palette-color callback is only necessary if
- * you want to override colors from the font palette with
- * custom colors.
- *
- * Since: 7.0.0
+ * Since: REPLACEME
  **/
 typedef struct hb_paint_funcs_t hb_paint_funcs_t;
 
@@ -111,7 +106,7 @@ hb_paint_funcs_is_immutable (hb_paint_funcs_t *funcs);
  * and remains in effect until a matching call to
  * the #hb_paint_funcs_pop_transform_func_t vfunc.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_push_transform_func_t) (hb_paint_funcs_t *funcs,
                                                 void *paint_data,
@@ -130,7 +125,7 @@ typedef void (*hb_paint_push_transform_func_t) (hb_paint_funcs_t *funcs,
  * the effect of a prior call to the #hb_paint_funcs_push_transform_func_t
  * vfunc.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_pop_transform_func_t) (hb_paint_funcs_t *funcs,
                                                void *paint_data,
@@ -154,7 +149,7 @@ typedef void (*hb_paint_pop_transform_func_t) (hb_paint_funcs_t *funcs,
  * and remains in effect until a matching call to
  * the #hb_paint_funcs_pop_clip_func_t vfunc.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_push_clip_glyph_func_t) (hb_paint_funcs_t *funcs,
                                                  void *paint_data,
@@ -182,7 +177,7 @@ typedef void (*hb_paint_push_clip_glyph_func_t) (hb_paint_funcs_t *funcs,
  * and remains in effect until a matching call to
  * the #hb_paint_funcs_pop_clip_func_t vfunc.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_push_clip_rectangle_func_t) (hb_paint_funcs_t *funcs,
                                                      void *paint_data,
@@ -200,7 +195,7 @@ typedef void (*hb_paint_push_clip_rectangle_func_t) (hb_paint_funcs_t *funcs,
  * the effect of a prior call to the #hb_paint_funcs_push_clip_glyph_func_t
  * or #hb_paint_funcs_push_clip_rectangle_func_t vfuncs.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_pop_clip_func_t) (hb_paint_funcs_t *funcs,
                                           void *paint_data,
@@ -217,7 +212,7 @@ typedef void (*hb_paint_pop_clip_func_t) (hb_paint_funcs_t *funcs,
  * A virtual method for the #hb_paint_funcs_t to paint a
  * color everywhere within the current clip.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
                                        void *paint_data,
@@ -230,7 +225,7 @@ typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
  *
  * Tag identifying PNG images in #hb_paint_image_func_t callbacks.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 #define HB_PAINT_IMAGE_FORMAT_PNG HB_TAG('p','n','g',' ')
 
@@ -239,7 +234,7 @@ typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
  *
  * Tag identifying SVG images in #hb_paint_image_func_t callbacks.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 #define HB_PAINT_IMAGE_FORMAT_SVG HB_TAG('s','v','g',' ')
 
@@ -249,7 +244,7 @@ typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
  * Tag identifying raw pixel-data images in #hb_paint_image_func_t callbacks.
  * The data is in BGRA pre-multiplied sRGBA color-space format.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 #define HB_PAINT_IMAGE_FORMAT_BGRA HB_TAG('B','G','R','A')
 
@@ -269,7 +264,7 @@ typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
  *
  * This method is called for glyphs with image blobs in the CBDT,
  * sbix or SVG tables. The @format identifies the kind of data that
- * is contained in @image. Possible values include #HB_PAINT_IMAGE_FORMAT_PNG,
+ * is contained in @image. Possible values include #HB_PAINT_IMAGE_FORMAT_PNG
  * #HB_PAINT_IMAGE_FORMAT_SVG and #HB_PAINT_IMAGE_FORMAT_BGRA.
  *
  * The image dimensions and glyph extents are provided if available,
@@ -277,7 +272,7 @@ typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
  *
  * Return value: Whether the operation was successful.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef hb_bool_t (*hb_paint_image_func_t) (hb_paint_funcs_t *funcs,
 					    void *paint_data,
@@ -305,7 +300,7 @@ typedef hb_bool_t (*hb_paint_image_func_t) (hb_paint_funcs_t *funcs,
  * [COLR](https://learn.microsoft.com/en-us/typography/opentype/spec/colr)
  * section for details.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef struct {
   float offset;
@@ -331,7 +326,7 @@ typedef struct {
  * See the OpenType spec [COLR](https://learn.microsoft.com/en-us/typography/opentype/spec/colr)
  * section for details.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef enum {
   HB_PAINT_EXTEND_PAD,
@@ -355,7 +350,7 @@ typedef struct hb_color_line_t hb_color_line_t;
  *
  * Return value: the total number of color stops in @color_line
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef unsigned int (*hb_color_line_get_color_stops_func_t) (hb_color_line_t *color_line,
 							      void *color_line_data,
@@ -374,7 +369,7 @@ typedef unsigned int (*hb_color_line_get_color_stops_func_t) (hb_color_line_t *c
  *
  * Return value: the extend mode of @color_line
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef hb_paint_extend_t (*hb_color_line_get_extend_func_t) (hb_color_line_t *color_line,
 							      void *color_line_data,
@@ -385,7 +380,7 @@ typedef hb_paint_extend_t (*hb_color_line_get_extend_func_t) (hb_color_line_t *c
  *
  * A struct containing color information for a gradient.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 struct hb_color_line_t {
   void *data;
@@ -441,7 +436,7 @@ hb_color_line_get_extend (hb_color_line_t *color_line);
  * section for details on how the points define the direction
  * of the gradient, and how to interpret the @color_line.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_linear_gradient_func_t) (hb_paint_funcs_t *funcs,
                                                  void *paint_data,
@@ -477,7 +472,7 @@ typedef void (*hb_paint_linear_gradient_func_t) (hb_paint_funcs_t *funcs,
  * section for details on how the points define the direction
  * of the gradient, and how to interpret the @color_line.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_radial_gradient_func_t) (hb_paint_funcs_t *funcs,
                                                  void *paint_data,
@@ -510,7 +505,7 @@ typedef void (*hb_paint_radial_gradient_func_t) (hb_paint_funcs_t *funcs,
  * section for details on how the points define the direction
  * of the gradient, and how to interpret the @color_line.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_sweep_gradient_func_t)  (hb_paint_funcs_t *funcs,
                                                  void *paint_data,
@@ -586,7 +581,7 @@ typedef void (*hb_paint_sweep_gradient_func_t)  (hb_paint_funcs_t *funcs,
  * See the OpenType spec [COLR](https://learn.microsoft.com/en-us/typography/opentype/spec/colr)
  * section for details.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef enum {
   HB_PAINT_COMPOSITE_MODE_CLEAR,
@@ -632,7 +627,7 @@ typedef enum {
  * until a matching call to the #hb_paint_funcs_pop_group_func_t
  * vfunc.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_push_group_func_t) (hb_paint_funcs_t *funcs,
                                             void *paint_data,
@@ -653,41 +648,12 @@ typedef void (*hb_paint_push_group_func_t) (hb_paint_funcs_t *funcs,
  * and then composites it on the previous surface, using the
  * compositing mode passed to this call.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 typedef void (*hb_paint_pop_group_func_t) (hb_paint_funcs_t *funcs,
                                            void *paint_data,
                                            hb_paint_composite_mode_t mode,
                                            void *user_data);
-
-/**
- * hb_paint_custom_palette_color_func_t:
- * @funcs: paint functions object
- * @paint_data: The data accompanying the paint functions in hb_font_paint_glyph()
- * @color_index: the color index
- * @color: (out): fetched color
- * @user_data: User data pointer passed to hb_paint_funcs_set_pop_group_func()
- *
- * A virtual method for the #hb_paint_funcs_t to fetch a color from the custom
- * color palette.
- *
- * Custom palette colors override the colors from the fonts selected color
- * palette. It is not necessary to override all palette entries; for entries
- * that should be taken from the font palette, return `false`.
- *
- * This function might get called multiple times, but the custom palette is
- * expected to remain unchanged for duration of a hb_font_paint_glyph() call.
- *
- * Return value: `true` if found, `false` otherwise
- *
- * Since: 7.0.0
- */
-typedef hb_bool_t (*hb_paint_custom_palette_color_func_t) (hb_paint_funcs_t *funcs,
-                                                           void *paint_data,
-                                                           unsigned int color_index,
-                                                           hb_color_t *color,
-                                                           void *user_data);
-
 
 /**
  * hb_paint_funcs_set_push_transform_func:
@@ -698,7 +664,7 @@ typedef hb_bool_t (*hb_paint_custom_palette_color_func_t) (hb_paint_funcs_t *fun
  *
  * Sets the push-transform callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_push_transform_func (hb_paint_funcs_t               *funcs,
@@ -715,7 +681,7 @@ hb_paint_funcs_set_push_transform_func (hb_paint_funcs_t               *funcs,
  *
  * Sets the pop-transform callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_pop_transform_func (hb_paint_funcs_t              *funcs,
@@ -732,7 +698,7 @@ hb_paint_funcs_set_pop_transform_func (hb_paint_funcs_t              *funcs,
  *
  * Sets the push-clip-glyph callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_push_clip_glyph_func (hb_paint_funcs_t                *funcs,
@@ -749,7 +715,7 @@ hb_paint_funcs_set_push_clip_glyph_func (hb_paint_funcs_t                *funcs,
  *
  * Sets the push-clip-rect callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_push_clip_rectangle_func (hb_paint_funcs_t                    *funcs,
@@ -766,7 +732,7 @@ hb_paint_funcs_set_push_clip_rectangle_func (hb_paint_funcs_t                   
  *
  * Sets the pop-clip callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_pop_clip_func (hb_paint_funcs_t         *funcs,
@@ -783,7 +749,7 @@ hb_paint_funcs_set_pop_clip_func (hb_paint_funcs_t         *funcs,
  *
  * Sets the paint-color callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_color_func (hb_paint_funcs_t      *funcs,
@@ -800,7 +766,7 @@ hb_paint_funcs_set_color_func (hb_paint_funcs_t      *funcs,
  *
  * Sets the paint-image callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_image_func (hb_paint_funcs_t      *funcs,
@@ -817,7 +783,7 @@ hb_paint_funcs_set_image_func (hb_paint_funcs_t      *funcs,
  *
  * Sets the linear-gradient callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_linear_gradient_func (hb_paint_funcs_t                *funcs,
@@ -834,7 +800,7 @@ hb_paint_funcs_set_linear_gradient_func (hb_paint_funcs_t                *funcs,
  *
  * Sets the radial-gradient callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_radial_gradient_func (hb_paint_funcs_t                *funcs,
@@ -851,7 +817,7 @@ hb_paint_funcs_set_radial_gradient_func (hb_paint_funcs_t                *funcs,
  *
  * Sets the sweep-gradient callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_sweep_gradient_func (hb_paint_funcs_t               *funcs,
@@ -868,7 +834,7 @@ hb_paint_funcs_set_sweep_gradient_func (hb_paint_funcs_t               *funcs,
  *
  * Sets the push-group callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_push_group_func (hb_paint_funcs_t           *funcs,
@@ -885,7 +851,7 @@ hb_paint_funcs_set_push_group_func (hb_paint_funcs_t           *funcs,
  *
  * Sets the pop-group callback on the paint functions struct.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 HB_EXTERN void
 hb_paint_funcs_set_pop_group_func (hb_paint_funcs_t          *funcs,
@@ -893,22 +859,6 @@ hb_paint_funcs_set_pop_group_func (hb_paint_funcs_t          *funcs,
                                    void                       *user_data,
                                    hb_destroy_func_t           destroy);
 
-/**
- * hb_paint_funcs_set_custom_palette_color_func:
- * @funcs: A paint functions struct
- * @func: (closure user_data) (destroy destroy) (scope notified): The custom-palette-color callback
- * @user_data: Data to pass to @func
- * @destroy: (nullable): Function to call when @user_data is no longer needed
- *
- * Sets the custom-palette-color callback on the paint functions struct.
- *
- * Since: 7.0.0
- */
-HB_EXTERN void
-hb_paint_funcs_set_custom_palette_color_func (hb_paint_funcs_t                     *funcs,
-                                              hb_paint_custom_palette_color_func_t  func,
-                                              void                                 *user_data,
-                                              hb_destroy_func_t                     destroy);
 /*
  * Manual API
  */
@@ -976,11 +926,6 @@ hb_paint_push_group (hb_paint_funcs_t *funcs, void *paint_data);
 HB_EXTERN void
 hb_paint_pop_group (hb_paint_funcs_t *funcs, void *paint_data,
                     hb_paint_composite_mode_t mode);
-
-HB_EXTERN hb_bool_t
-hb_paint_custom_palette_color (hb_paint_funcs_t *funcs, void *paint_data,
-                               unsigned int color_index,
-                               hb_color_t *color);
 
 HB_END_DECLS
 

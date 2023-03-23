@@ -27,20 +27,46 @@
 #include "hb-subset.hh"
 #include "hb-set.hh"
 #include "hb-utf.hh"
-
-
-hb_subset_input_t::hb_subset_input_t ()
+/**
+ * hb_subset_input_create_or_fail:
+ *
+ * Creates a new subset input object.
+ *
+ * Return value: (transfer full): New subset input, or `NULL` if failed. Destroy
+ * with hb_subset_input_destroy().
+ *
+ * Since: 1.8.0
+ **/
+hb_subset_input_t *
+hb_subset_input_create_or_fail (void)
 {
-  for (auto& set : sets_iter ())
-    set = hb::shared_ptr<hb_set_t> (hb_set_create ());
+  hb_subset_input_t *input = hb_object_create<hb_subset_input_t>();
 
-  if (in_error ())
-    return;
+  if (unlikely (!input))
+    return nullptr;
 
-  flags = HB_SUBSET_FLAGS_DEFAULT;
+  for (auto& set : input->sets_iter ())
+    set = hb_set_create ();
 
-  hb_set_add_range (sets.name_ids, 0, 6);
-  hb_set_add (sets.name_languages, 0x0409);
+  input->axes_location = hb_hashmap_create<hb_tag_t, float> ();
+#ifdef HB_EXPERIMENTAL_API
+  input->name_table_overrides = hb_hashmap_create<hb_ot_name_record_ids_t, hb_bytes_t> ();
+#endif
+
+  if (!input->axes_location ||
+#ifdef HB_EXPERIMENTAL_API
+      !input->name_table_overrides ||
+#endif
+      input->in_error ())
+  {
+    hb_subset_input_destroy (input);
+    return nullptr;
+  }
+
+  input->flags = HB_SUBSET_FLAGS_DEFAULT;
+
+  hb_set_add_range (input->sets.name_ids, 0, 6);
+  hb_set_add (input->sets.name_languages, 0x0409);
 
   hb_tag_t default_drop_tables[] = {
     // Layout disabled by default
@@ -66,7 +92,7 @@ hb_subset_input_t::hb_subset_input_t ()
     HB_TAG ('S', 'i', 'l', 'f'),
     HB_TAG ('S', 'i', 'l', 'l'),
   };
-  sets.drop_tables->add_array (default_drop_tables, ARRAY_LENGTH (default_drop_tables));
+  input->sets.drop_tables->add_array (default_drop_tables, ARRAY_LENGTH (default_drop_tables));
 
   hb_tag_t default_no_subset_tables[] = {
     HB_TAG ('a', 'v', 'a', 'r'),
@@ -79,8 +105,8 @@ hb_subset_input_t::hb_subset_input_t ()
     HB_TAG ('M', 'V', 'A', 'R'),
     HB_TAG ('c', 'v', 'a', 'r'),
   };
-  sets.no_subset_tables->add_array (default_no_subset_tables,
-					 ARRAY_LENGTH (default_no_subset_tables));
+  input->sets.no_subset_tables->add_array (default_no_subset_tables,
+                                         ARRAY_LENGTH (default_no_subset_tables));
 
   //copied from _layout_features_groups in fonttools
   hb_tag_t default_layout_features[] = {
@@ -182,35 +208,15 @@ hb_subset_input_t::hb_subset_input_t ()
     HB_TAG ('b', 'l', 'w', 'm'),
   };
 
-  sets.layout_features->add_array (default_layout_features, ARRAY_LENGTH (default_layout_features));
+  input->sets.layout_features->add_array (default_layout_features, ARRAY_LENGTH (default_layout_features));
 
-  sets.layout_scripts->invert (); // Default to all scripts.
-}
-
-/**
- * hb_subset_input_create_or_fail:
- *
- * Creates a new subset input object.
- *
- * Return value: (transfer full): New subset input, or `NULL` if failed. Destroy
- * with hb_subset_input_destroy().
- *
- * Since: 1.8.0
- **/
-hb_subset_input_t *
-hb_subset_input_create_or_fail (void)
-{
-  hb_subset_input_t *input = hb_object_create<hb_subset_input_t>();
-
-  if (unlikely (!input))
-    return nullptr;
+  input->sets.layout_scripts->invert (); // Default to all scripts.
 
   if (input->in_error ())
   {
     hb_subset_input_destroy (input);
     return nullptr;
   }
-
   return input;
 }
 
@@ -243,6 +249,20 @@ void
 hb_subset_input_destroy (hb_subset_input_t *input)
 {
   if (!hb_object_destroy (input)) return;
+
+  for (hb_set_t* set : input->sets_iter ())
+    hb_set_destroy (set);
+
+  hb_hashmap_destroy (input->axes_location);
+
+#ifdef HB_EXPERIMENTAL_API
+  if (input->name_table_overrides)
+  {
+    for (auto _ : *input->name_table_overrides)
+      _.second.fini ();
+  }
+  hb_hashmap_destroy (input->name_table_overrides);
+#endif
 
   hb_free (input);
 }
@@ -385,7 +405,7 @@ hb_subset_input_get_user_data (const hb_subset_input_t *input,
  *
  * The input can be tailored afterwards by the caller.
  *
- * Since: 7.0.0
+ * Since: REPLACEME
  */
 void
 hb_subset_input_keep_everything (hb_subset_input_t *input)
@@ -404,14 +424,11 @@ hb_subset_input_keep_everything (hb_subset_input_t *input)
     hb_set_invert (set);
   }
 
-  // Don't drop any tables
-  hb_set_clear (hb_subset_input_set (input, HB_SUBSET_SETS_DROP_TABLE_TAG));
-
   hb_subset_input_set_flags (input,
 			     HB_SUBSET_FLAGS_NOTDEF_OUTLINE |
 			     HB_SUBSET_FLAGS_GLYPH_NAMES |
-			     HB_SUBSET_FLAGS_NO_PRUNE_UNICODE_RANGES |
-                             HB_SUBSET_FLAGS_PASSTHROUGH_UNRECOGNIZED);
+			     HB_SUBSET_FLAGS_RETAIN_GIDS |
+			     HB_SUBSET_FLAGS_NO_PRUNE_UNICODE_RANGES);
 }
 
 #ifndef HB_NO_VAR
@@ -439,7 +456,7 @@ hb_subset_input_pin_axis_to_default (hb_subset_input_t  *input,
   if (!hb_ot_var_find_axis_info (face, axis_tag, &axis_info))
     return false;
 
-  return input->axes_location.set (axis_tag, axis_info.default_value);
+  return input->axes_location->set (axis_tag, axis_info.default_value);
 }
 
 /**
@@ -469,7 +486,7 @@ hb_subset_input_pin_axis_location (hb_subset_input_t  *input,
     return false;
 
   float val = hb_clamp(axis_value, axis_info.min_value, axis_info.max_value);
-  return input->axes_location.set (axis_tag, val);
+  return input->axes_location->set (axis_tag, val);
 }
 #endif
 
@@ -539,7 +556,7 @@ hb_subset_preprocess (hb_face_t *source)
  * Note: for mac platform, we only support name_str with all ascii characters,
  * name_str with non-ascii characters will be ignored.
  *
- * XSince: EXPERIMENTAL
+ * Since: EXPERIMENTAL
  **/
 HB_EXTERN hb_bool_t
 hb_subset_input_override_name_table (hb_subset_input_t  *input,
@@ -585,7 +602,7 @@ hb_subset_input_override_name_table (hb_subset_input_t  *input,
     hb_memcpy (override_name, name_str, str_len);
     name_bytes = hb_bytes_t (override_name, str_len);
   }
-  input->name_table_overrides.set (hb_ot_name_record_ids_t (platform_id, encoding_id, language_id, name_id), name_bytes);
+  input->name_table_overrides->set (hb_ot_name_record_ids_t (platform_id, encoding_id, language_id, name_id), name_bytes);
   return true;
 }
 

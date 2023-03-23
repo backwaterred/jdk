@@ -29,6 +29,7 @@
 #define OT_COLOR_SBIX_SBIX_HH
 
 #include "../../../hb-open-type.hh"
+#include "../../../hb-ot-layout-common.hh"
 #include "../../../hb-paint.hh"
 
 /*
