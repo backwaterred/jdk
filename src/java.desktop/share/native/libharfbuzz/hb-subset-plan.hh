@@ -49,6 +49,10 @@ struct hb_subset_plan_t
   ~hb_subset_plan_t()
   {
     hb_set_destroy (unicodes);
+    hb_set_destroy (name_ids);
+    hb_set_destroy (name_languages);
+    hb_set_destroy (layout_features);
+    hb_set_destroy (layout_scripts);
     hb_set_destroy (glyphs_requested);
     hb_set_destroy (drop_tables);
     hb_set_destroy (no_subset_tables);
@@ -58,11 +62,27 @@ struct hb_subset_plan_t
     hb_map_destroy (glyph_map);
     hb_map_destroy (reverse_glyph_map);
     hb_map_destroy (glyph_map_gsub);
+    hb_set_destroy (_glyphset);
+    hb_set_destroy (_glyphset_gsub);
+    hb_set_destroy (_glyphset_mathed);
+    hb_set_destroy (_glyphset_colred);
+    hb_map_destroy (gsub_lookups);
+    hb_map_destroy (gpos_lookups);
+    hb_map_destroy (gsub_features);
+    hb_map_destroy (gpos_features);
+    hb_map_destroy (colrv1_layers);
     hb_map_destroy (colr_palettes);
     hb_map_destroy (axes_index_map);
     hb_map_destroy (axes_old_index_tag_map);
 
+    hb_hashmap_destroy (gsub_langsys);
+    hb_hashmap_destroy (gpos_langsys);
+    hb_hashmap_destroy (gsub_feature_record_cond_idx_map);
+    hb_hashmap_destroy (gpos_feature_record_cond_idx_map);
+    hb_hashmap_destroy (gsub_feature_substitutes_map);
+    hb_hashmap_destroy (gpos_feature_substitutes_map);
     hb_hashmap_destroy (axes_location);
+    hb_hashmap_destroy (sanitized_table_cache);
     hb_hashmap_destroy (hmtx_map);
     hb_hashmap_destroy (vmtx_map);
     hb_hashmap_destroy (layout_variation_idx_delta_map);
@@ -98,16 +118,16 @@ struct hb_subset_plan_t
   hb_sorted_vector_t<hb_pair_t<hb_codepoint_t, hb_codepoint_t>> unicode_to_new_gid_list;
 
   // name_ids we would like to retain
-  hb_set_t name_ids;
+  hb_set_t *name_ids;
 
   // name_languages we would like to retain
-  hb_set_t name_languages;
+  hb_set_t *name_languages;
 
   //layout features which will be preserved
-  hb_set_t layout_features;
+  hb_set_t *layout_features;
 
   // layout scripts which will be preserved.
-  hb_set_t layout_scripts;
+  hb_set_t *layout_scripts;
 
   //glyph ids requested to retain
   hb_set_t *glyphs_requested;
@@ -131,34 +151,34 @@ struct hb_subset_plan_t
   hb_face_t *dest;
 
   unsigned int _num_output_glyphs;
-  hb_set_t _glyphset;
-  hb_set_t _glyphset_gsub;
-  hb_set_t _glyphset_mathed;
-  hb_set_t _glyphset_colred;
+  hb_set_t *_glyphset;
+  hb_set_t *_glyphset_gsub;
+  hb_set_t *_glyphset_mathed;
+  hb_set_t *_glyphset_colred;
 
   //active lookups we'd like to retain
-  hb_map_t gsub_lookups;
-  hb_map_t gpos_lookups;
+  hb_map_t *gsub_lookups;
+  hb_map_t *gpos_lookups;
 
   //active langsys we'd like to retain
-  hb_hashmap_t<unsigned, hb::unique_ptr<hb_set_t>> gsub_langsys;
-  hb_hashmap_t<unsigned, hb::unique_ptr<hb_set_t>> gpos_langsys;
+  hb_hashmap_t<unsigned, hb::unique_ptr<hb_set_t>> *gsub_langsys;
+  hb_hashmap_t<unsigned, hb::unique_ptr<hb_set_t>> *gpos_langsys;
 
   //active features after removing redundant langsys and prune_features
-  hb_map_t gsub_features;
-  hb_map_t gpos_features;
+  hb_map_t *gsub_features;
+  hb_map_t *gpos_features;
 
   //active feature variation records/condition index with variations
-  hb_hashmap_t<unsigned, hb::shared_ptr<hb_set_t>> gsub_feature_record_cond_idx_map;
-  hb_hashmap_t<unsigned, hb::shared_ptr<hb_set_t>> gpos_feature_record_cond_idx_map;
+  hb_hashmap_t<unsigned, hb::shared_ptr<hb_set_t>> *gsub_feature_record_cond_idx_map;
+  hb_hashmap_t<unsigned, hb::shared_ptr<hb_set_t>> *gpos_feature_record_cond_idx_map;
 
   //feature index-> address of substituation feature table mapping with
   //variations
-  hb_hashmap_t<unsigned, const OT::Feature*> gsub_feature_substitutes_map;
-  hb_hashmap_t<unsigned, const OT::Feature*> gpos_feature_substitutes_map;
+  hb_hashmap_t<unsigned, const OT::Feature*> *gsub_feature_substitutes_map;
+  hb_hashmap_t<unsigned, const OT::Feature*> *gpos_feature_substitutes_map;
 
   //active layers/palettes we'd like to retain
-  hb_map_t colrv1_layers;
+  hb_map_t *colrv1_layers;
   hb_map_t *colr_palettes;
 
   //Old layout item variation index -> (New varidx, delta) mapping
@@ -167,10 +187,9 @@ struct hb_subset_plan_t
   //gdef varstore retained varidx mapping
   hb_vector_t<hb_inc_bimap_t> gdef_varstore_inner_maps;
 
-  hb_hashmap_t<hb_tag_t, hb::unique_ptr<hb_blob_t>> sanitized_table_cache;
+  hb_hashmap_t<hb_tag_t, hb::unique_ptr<hb_blob_t>>* sanitized_table_cache;
   //normalized axes location map
   hb_hashmap_t<hb_tag_t, int> *axes_location;
-  hb_vector_t<int> normalized_coords;
   //user specified axes location map
   hb_hashmap_t<hb_tag_t, float> *user_axes_location;
   //retained old axis index -> new axis index mapping in fvar axis array
@@ -202,7 +221,7 @@ struct hb_subset_plan_t
   {
     hb_lock_t (accelerator ? &accelerator->sanitized_table_cache_lock : nullptr);
 
-    auto *cache = accelerator ? &accelerator->sanitized_table_cache : &sanitized_table_cache;
+    auto *cache = accelerator ? &accelerator->sanitized_table_cache : sanitized_table_cache;
     if (cache
         && !cache->in_error ()
         && cache->has (+T::tableTag)) {
@@ -234,7 +253,7 @@ struct hb_subset_plan_t
   inline const hb_set_t *
   glyphset () const
   {
-    return &_glyphset;
+    return _glyphset;
   }
 
   /*
@@ -243,7 +262,7 @@ struct hb_subset_plan_t
   inline const hb_set_t *
   glyphset_gsub () const
   {
-    return &_glyphset_gsub;
+    return _glyphset_gsub;
   }
 
   /*
@@ -261,7 +280,7 @@ struct hb_subset_plan_t
    */
   inline bool is_empty_glyph (hb_codepoint_t gid) const
   {
-    return !_glyphset.has (gid);
+    return !_glyphset->has (gid);
   }
 
   inline bool new_gid_for_codepoint (hb_codepoint_t codepoint,

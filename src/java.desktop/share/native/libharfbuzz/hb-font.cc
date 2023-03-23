@@ -2275,31 +2275,6 @@ hb_font_set_funcs_data (hb_font_t         *font,
  *
  * Sets the horizontal and vertical scale of a font.
  *
- * The font scale is a number related to, but not the same as,
- * font size. Typically the client establishes a scale factor
- * to be used between the two. For example, 64, or 256, which
- * would be the fractional-precision part of the font scale.
- * This is necessary because #hb_position_t values are integer
- * types and you need to leave room for fractional values
- * in there.
- *
- * For example, to set the font size to 20, with 64
- * levels of fractional precision you would call
- * `hb_font_set_scale(font, 20 * 64, 20 * 64)`.
- *
- * In the example above, even what font size 20 means is up to
- * you. It might be 20 pixels, or 20 points, or 20 millimeters.
- * HarfBuzz does not care about that.  You can set the point
- * size of the font using hb_font_set_ptem(), and the pixel
- * size using hb_font_set_ppem().
- *
- * The choice of scale is yours but needs to be consistent between
- * what you set here, and what you expect out of #hb_position_t
- * as well has draw / paint API output values.
- *
- * Fonts default to a scale equal to the UPEM value of their face.
- * A font with this setting is sometimes called an "unscaled" font.
- *
  * Since: 0.9.2
  **/
 void
@@ -2345,11 +2320,7 @@ hb_font_get_scale (hb_font_t *font,
  * @x_ppem: Horizontal ppem value to assign
  * @y_ppem: Vertical ppem value to assign
  *
- * Sets the horizontal and vertical pixels-per-em (PPEM) of a font.
- *
- * These values are used for pixel-size-specific adjustment to
- * shaping and draw results, though for the most part they are
- * unused and can be left unset.
+ * Sets the horizontal and vertical pixels-per-em (ppem) of a font.
  *
  * Since: 0.9.2
  **/

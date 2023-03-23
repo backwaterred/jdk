@@ -29,8 +29,6 @@
 
 #include "hb.hh"
 
-#include "hb-set.hh"
-
 
 /*
  * hb_hashmap_t
@@ -317,16 +315,6 @@ struct hb_hashmap_t
     hb_copy (other, *this);
   }
 
-  void keys (hb_set_t &keys_) const
-  {
-    hb_copy (keys() , keys_);
-  }
-
-  void values (hb_set_t &values_) const
-  {
-    hb_copy (values() , values_);
-  }
-
   /*
    * Iterator
    */
@@ -375,7 +363,7 @@ struct hb_hashmap_t
     unsigned i = (unsigned) (*idx + 1);
 
     unsigned count = size ();
-    while (i < count && !items[i].is_real ())
+    while (i <= count && !items[i].is_real ())
       i++;
 
     if (i >= count)

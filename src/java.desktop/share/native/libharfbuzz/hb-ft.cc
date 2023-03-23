@@ -603,7 +603,6 @@ hb_ft_get_glyph_extents (hb_font_t *font,
   hb_lock_t lock (ft_font->lock);
   FT_Face ft_face = ft_font->ft_face;
   float x_mult, y_mult;
-  float slant_xy = font->slant_xy;
 #ifdef HAVE_FT_GET_TRANSFORM
   if (ft_font->transform)
   {
@@ -624,24 +623,14 @@ hb_ft_get_glyph_extents (hb_font_t *font,
   if (unlikely (FT_Load_Glyph (ft_face, glyph, ft_font->load_flags)))
     return false;
 
-  /* Copied from hb_font_t::scale_glyph_extents. */
-
-  float x1 = x_mult * ft_face->glyph->metrics.horiBearingX;
-  float y1 = y_mult * ft_face->glyph->metrics.horiBearingY;
-  float x2 = x1 + x_mult *  ft_face->glyph->metrics.width;
-  float y2 = y1 + y_mult * -ft_face->glyph->metrics.height;
+  extents->x_bearing = (hb_position_t) (x_mult * ft_face->glyph->metrics.horiBearingX);
+  extents->y_bearing = (hb_position_t) (y_mult * ft_face->glyph->metrics.horiBearingY);
+  extents->width  = (hb_position_t) (x_mult *  ft_face->glyph->metrics.width);
+  extents->height = (hb_position_t) (y_mult * -ft_face->glyph->metrics.height);
 
   /* Apply slant. */
-  if (slant_xy)
-  {
-    x1 += hb_min (y1 * slant_xy, y2 * slant_xy);
-    x2 += hb_max (y1 * slant_xy, y2 * slant_xy);
-  }
-
-  extents->x_bearing = floorf (x1);
-  extents->y_bearing = floorf (y1);
-  extents->width = ceilf (x2) - extents->x_bearing;
-  extents->height = ceilf (y2) - extents->y_bearing;
+  extents->x_bearing += roundf (extents->y_bearing * font->slant_xy);
+  extents->width += roundf (extents->height * font->slant_xy);
 
   return true;
 }
@@ -1390,10 +1379,6 @@ _release_blob (void *arg)
  * An #hb_font_t object created with hb_ft_font_create()
  * is preconfigured for FreeType font functions and does not
  * require this function to be used.
- *
- * Note that if you modify the underlying #hb_font_t after
- * calling this function, you need to call hb_ft_hb_font_changed()
- * to update the underlying FT_Face.
  *
  * <note>Note: Internally, this function creates an FT_Face.
 * </note>

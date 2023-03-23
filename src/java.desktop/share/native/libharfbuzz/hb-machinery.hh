@@ -34,6 +34,7 @@
 
 #include "hb-dispatch.hh"
 #include "hb-sanitize.hh"
+#include "hb-serialize.hh"
 
 
 /*

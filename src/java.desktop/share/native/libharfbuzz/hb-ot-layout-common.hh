@@ -156,19 +156,19 @@ struct hb_subset_layout_context_t :
   {
     if (tag_ == HB_OT_TAG_GSUB)
     {
-      lookup_index_map = &c_->plan->gsub_lookups;
-      script_langsys_map = &c_->plan->gsub_langsys;
-      feature_index_map = &c_->plan->gsub_features;
-      feature_substitutes_map = &c_->plan->gsub_feature_substitutes_map;
-      feature_record_cond_idx_map = c_->plan->user_axes_location->is_empty () ? nullptr : &c_->plan->gsub_feature_record_cond_idx_map;
+      lookup_index_map = c_->plan->gsub_lookups;
+      script_langsys_map = c_->plan->gsub_langsys;
+      feature_index_map = c_->plan->gsub_features;
+      feature_substitutes_map = c_->plan->gsub_feature_substitutes_map;
+      feature_record_cond_idx_map = c_->plan->user_axes_location->is_empty () ? nullptr : c_->plan->gsub_feature_record_cond_idx_map;
     }
     else
     {
-      lookup_index_map = &c_->plan->gpos_lookups;
-      script_langsys_map = &c_->plan->gpos_langsys;
-      feature_index_map = &c_->plan->gpos_features;
-      feature_substitutes_map = &c_->plan->gpos_feature_substitutes_map;
-      feature_record_cond_idx_map = c_->plan->user_axes_location->is_empty () ? nullptr : &c_->plan->gpos_feature_record_cond_idx_map;
+      lookup_index_map = c_->plan->gpos_lookups;
+      script_langsys_map = c_->plan->gpos_langsys;
+      feature_index_map = c_->plan->gpos_features;
+      feature_substitutes_map = c_->plan->gpos_feature_substitutes_map;
+      feature_record_cond_idx_map = c_->plan->user_axes_location->is_empty () ? nullptr : c_->plan->gpos_feature_record_cond_idx_map;
     }
   }
 
@@ -1145,7 +1145,7 @@ struct Script
   {
     TRACE_SUBSET (this);
     if (!l->visitScript ()) return_trace (false);
-    if (tag && !c->plan->layout_scripts.has (*tag))
+    if (tag && !c->plan->layout_scripts->has (*tag))
       return false;
 
     auto *out = c->serializer->start_embed (*this);
@@ -2233,7 +2233,7 @@ struct VarRegionAxis
 {
   float evaluate (int coord) const
   {
-    int start = startCoord.to_int (), peak = peakCoord.to_int (), end = endCoord.to_int ();
+    int start = startCoord, peak = peakCoord, end = endCoord;
 
     /* TODO Move these to sanitize(). */
     if (unlikely (start > peak || peak > end))
@@ -2863,8 +2863,8 @@ struct ConditionFormat1
     {
       // add axisIndex->value into the hashmap so we can check if the record is
       // unique with variations
-      int16_t min_val = filterRangeMinValue.to_int ();
-      int16_t max_val = filterRangeMaxValue.to_int ();
+      int16_t min_val = filterRangeMinValue;
+      int16_t max_val = filterRangeMaxValue;
       hb_codepoint_t val = (max_val << 16) + min_val;
 
       condition_map->set (axisIndex, val);
@@ -2876,7 +2876,7 @@ struct ConditionFormat1
     int v = c->axes_location->get (axis_tag);
 
     //condition not met, drop the entire record
-    if (v < filterRangeMinValue.to_int () || v > filterRangeMaxValue.to_int ())
+    if (v < filterRangeMinValue || v > filterRangeMaxValue)
       return DROP_RECORD_WITH_VAR;
 
     //axis pinned and condition met, drop the condition
@@ -2886,7 +2886,7 @@ struct ConditionFormat1
   bool evaluate (const int *coords, unsigned int coord_len) const
   {
     int coord = axisIndex < coord_len ? coords[axisIndex] : 0;
-    return filterRangeMinValue.to_int () <= coord && coord <= filterRangeMaxValue.to_int ();
+    return filterRangeMinValue <= coord && coord <= filterRangeMaxValue;
   }
 
   bool sanitize (hb_sanitize_context_t *c) const

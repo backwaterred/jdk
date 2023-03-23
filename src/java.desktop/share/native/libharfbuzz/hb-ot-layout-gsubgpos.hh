@@ -115,7 +115,7 @@ struct hb_closure_context_t :
 	  return true;
       }
 
-      done_lookups_glyph_set->get (lookup_index)->clear ();
+      hb_set_clear (done_lookups_glyph_set->get (lookup_index));
     }
 
     hb_set_t *covered_glyph_set = done_lookups_glyph_set->get (lookup_index);
@@ -1538,19 +1538,18 @@ static void context_closure_recurse_lookups (hb_closure_context_t *c,
 					     intersected_glyphs_func_t intersected_glyphs_func,
 					     void *cache)
 {
-  hb_set_t covered_seq_indicies;
-  hb_set_t pos_glyphs;
+  hb_set_t *covered_seq_indicies = hb_set_create ();
   for (unsigned int i = 0; i < lookupCount; i++)
   {
     unsigned seqIndex = lookupRecord[i].sequenceIndex;
     if (seqIndex >= inputCount) continue;
 
     bool has_pos_glyphs = false;
+    hb_set_t pos_glyphs;
 
-    if (!covered_seq_indicies.has (seqIndex))
+    if (!hb_set_has (covered_seq_indicies, seqIndex))
     {
       has_pos_glyphs = true;
-      pos_glyphs.clear ();
       if (seqIndex == 0)
       {
         switch (context_format) {
@@ -1579,7 +1578,7 @@ static void context_closure_recurse_lookups (hb_closure_context_t *c,
       }
     }
 
-    covered_seq_indicies.add (seqIndex);
+    covered_seq_indicies->add (seqIndex);
     if (has_pos_glyphs) {
       c->push_cur_active_glyphs () = std::move (pos_glyphs);
     } else {
@@ -1590,10 +1589,12 @@ static void context_closure_recurse_lookups (hb_closure_context_t *c,
     if (context_format == ContextFormat::CoverageBasedContext)
       endIndex += 1;
 
-    c->recurse (lookupRecord[i].lookupListIndex, &covered_seq_indicies, seqIndex, endIndex);
+    c->recurse (lookupRecord[i].lookupListIndex, covered_seq_indicies, seqIndex, endIndex);
 
     c->pop_cur_done_glyphs ();
   }
+
+  hb_set_destroy (covered_seq_indicies);
 }
 
 template <typename context_t>
@@ -2223,7 +2224,7 @@ struct ContextFormat1_4
     if (unlikely (!c->serializer->extend_min (out))) return_trace (false);
     out->format = format;
 
-    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? &c->plan->gsub_lookups : &c->plan->gpos_lookups;
+    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
     hb_sorted_vector_t<hb_codepoint_t> new_coverage;
     + hb_zip (this+coverage, ruleSet)
     | hb_filter (glyphset, hb_first)
@@ -2460,7 +2461,7 @@ struct ContextFormat2_5
     hb_set_t coverage_glyph_classes;
     (this+classDef).intersected_classes (&retained_coverage_glyphs, &coverage_glyph_classes);
 
-    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? &c->plan->gsub_lookups : &c->plan->gpos_lookups;
+    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
     bool ret = true;
     int non_zero_index = -1, index = 0;
     auto snapshot = c->serializer->snapshot();
@@ -2640,7 +2641,7 @@ struct ContextFormat3
     }
 
     const auto& lookupRecord = StructAfter<UnsizedArrayOf<LookupRecord>> (coverageZ.as_array (glyphCount));
-    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? &c->plan->gsub_lookups : &c->plan->gpos_lookups;
+    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
 
 
     unsigned count = serialize_lookuprecord_array (c->serializer, lookupRecord.as_array (lookupCount), lookup_map);
@@ -3304,7 +3305,7 @@ struct ChainContextFormat1_4
     if (unlikely (!c->serializer->extend_min (out))) return_trace (false);
     out->format = format;
 
-    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? &c->plan->gsub_lookups : &c->plan->gpos_lookups;
+    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
     hb_sorted_vector_t<hb_codepoint_t> new_coverage;
     + hb_zip (this+coverage, ruleSet)
     | hb_filter (glyphset, hb_first)
@@ -3584,7 +3585,7 @@ struct ChainContextFormat2_5
 
     int non_zero_index = -1, index = 0;
     bool ret = true;
-    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? &c->plan->gsub_lookups : &c->plan->gpos_lookups;
+    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
     auto last_non_zero = c->serializer->snapshot ();
     for (const auto& _ : + hb_enumerate (ruleSet)
 			 | hb_filter (input_klass_map, hb_first))
@@ -3826,7 +3827,7 @@ struct ChainContextFormat3
       return_trace (false);
 
     const auto &lookup = StructAfter<decltype (lookupX)> (lookahead);
-    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? &c->plan->gsub_lookups : &c->plan->gpos_lookups;
+    const hb_map_t *lookup_map = c->table_tag == HB_OT_TAG_GSUB ? c->plan->gsub_lookups : c->plan->gpos_lookups;
 
     HBUINT16 *lookupCount = c->serializer->copy<HBUINT16> (lookup.len);
     if (!lookupCount) return_trace (false);

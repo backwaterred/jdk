@@ -291,6 +291,8 @@ struct hmtxvmtx
       /* num_bearings <= glyph < num_glyphs;
        * num_bearings <= num_advances */
 
+      /* TODO Optimize */
+
       if (num_bearings == num_advances)
         return get_advance_without_var_unscaled (num_bearings - 1);
 
@@ -313,7 +315,7 @@ struct hmtxvmtx
       if (var_table.get_length ())
 	return advance + roundf (var_table->get_advance_delta_unscaled (glyph,
 									font->coords, font->num_coords,
-									store_cache));
+									store_cache)); // TODO Optimize?!
 
       return _glyf_get_advance_with_var_unscaled (font, glyph, T::tableTag == HB_OT_TAG_vmtx);
 #else

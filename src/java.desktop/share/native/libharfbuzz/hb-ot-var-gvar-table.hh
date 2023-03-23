@@ -128,13 +128,13 @@ struct TupleVariationHeader
     for (unsigned int i = 0; i < coord_count; i++)
     {
       int v = coords[i];
-      int peak = peak_tuple[i].to_int ();
+      int peak = peak_tuple[i];
       if (!peak || v == peak) continue;
 
       if (has_intermediate ())
       {
-	int start = start_tuple[i].to_int ();
-	int end = end_tuple[i].to_int ();
+	int start = start_tuple[i];
+	int end = end_tuple[i];
 	if (unlikely (start > peak || peak > end ||
 		      (start < 0 && end > 0 && peak))) continue;
 	if (v < start || v > end) return 0.f;

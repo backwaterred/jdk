@@ -175,15 +175,15 @@ struct AxisRecord
 
   void get_coordinates (float &min, float &default_, float &max) const
   {
-    default_ = defaultValue.to_float ();
+    default_ = defaultValue / 65536.f;
     /* Ensure order, to simplify client math. */
-    min = hb_min (default_, minValue.to_float ());
-    max = hb_max (default_, maxValue.to_float ());
+    min = hb_min (default_, minValue / 65536.f);
+    max = hb_max (default_, maxValue / 65536.f);
   }
 
   float get_default () const
   {
-    return defaultValue.to_float ();
+    return defaultValue / 65536.f;
   }
 
   public:

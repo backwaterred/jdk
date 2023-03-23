@@ -550,7 +550,7 @@ struct PaintColrLayers
     TRACE_SUBSET (this);
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
-    return_trace (c->serializer->check_assign (out->firstLayerIndex, c->plan->colrv1_layers.get (firstLayerIndex),
+    return_trace (c->serializer->check_assign (out->firstLayerIndex, c->plan->colrv1_layers->get (firstLayerIndex),
                                                HB_SERIALIZE_ERROR_INT_OVERFLOW));
 
     return_trace (true);
@@ -1004,7 +1004,7 @@ struct PaintScaleUniform
 
   void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
   {
-    float s = scale.to_float (c->instancer (varIdxBase, 0));
+    float s = scale + c->instancer (varIdxBase, 0);
 
     bool p1 = c->funcs->push_scale (c->data, s, s);
     c->recurse (this+src);
@@ -1039,7 +1039,7 @@ struct PaintScaleUniformAroundCenter
 
   void paint_glyph (hb_paint_context_t *c, uint32_t varIdxBase) const
   {
-    float s = scale.to_float (c->instancer (varIdxBase, 0));
+    float s = scale + c->instancer (varIdxBase, 0);
     float tCenterX = centerX + c->instancer (varIdxBase, 1);
     float tCenterY = centerY + c->instancer (varIdxBase, 2);
 
@@ -1245,10 +1245,12 @@ struct PaintComposite
 
   void paint_glyph (hb_paint_context_t *c) const
   {
+    c->funcs->push_group (c->data);
     c->recurse (this+backdrop);
     c->funcs->push_group (c->data);
     c->recurse (this+src);
     c->funcs->pop_group (c->data, (hb_paint_composite_mode_t) (int) mode);
+    c->funcs->pop_group (c->data, HB_PAINT_COMPOSITE_MODE_SRC_OVER);
   }
 
   HBUINT8		format; /* format = 32 */
@@ -1456,7 +1458,7 @@ struct ClipList
     if (unlikely (!c->serializer->extend_min (out))) return_trace (false);
     if (!c->serializer->check_assign (out->format, format, HB_SERIALIZE_ERROR_INT_OVERFLOW)) return_trace (false);
 
-    const hb_set_t& glyphset = c->plan->_glyphset_colred;
+    const hb_set_t& glyphset = *c->plan->_glyphset_colred;
     const hb_map_t &glyph_map = *c->plan->glyph_map;
 
     hb_map_t new_gid_offset_map;
@@ -1641,7 +1643,7 @@ struct BaseGlyphList : SortedArray32Of<BaseGlyphPaintRecord>
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (this);
     if (unlikely (!c->serializer->extend_min (out)))  return_trace (false);
-    const hb_set_t* glyphset = &c->plan->_glyphset_colred;
+    const hb_set_t* glyphset = c->plan->_glyphset_colred;
 
     for (const auto& _ : as_array ())
     {
@@ -1882,7 +1884,7 @@ struct COLR
     TRACE_SUBSET (this);
 
     const hb_map_t &reverse_glyph_map = *c->plan->reverse_glyph_map;
-    const hb_set_t& glyphset = c->plan->_glyphset_colred;
+    const hb_set_t& glyphset = *c->plan->_glyphset_colred;
 
     auto base_it =
     + hb_range (c->plan->num_output_glyphs ())
@@ -2045,6 +2047,7 @@ struct COLR
 				     hb_array (font->coords, font->num_coords));
 
 	bool is_bounded = true;
+	bool pop_clip_first = true;
 	if (clip)
 	{
 	  hb_glyph_extents_t extents;
@@ -2052,7 +2055,8 @@ struct COLR
 					   &extents,
 					   instancer))
 	  {
-	    font->scale_glyph_extents (&extents);
+	    c.funcs->push_root_transform (c.data, font);
+
 	    c.funcs->push_clip_rectangle (c.data,
 					  extents.x_bearing,
 					  extents.y_bearing + extents.height,
@@ -2071,23 +2075,27 @@ struct COLR
 
 	    hb_extents_t extents = extents_data.get_extents ();
 	    is_bounded = extents_data.is_bounded ();
-
 	    c.funcs->push_clip_rectangle (c.data,
 					  extents.xmin,
 					  extents.ymin,
 					  extents.xmax,
 					  extents.ymax);
+
+	    c.funcs->push_root_transform (c.data, font);
+
+	    pop_clip_first = false;
 	  }
 	}
-
-	c.funcs->push_root_transform (c.data, font);
 
 	if (is_bounded)
 	  c.recurse (*paint);
 
-	c.funcs->pop_transform (c.data);
+	if (clip && pop_clip_first)
+	  c.funcs->pop_clip (c.data);
 
-	if (clip)
+        c.funcs->pop_transform (c.data);
+
+	if (clip && !pop_clip_first)
 	  c.funcs->pop_clip (c.data);
 
         return true;
@@ -2139,10 +2147,10 @@ struct COLR_accelerator_t : COLR::accelerator_t {
 void
 hb_paint_context_t::recurse (const Paint &paint)
 {
-  if (unlikely (depth_left <= 0 || edge_count <= 0)) return;
   depth_left--;
   edge_count--;
-  paint.dispatch (this);
+  if (depth_left > 0 && edge_count > 0)
+    paint.dispatch (this);
   depth_left++;
 }
 
