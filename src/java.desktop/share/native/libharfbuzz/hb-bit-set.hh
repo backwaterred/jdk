@@ -28,10 +28,8 @@
 #ifndef HB_BIT_SET_HH
 #define HB_BIT_SET_HH
 
-#include "hb.hh"
 #include "hb-bit-page.hh"
 #include "hb-machinery.hh"
-
 
 struct hb_bit_set_t
 {
