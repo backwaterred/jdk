@@ -35,7 +35,6 @@
 #include "hb-sanitize.hh"
 #include "hb-serialize.hh"
 
-
 /*
  * Casts
  */
