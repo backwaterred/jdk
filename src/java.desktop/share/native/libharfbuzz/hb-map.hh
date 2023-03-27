@@ -27,10 +27,7 @@
 #ifndef HB_MAP_HH
 #define HB_MAP_HH
 
-#include "hb.hh"
-
 #include "hb-set.hh"
-
 
 /*
  * hb_hashmap_t
