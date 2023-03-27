@@ -27,8 +27,6 @@
 #ifndef HB_META_HH
 #define HB_META_HH
 
-#include "hb.hh"
-
 #include <memory>
 #include <type_traits>
 #include <utility>

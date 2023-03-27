@@ -29,7 +29,6 @@
 #ifndef HB_ALGS_HH
 #define HB_ALGS_HH
 
-#include "hb.hh"
 #include "hb-meta.hh"
 #include "hb-null.hh"
 #include "hb-number.hh"

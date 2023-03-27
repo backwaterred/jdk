@@ -29,7 +29,6 @@
 #ifndef HB_ITER_HH
 #define HB_ITER_HH
 
-#include "hb.hh"
 #include "hb-algs.hh"
 #include "hb-meta.hh"
 
