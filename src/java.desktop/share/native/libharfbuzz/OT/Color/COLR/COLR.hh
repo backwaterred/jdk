@@ -28,7 +28,6 @@
 #ifndef OT_COLOR_COLR_COLR_HH
 #define OT_COLOR_COLR_COLR_HH
 
-#include "../../../hb.hh"
 #include "../../../hb-open-type.hh"
 #include "../../../hb-ot-layout-common.hh"
 #include "../../../hb-ot-var-common.hh"
