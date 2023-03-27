@@ -29,6 +29,7 @@
 #define HB_BIT_SET_INVERTIBLE_HH
 
 #include "hb-bit-set.hh"
+#include "hb-machinery.hh"
 
 struct hb_bit_set_invertible_t
 {
