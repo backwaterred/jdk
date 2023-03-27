@@ -27,8 +27,6 @@
 #ifndef HB_POOL_HH
 #define HB_POOL_HH
 
-#include "hb.hh"
-
 /* Memory pool for persistent allocation of small objects. */
 
 template <typename T, unsigned ChunkLen = 32>
