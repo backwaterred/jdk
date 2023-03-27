@@ -28,9 +28,7 @@
 #ifndef HB_SET_HH
 #define HB_SET_HH
 
-#include "hb.hh"
 #include "hb-bit-set-invertible.hh"
-
 
 template <typename impl_t>
 struct hb_sparseset_t
