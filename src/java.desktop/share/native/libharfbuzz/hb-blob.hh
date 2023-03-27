@@ -29,9 +29,6 @@
 #ifndef HB_BLOB_HH
 #define HB_BLOB_HH
 
-#include "hb.hh"
-
-
 /*
  * hb_blob_t
  */

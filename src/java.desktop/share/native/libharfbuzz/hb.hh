@@ -140,7 +140,6 @@
 #endif
 #endif
 
-
 #include "hb-config.hh"
 #include "hb-limits.hh"
 
