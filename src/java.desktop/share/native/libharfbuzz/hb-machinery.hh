@@ -29,7 +29,6 @@
 #ifndef HB_MACHINERY_HH
 #define HB_MACHINERY_HH
 
-#include "hb.hh"
 #include "hb-blob.hh"
 
 #include "hb-dispatch.hh"
