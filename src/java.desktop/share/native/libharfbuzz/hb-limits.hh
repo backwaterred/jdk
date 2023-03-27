@@ -25,8 +25,6 @@
 #ifndef HB_LIMITS_HH
 #define HB_LIMITS_HH
 
-#include "hb.hh"
-
 
 #ifndef HB_BUFFER_MAX_LEN_FACTOR
 #define HB_BUFFER_MAX_LEN_FACTOR 64
