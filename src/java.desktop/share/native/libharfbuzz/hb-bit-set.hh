@@ -29,7 +29,6 @@
 #define HB_BIT_SET_HH
 
 #include "hb-bit-page.hh"
-#include "hb-machinery.hh"
 
 struct hb_bit_set_t
 {
