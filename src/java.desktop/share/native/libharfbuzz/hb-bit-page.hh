@@ -28,8 +28,6 @@
 #ifndef HB_BIT_PAGE_HH
 #define HB_BIT_PAGE_HH
 
-#include "hb.hh"
-
 
 /* Compiler-assisted vectorization. */
 
