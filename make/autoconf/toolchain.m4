@@ -264,24 +264,33 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
       XLC_TEST_PATH=${TOOLCHAIN_PATH}/
     fi
 
-    XLCLANG_VERSION_OUTPUT=`${XLC_TEST_PATH}xlclang++ --version 2>&1 | $HEAD -n 1`
-    $ECHO "$XLCLANG_VERSION_OUTPUT" | $GREP "IBM XL C/C++ for AIX" > /dev/null
+    if test `${XLC_TEST_PATH}xlclang++`; then
+      XLC_COMPILER_BINARY_NAME="xlclang"
+      XLCXX_COMPILER_BINARY_NAME="xlclang++"
+    else if test `${XLC_TEST_PATH}ibm-clang++_r`; then
+      XLC_COMPILER_BINARY_NAME="ibm-clang_r"
+      XLCXX_COMPILER_BINARY_NAME="ibm-clang++_r"
+    fi
+
+    XLC_COMPILER_PATH=`${XLC_TEST_PATH}${XLCXX_COMPILER_BINARY_NAME}`
+    XLC_VERSION_OUTPUT=`${XLC_COMPILER_PATH} --version 2>&1 | $HEAD -n 1`
+    $ECHO "$XLC_VERSION_OUTPUT" | $GREP "IBM XL C/C++ for AIX" > /dev/null
     if test $? -eq 0; then
-      AC_MSG_NOTICE([xlclang++ output: $XLCLANG_VERSION_OUTPUT])
+      AC_MSG_NOTICE([$XLC_COMPILER output: $XLC_VERSION_OUTPUT])
     else
-      AC_MSG_ERROR([xlclang++ version output check failed, output: $XLCLANG_VERSION_OUTPUT])
+      AC_MSG_ERROR([xlclang++ and ibm-clang++_r version output checks failed, output: $XLC_VERSION_OUTPUT])
     fi
   fi
 
   TOOLCHAIN_CC_BINARY_clang="clang"
   TOOLCHAIN_CC_BINARY_gcc="gcc"
   TOOLCHAIN_CC_BINARY_microsoft="cl"
-  TOOLCHAIN_CC_BINARY_xlc="xlclang"
+  TOOLCHAIN_CC_BINARY_xlc=$XLC_COMPILER_BINARY_NAME
 
   TOOLCHAIN_CXX_BINARY_clang="clang++"
   TOOLCHAIN_CXX_BINARY_gcc="g++"
   TOOLCHAIN_CXX_BINARY_microsoft="cl"
-  TOOLCHAIN_CXX_BINARY_xlc="xlclang++"
+  TOOLCHAIN_CXX_BINARY_xlc=$XLCXX_COMPILER_BINARY_NAME
 
   # Use indirect variable referencing
   toolchain_var_name=TOOLCHAIN_DESCRIPTION_$TOOLCHAIN_TYPE
