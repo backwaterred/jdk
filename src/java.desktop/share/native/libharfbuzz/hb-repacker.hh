@@ -29,7 +29,6 @@
 
 #include "hb-open-type.hh"
 #include "hb-map.hh"
-#include "hb-vector.hh"
 #include "graph/graph.hh"
 #include "graph/gsubgpos-graph.hh"
 #include "graph/serialize.hh"

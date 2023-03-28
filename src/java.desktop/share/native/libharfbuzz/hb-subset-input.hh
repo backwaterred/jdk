@@ -33,7 +33,6 @@
 #include "hb-subset.h"
 #include "hb-map.hh"
 #include "hb-set.hh"
-#include "hb-cplusplus.hh"
 #include "hb-font.hh"
 
 struct hb_ot_name_record_ids_t

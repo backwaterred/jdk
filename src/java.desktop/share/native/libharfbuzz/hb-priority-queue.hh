@@ -28,7 +28,6 @@
 #define HB_PRIORITY_QUEUE_HH
 
 #include "hb.hh"
-#include "hb-vector.hh"
 
 /*
  * hb_priority_queue_t

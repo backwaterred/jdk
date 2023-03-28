@@ -29,7 +29,6 @@
 
 #include "hb.hh"
 #include "hb-array.hh"
-#include "hb-meta.hh"
 #include "hb-null.hh"
 
 

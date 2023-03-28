@@ -27,7 +27,6 @@
 
 #include "hb.hh"
 #include "hb-map.hh"
-#include "hb-vector.hh"
 
 
 /*
