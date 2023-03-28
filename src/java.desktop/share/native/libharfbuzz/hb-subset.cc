@@ -50,6 +50,7 @@
 #include "hb-ot-name-table.hh"
 #include "hb-ot-layout-gsub-table.hh"
 #include "hb-ot-layout-gpos-table.hh"
+#include "hb-ot-var-cvar-table.hh"
 #include "hb-ot-var-fvar-table.hh"
 #include "hb-ot-var-gvar-table.hh"
 #include "hb-ot-var-hvar-table.hh"
@@ -168,11 +169,11 @@ _get_table_tags (const hb_subset_plan_t* plan,
       hb_concat (
           + hb_array (known_tables)
           | hb_filter ([&] (hb_tag_t tag) {
-            return !_table_is_empty (plan->source, tag) && !plan->no_subset_tables->has (tag);
+            return !_table_is_empty (plan->source, tag) && !plan->no_subset_tables.has (tag);
           })
           | hb_map ([] (hb_tag_t tag) -> hb_tag_t { return tag; }),
 
-          plan->no_subset_tables->iter ()
+          plan->no_subset_tables.iter ()
           | hb_filter([&] (hb_tag_t tag) {
             return !_table_is_empty (plan->source, tag);
           }));
@@ -355,7 +356,7 @@ _is_table_present (hb_face_t *source, hb_tag_t tag)
 static bool
 _should_drop_table (hb_subset_plan_t *plan, hb_tag_t tag)
 {
-  if (plan->drop_tables->has (tag))
+  if (plan->drop_tables.has (tag))
     return true;
 
   switch (tag)
@@ -413,7 +414,8 @@ _dependencies_satisfied (hb_subset_plan_t *plan, hb_tag_t tag,
   {
   case HB_OT_TAG_hmtx:
   case HB_OT_TAG_vmtx:
-    return plan->pinned_at_default || !pending_subset_tags.has (HB_OT_TAG_glyf);
+  case HB_OT_TAG_maxp:
+    return !plan->normalized_coords || !pending_subset_tags.has (HB_OT_TAG_glyf);
   default:
     return true;
   }
@@ -424,7 +426,7 @@ _subset_table (hb_subset_plan_t *plan,
 	       hb_vector_t<char> &buf,
 	       hb_tag_t tag)
 {
-  if (plan->no_subset_tables->has (tag)) {
+  if (plan->no_subset_tables.has (tag)) {
     return _passthrough (plan, tag);
   }
 
@@ -469,7 +471,7 @@ _subset_table (hb_subset_plan_t *plan,
   case HB_OT_TAG_VVAR: return _subset<const OT::VVAR> (plan, buf);
 #endif
   case HB_OT_TAG_fvar:
-    if (plan->user_axes_location->is_empty ()) return _passthrough (plan, tag);
+    if (plan->user_axes_location.is_empty ()) return _passthrough (plan, tag);
     return _subset<const OT::fvar> (plan, buf);
   case HB_OT_TAG_STAT:
     /*TODO(qxliu): change the condition as we support more complex
@@ -477,6 +479,16 @@ _subset_table (hb_subset_plan_t *plan,
     if (plan->all_axes_pinned) return _subset<const OT::STAT> (plan, buf);
     else return _passthrough (plan, tag);
 
+  case HB_TAG ('c', 'v', 't', ' '):
+#ifndef HB_NO_VAR
+    if (_is_table_present (plan->source, HB_OT_TAG_cvar) &&
+        plan->normalized_coords && !plan->pinned_at_default)
+    {
+      auto &cvar = *plan->source->table.cvar;
+      return OT::cvar::add_cvt_and_apply_deltas (plan, cvar.get_tuple_var_data (), &cvar);
+    }
+#endif
+    return _passthrough (plan, tag);
   default:
     if (plan->flags & HB_SUBSET_FLAGS_PASSTHROUGH_UNRECOGNIZED)
       return _passthrough (plan, tag);
@@ -625,3 +637,8 @@ hb_subset_plan_execute_or_fail (hb_subset_plan_t *plan)
 end:
   return success ? hb_face_reference (plan->dest) : nullptr;
 }
+
+#ifndef HB_NO_VISIBILITY
+/* If NO_VISIBILITY, libharfbuzz has this. */
+#include "hb-ot-name-language-static.hh"
+#endif

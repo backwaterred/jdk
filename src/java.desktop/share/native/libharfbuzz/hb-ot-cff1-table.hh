@@ -902,8 +902,6 @@ struct cff1_private_dict_opset_t : dict_opset_t
       case OpCode_FamilyOtherBlues:
       case OpCode_StemSnapH:
       case OpCode_StemSnapV:
-	env.clear_args ();
-	break;
       case OpCode_StdHW:
       case OpCode_StdVW:
       case OpCode_BlueScale:
@@ -915,7 +913,6 @@ struct cff1_private_dict_opset_t : dict_opset_t
       case OpCode_initialRandomSeed:
       case OpCode_defaultWidthX:
       case OpCode_nominalWidthX:
-	val.single_val = env.argStack.pop_num ();
 	env.clear_args ();
 	break;
       case OpCode_Subrs:
@@ -1344,6 +1341,7 @@ struct cff1
     bool get_glyph_name (hb_codepoint_t glyph,
 			 char *buf, unsigned int buf_len) const
     {
+      if (unlikely (glyph >= num_glyphs)) return false;
       if (unlikely (!is_valid ())) return false;
       if (is_CID()) return false;
       if (unlikely (!buf_len)) return true;

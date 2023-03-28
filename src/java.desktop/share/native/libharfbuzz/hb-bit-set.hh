@@ -88,6 +88,10 @@ struct hb_bit_set_t
   bool resize (unsigned int count, bool clear = true, bool exact_size = false)
   {
     if (unlikely (!successful)) return false;
+
+    if (pages.length == 0 && count == 1)
+      exact_size = true; // Most sets are small and local
+
     if (unlikely (!pages.resize (count, clear, exact_size) || !page_map.resize (count, clear, exact_size)))
     {
       pages.resize (page_map.length, clear, exact_size);
@@ -190,7 +194,7 @@ struct hb_bit_set_t
       unsigned int end = major_start (m + 1);
       do
       {
-        if (v || page) /* The v check is to optimize out the page check if v is true. */
+        if (g != INVALID && (v || page)) /* The v check is to optimize out the page check if v is true. */
 	  page->set (g, v);
 
 	array = &StructAtOffsetUnaligned<T> (array, stride);
@@ -234,7 +238,7 @@ struct hb_bit_set_t
 	if (g < last_g) return false;
 	last_g = g;
 
-        if (v || page) /* The v check is to optimize out the page check if v is true. */
+        if (g != INVALID && (v || page)) /* The v check is to optimize out the page check if v is true. */
 	  page->add (g);
 
 	array = &StructAtOffsetUnaligned<T> (array, stride);

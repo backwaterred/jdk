@@ -32,6 +32,7 @@
 #define HB_MAP_H
 
 #include "hb-common.h"
+#include "hb-set.h"
 
 HB_BEGIN_DECLS
 
@@ -128,6 +129,14 @@ hb_map_next (const hb_map_t *map,
 	     int *idx,
 	     hb_codepoint_t *key,
 	     hb_codepoint_t *value);
+
+HB_EXTERN void
+hb_map_keys (const hb_map_t *map,
+	     hb_set_t *keys);
+
+HB_EXTERN void
+hb_map_values (const hb_map_t *map,
+	       hb_set_t *values);
 
 HB_END_DECLS
 

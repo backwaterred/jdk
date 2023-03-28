@@ -581,21 +581,59 @@ struct hb_buffer_t
 			  unsigned int cluster,
 			  hb_mask_t mask)
   {
-    for (unsigned int i = start; i < end; i++)
-      if (cluster != infos[i].cluster)
+    if (unlikely (start == end))
+      return;
+
+    unsigned cluster_first = infos[start].cluster;
+    unsigned cluster_last = infos[end - 1].cluster;
+
+    if (cluster_level == HB_BUFFER_CLUSTER_LEVEL_CHARACTERS ||
+	(cluster != cluster_first && cluster != cluster_last))
+    {
+      for (unsigned int i = start; i < end; i++)
+	if (cluster != infos[i].cluster)
+	{
+	  scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
+	  infos[i].mask |= mask;
+	}
+      return;
+    }
+
+    /* Monotone clusters */
+
+    if (cluster == cluster_first)
+    {
+      for (unsigned int i = end; start < i && infos[i - 1].cluster != cluster_first; i--)
+      {
+	scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
+	infos[i - 1].mask |= mask;
+      }
+    }
+    else /* cluster == cluster_last */
+    {
+      for (unsigned int i = start; i < end && infos[i].cluster != cluster_last; i++)
       {
 	scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
 	infos[i].mask |= mask;
       }
+    }
   }
-  static unsigned
+  unsigned
   _infos_find_min_cluster (const hb_glyph_info_t *infos,
 			   unsigned start, unsigned end,
 			   unsigned cluster = UINT_MAX)
   {
-    for (unsigned int i = start; i < end; i++)
-      cluster = hb_min (cluster, infos[i].cluster);
-    return cluster;
+    if (unlikely (start == end))
+      return cluster;
+
+    if (cluster_level == HB_BUFFER_CLUSTER_LEVEL_CHARACTERS)
+    {
+      for (unsigned int i = start; i < end; i++)
+	cluster = hb_min (cluster, infos[i].cluster);
+      return cluster;
+    }
+
+    return hb_min (cluster, hb_min (infos[start].cluster, infos[end - 1].cluster));
   }
 
   void clear_glyph_flags (hb_mask_t mask = 0)

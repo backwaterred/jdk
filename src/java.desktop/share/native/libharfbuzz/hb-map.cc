@@ -174,7 +174,7 @@ hb_map_allocation_successful (const hb_map_t  *map)
  *
  * Allocate a copy of @map.
  *
- * Return value: Newly-allocated map.
+ * Return value: (transfer full): Newly-allocated map.
  *
  * Since: 4.4.0
  **/
@@ -182,9 +182,10 @@ hb_map_t *
 hb_map_copy (const hb_map_t *map)
 {
   hb_map_t *copy = hb_map_create ();
-  if (unlikely (!copy)) return nullptr;
-  copy->resize (map->population);
-  hb_copy (*map, *copy);
+  if (unlikely (copy->in_error ()))
+    return hb_map_get_empty ();
+
+  *copy = *map;
   return copy;
 }
 
@@ -348,7 +349,7 @@ hb_map_hash (const hb_map_t *map)
  *
  * Add the contents of @other to @map.
  *
- * Since: REPLACEME
+ * Since: 7.0.0
  **/
 HB_EXTERN void
 hb_map_update (hb_map_t *map,
@@ -374,7 +375,7 @@ hb_map_update (hb_map_t *map,
  *
  * Return value: `true` if there was a next value, `false` otherwise
  *
- * Since: REPLACEME
+ * Since: 7.0.0
  **/
 hb_bool_t
 hb_map_next (const hb_map_t *map,
@@ -383,4 +384,36 @@ hb_map_next (const hb_map_t *map,
 	     hb_codepoint_t *value)
 {
   return map->next (idx, key, value);
+}
+
+/**
+ * hb_map_keys:
+ * @map: A map
+ * @keys: A set
+ *
+ * Add the keys of @map to @keys.
+ *
+ * Since: 7.0.0
+ **/
+void
+hb_map_keys (const hb_map_t *map,
+	     hb_set_t *keys)
+{
+  hb_copy (map->keys() , *keys);
+}
+
+/**
+ * hb_map_values:
+ * @map: A map
+ * @values: A set
+ *
+ * Add the values of @map to @values.
+ *
+ * Since: 7.0.0
+ **/
+void
+hb_map_values (const hb_map_t *map,
+	       hb_set_t *values)
+{
+  hb_copy (map->values() , *values);
 }

@@ -156,19 +156,19 @@ struct hb_subset_layout_context_t :
   {
     if (tag_ == HB_OT_TAG_GSUB)
     {
-      lookup_index_map = c_->plan->gsub_lookups;
-      script_langsys_map = c_->plan->gsub_langsys;
-      feature_index_map = c_->plan->gsub_features;
-      feature_substitutes_map = c_->plan->gsub_feature_substitutes_map;
-      feature_record_cond_idx_map = c_->plan->user_axes_location->is_empty () ? nullptr : c_->plan->gsub_feature_record_cond_idx_map;
+      lookup_index_map = &c_->plan->gsub_lookups;
+      script_langsys_map = &c_->plan->gsub_langsys;
+      feature_index_map = &c_->plan->gsub_features;
+      feature_substitutes_map = &c_->plan->gsub_feature_substitutes_map;
+      feature_record_cond_idx_map = c_->plan->user_axes_location.is_empty () ? nullptr : &c_->plan->gsub_feature_record_cond_idx_map;
     }
     else
     {
-      lookup_index_map = c_->plan->gpos_lookups;
-      script_langsys_map = c_->plan->gpos_langsys;
-      feature_index_map = c_->plan->gpos_features;
-      feature_substitutes_map = c_->plan->gpos_feature_substitutes_map;
-      feature_record_cond_idx_map = c_->plan->user_axes_location->is_empty () ? nullptr : c_->plan->gpos_feature_record_cond_idx_map;
+      lookup_index_map = &c_->plan->gpos_lookups;
+      script_langsys_map = &c_->plan->gpos_langsys;
+      feature_index_map = &c_->plan->gpos_features;
+      feature_substitutes_map = &c_->plan->gpos_feature_substitutes_map;
+      feature_record_cond_idx_map = c_->plan->user_axes_location.is_empty () ? nullptr : &c_->plan->gpos_feature_record_cond_idx_map;
     }
   }
 
@@ -529,6 +529,9 @@ struct FeatureParamsSize
       return_trace (true);
   }
 
+  void collect_name_ids (hb_set_t *nameids_to_retain /* OUT */) const
+  { nameids_to_retain->add (subfamilyNameID); }
+
   bool subset (hb_subset_context_t *c) const
   {
     TRACE_SUBSET (this);
@@ -585,6 +588,9 @@ struct FeatureParamsStylisticSet
     return_trace (c->check_struct (this));
   }
 
+  void collect_name_ids (hb_set_t *nameids_to_retain /* OUT */) const
+  { nameids_to_retain->add (uiNameID); }
+
   bool subset (hb_subset_context_t *c) const
   {
     TRACE_SUBSET (this);
@@ -631,6 +637,20 @@ struct FeatureParamsCharacterVariants
 
   unsigned get_size () const
   { return min_size + characters.len * HBUINT24::static_size; }
+
+  void collect_name_ids (hb_set_t *nameids_to_retain /* OUT */) const
+  {
+    if (featUILableNameID) nameids_to_retain->add (featUILableNameID);
+    if (featUITooltipTextNameID) nameids_to_retain->add (featUITooltipTextNameID);
+    if (sampleTextNameID) nameids_to_retain->add (sampleTextNameID);
+
+    if (!firstParamUILabelNameID || !numNamedParameters || numNamedParameters >= 0x7FFF)
+      return;
+
+    unsigned last_name_id = (unsigned) firstParamUILabelNameID + (unsigned) numNamedParameters - 1;
+    if (last_name_id >= 256 && last_name_id <= 32767)
+      nameids_to_retain->add_range (firstParamUILabelNameID, last_name_id);
+  }
 
   bool subset (hb_subset_context_t *c) const
   {
@@ -692,6 +712,19 @@ struct FeatureParams
     if ((tag & 0xFFFF0000u) == HB_TAG ('c','v','\0','\0')) /* cvXX */
       return_trace (u.characterVariants.sanitize (c));
     return_trace (true);
+  }
+
+  void collect_name_ids (hb_tag_t tag, hb_set_t *nameids_to_retain /* OUT */) const
+  {
+#ifdef HB_NO_LAYOUT_FEATURE_PARAMS
+    return;
+#endif
+    if (tag == HB_TAG ('s','i','z','e'))
+      return (u.size.collect_name_ids (nameids_to_retain));
+    if ((tag & 0xFFFF0000u) == HB_TAG ('s','s','\0','\0')) /* ssXX */
+      return (u.stylisticSet.collect_name_ids (nameids_to_retain));
+    if ((tag & 0xFFFF0000u) == HB_TAG ('c','v','\0','\0')) /* cvXX */
+      return (u.characterVariants.collect_name_ids (nameids_to_retain));
   }
 
   bool subset (hb_subset_context_t *c, const Tag* tag) const
@@ -761,6 +794,12 @@ struct Feature
 
   bool intersects_lookup_indexes (const hb_map_t *lookup_indexes) const
   { return lookupIndex.intersects (lookup_indexes); }
+
+  void collect_name_ids (hb_tag_t tag, hb_set_t *nameids_to_retain /* OUT */) const
+  {
+    if (featureParams)
+      get_feature_params ().collect_name_ids (tag, nameids_to_retain);
+  }
 
   bool subset (hb_subset_context_t         *c,
 	       hb_subset_layout_context_t  *l,
@@ -1145,7 +1184,7 @@ struct Script
   {
     TRACE_SUBSET (this);
     if (!l->visitScript ()) return_trace (false);
-    if (tag && !c->plan->layout_scripts->has (*tag))
+    if (tag && !c->plan->layout_scripts.has (*tag))
       return false;
 
     auto *out = c->serializer->start_embed (*this);
@@ -1353,7 +1392,7 @@ struct Lookup
     // Generally we shouldn't end up with an empty lookup as we pre-prune them during the planning
     // phase, but it can happen in rare cases such as when during closure subtable is considered
     // degenerate (see: https://github.com/harfbuzz/harfbuzz/issues/3853)
-    return true;
+    return_trace (true);
   }
 
   template <typename TSubTable>
@@ -1532,7 +1571,7 @@ struct ClassDefFormat1_3
                const Coverage* glyph_filter = nullptr) const
   {
     TRACE_SUBSET (this);
-    const hb_map_t &glyph_map = *c->plan->glyph_map_gsub;
+    const hb_map_t &glyph_map = c->plan->glyph_map_gsub;
 
     hb_sorted_vector_t<hb_pair_t<hb_codepoint_t, hb_codepoint_t>> glyph_and_klass;
     hb_set_t orig_klasses;
@@ -1777,7 +1816,7 @@ struct ClassDefFormat2_4
                const Coverage* glyph_filter = nullptr) const
   {
     TRACE_SUBSET (this);
-    const hb_map_t &glyph_map = *c->plan->glyph_map_gsub;
+    const hb_map_t &glyph_map = c->plan->glyph_map_gsub;
     const hb_set_t &glyph_set = *c->plan->glyphset_gsub ();
 
     hb_sorted_vector_t<hb_pair_t<hb_codepoint_t, hb_codepoint_t>> glyph_and_klass;
@@ -2233,7 +2272,7 @@ struct VarRegionAxis
 {
   float evaluate (int coord) const
   {
-    int start = startCoord, peak = peakCoord, end = endCoord;
+    int start = startCoord.to_int (), peak = peakCoord.to_int (), end = endCoord.to_int ();
 
     /* TODO Move these to sanitize(). */
     if (unlikely (start > peak || peak > end))
@@ -2353,6 +2392,9 @@ struct VarRegionList
 
 struct VarData
 {
+  unsigned int get_item_count () const
+  { return itemCount; }
+
   unsigned int get_region_index_count () const
   { return regionIndices.len; }
 
@@ -2758,6 +2800,29 @@ struct VariationStore
     return_trace (true);
   }
 
+  VariationStore *copy (hb_serialize_context_t *c) const
+  {
+    TRACE_SERIALIZE (this);
+    auto *out = c->start_embed (this);
+    if (unlikely (!out)) return_trace (nullptr);
+
+    hb_vector_t <hb_inc_bimap_t> inner_maps;
+    unsigned count = dataSets.len;
+    for (unsigned i = 0; i < count; i++)
+    {
+      hb_inc_bimap_t *map = inner_maps.push ();
+      auto &data = this+dataSets[i];
+
+      unsigned itemCount = data.get_item_count ();
+      for (unsigned j = 0; j < itemCount; j++)
+	map->add (j);
+    }
+
+    if (unlikely (!out->serialize (c, this, inner_maps))) return_trace (nullptr);
+
+    return_trace (out);
+  }
+
   bool subset (hb_subset_context_t *c, const hb_array_t<const hb_inc_bimap_t> &inner_maps) const
   {
     TRACE_SUBSET (this);
@@ -2838,7 +2903,7 @@ struct ConditionFormat1
     auto *out = c->serializer->embed (this);
     if (unlikely (!out)) return_trace (false);
 
-    const hb_map_t *index_map = c->plan->axes_index_map;
+    const hb_map_t *index_map = &c->plan->axes_index_map;
     if (index_map->is_empty ()) return_trace (true);
 
     if (!index_map->has (axisIndex))
@@ -2863,8 +2928,8 @@ struct ConditionFormat1
     {
       // add axisIndex->value into the hashmap so we can check if the record is
       // unique with variations
-      int16_t min_val = filterRangeMinValue;
-      int16_t max_val = filterRangeMaxValue;
+      int16_t min_val = filterRangeMinValue.to_int ();
+      int16_t max_val = filterRangeMaxValue.to_int ();
       hb_codepoint_t val = (max_val << 16) + min_val;
 
       condition_map->set (axisIndex, val);
@@ -2876,7 +2941,7 @@ struct ConditionFormat1
     int v = c->axes_location->get (axis_tag);
 
     //condition not met, drop the entire record
-    if (v < filterRangeMinValue || v > filterRangeMaxValue)
+    if (v < filterRangeMinValue.to_int () || v > filterRangeMaxValue.to_int ())
       return DROP_RECORD_WITH_VAR;
 
     //axis pinned and condition met, drop the condition
@@ -2886,7 +2951,7 @@ struct ConditionFormat1
   bool evaluate (const int *coords, unsigned int coord_len) const
   {
     int coord = axisIndex < coord_len ? coords[axisIndex] : 0;
-    return filterRangeMinValue <= coord && coord <= filterRangeMaxValue;
+    return filterRangeMinValue.to_int () <= coord && coord <= filterRangeMaxValue.to_int ();
   }
 
   bool sanitize (hb_sanitize_context_t *c) const
@@ -2926,8 +2991,8 @@ struct Condition
   template <typename context_t, typename ...Ts>
   typename context_t::return_t dispatch (context_t *c, Ts&&... ds) const
   {
+    if (unlikely (!c->may_dispatch (this, &u.format))) return c->no_dispatch_return_value ();
     TRACE_DISPATCH (this, u.format);
-    if (unlikely (!c->may_dispatch (this, &u.format))) return_trace (c->no_dispatch_return_value ());
     switch (u.format) {
     case 1: return_trace (c->dispatch (u.format1, std::forward<Ts> (ds)...));
     default:return_trace (c->default_return_value ());

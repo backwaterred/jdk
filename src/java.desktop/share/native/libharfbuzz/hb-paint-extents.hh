@@ -117,7 +117,7 @@ typedef struct hb_transform_t
     y += y0;
   }
 
-  void transform_extents (hb_extents_t extents) const
+  void transform_extents (hb_extents_t &extents) const
   {
     float quad_x[4], quad_y[4];
 
@@ -130,18 +130,11 @@ typedef struct hb_transform_t
     quad_x[3] = extents.xmax;
     quad_y[3] = extents.ymax;
 
+    extents = hb_extents_t {};
     for (unsigned i = 0; i < 4; i++)
-      transform_point (quad_x[i], quad_y[i]);
-
-    extents.xmin = extents.xmax = quad_x[0];
-    extents.ymin = extents.ymax = quad_y[0];
-
-    for (unsigned i = 1; i < 4; i++)
     {
-      extents.xmin = hb_min (extents.xmin, quad_x[i]);
-      extents.ymin = hb_min (extents.ymin, quad_y[i]);
-      extents.xmax = hb_max (extents.xmax, quad_x[i]);
-      extents.ymax = hb_max (extents.ymax, quad_y[i]);
+      transform_point (quad_x[i], quad_y[i]);
+      extents.add_point (quad_x[i], quad_y[i]);
     }
   }
 
@@ -156,9 +149,9 @@ typedef struct hb_transform_t
 typedef struct hb_bounds_t
 {
   enum status_t {
-    EMPTY,
-    BOUNDED,
     UNBOUNDED,
+    BOUNDED,
+    EMPTY,
   };
 
   hb_bounds_t (status_t status) : status (status) {}
@@ -201,8 +194,8 @@ typedef struct hb_bounds_t
 
 typedef struct  hb_paint_extents_context_t hb_paint_extents_context_t;
 
-struct hb_paint_extents_context_t {
-
+struct hb_paint_extents_context_t
+{
   hb_paint_extents_context_t ()
   {
     transforms.push (hb_transform_t{});

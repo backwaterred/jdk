@@ -42,6 +42,7 @@
   HB_PAINT_FUNC_IMPLEMENT (sweep_gradient) \
   HB_PAINT_FUNC_IMPLEMENT (push_group) \
   HB_PAINT_FUNC_IMPLEMENT (pop_group) \
+  HB_PAINT_FUNC_IMPLEMENT (custom_palette_color) \
   /* ^--- Add new callbacks here */
 
 struct hb_paint_funcs_t
@@ -137,6 +138,13 @@ struct hb_paint_funcs_t
   { func.pop_group (this, paint_data,
                     mode,
                     !user_data ? nullptr : user_data->pop_group); }
+  bool custom_palette_color (void *paint_data,
+                             unsigned int color_index,
+                             hb_color_t *color)
+  { return func.custom_palette_color (this, paint_data,
+                                      color_index,
+                                      color,
+                                      !user_data ? nullptr : user_data->custom_palette_color); }
 
 
   /* Internal specializations. */
@@ -195,8 +203,8 @@ struct hb_paint_funcs_t
     if (!a)
       return false;
 
-    float cc = cosf (a * (float) M_PI);
-    float ss = sinf (a * (float) M_PI);
+    float cc = cosf (a * HB_PI);
+    float ss = sinf (a * HB_PI);
     push_transform (paint_data, cc, ss, -ss, cc, 0.f, 0.f);
     return true;
   }
@@ -208,8 +216,8 @@ struct hb_paint_funcs_t
     if (!sx && !sy)
       return false;
 
-    float x = +tanf (sx * (float) M_PI);
-    float y = -tanf (sy * (float) M_PI);
+    float x = tanf (-sx * HB_PI);
+    float y = tanf (+sy * HB_PI);
     push_transform (paint_data, 1.f, y, x, 1.f, 0.f, 0.f);
     return true;
   }

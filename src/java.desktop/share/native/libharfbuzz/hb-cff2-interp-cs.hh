@@ -163,6 +163,8 @@ struct cff2_cs_interp_env_t : cs_interp_env_t<ELEM, CFF2Subrs>
     return v;
   }
 
+  bool have_coords () const { return num_coords; }
+
   protected:
   const int     *coords;
   unsigned int  num_coords;
@@ -222,7 +224,10 @@ struct cff2_cs_opset_t : cs_opset_t<ELEM, OPSET, cff2_cs_interp_env_t<ELEM>, PAR
 				 const hb_array_t<const ELEM> blends,
 				 unsigned n, unsigned i)
   {
-    arg.set_blends (n, i, blends);
+    if (env.have_coords ())
+      arg.set_int (round (arg.to_real () + env.blend_deltas (blends)));
+    else
+      arg.set_blends (n, i, blends);
   }
   template <typename T = ELEM,
 	    hb_enable_if (!hb_is_same (T, blend_arg_t))>

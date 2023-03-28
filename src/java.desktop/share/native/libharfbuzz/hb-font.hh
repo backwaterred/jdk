@@ -113,8 +113,16 @@ struct hb_font_t
 
   int32_t x_scale;
   int32_t y_scale;
+
+  float x_embolden;
+  float y_embolden;
+  bool embolden_in_place;
+  int32_t x_strength; /* x_embolden, in scaled units. */
+  int32_t y_strength; /* y_embolden, in scaled units. */
+
   float slant;
   float slant_xy;
+
   float x_multf;
   float y_multf;
   int64_t x_mult;
@@ -126,6 +134,7 @@ struct hb_font_t
   float ptem;
 
   /* Font variation coordinates. */
+  unsigned int instance_index;
   unsigned int num_coords;
   int *coords;
   float *design_coords;
@@ -182,14 +191,38 @@ struct hb_font_t
 
   void scale_glyph_extents (hb_glyph_extents_t *extents)
   {
-    extents->x_bearing = em_scale_x (extents->x_bearing);
-    extents->y_bearing = em_scale_y (extents->y_bearing);
-    extents->width = em_scale_x (extents->width);
-    extents->height = em_scale_y (extents->height);
+    float x1 = em_fscale_x (extents->x_bearing);
+    float y1 = em_fscale_y (extents->y_bearing);
+    float x2 = em_fscale_x (extents->x_bearing + extents->width);
+    float y2 = em_fscale_y (extents->y_bearing + extents->height);
 
     /* Apply slant. */
-    extents->x_bearing += roundf (extents->y_bearing * slant_xy);
-    extents->width += roundf (extents->height * slant_xy);
+    if (slant_xy)
+    {
+      x1 += hb_min (y1 * slant_xy, y2 * slant_xy);
+      x2 += hb_max (y1 * slant_xy, y2 * slant_xy);
+    }
+
+    extents->x_bearing = floorf (x1);
+    extents->y_bearing = floorf (y1);
+    extents->width = ceilf (x2) - extents->x_bearing;
+    extents->height = ceilf (y2) - extents->y_bearing;
+
+    if (x_strength || y_strength)
+    {
+      /* Y */
+      int y_shift = y_strength;
+      if (y_scale < 0) y_shift = -y_shift;
+      extents->y_bearing += y_shift;
+      extents->height -= y_shift;
+
+      /* X */
+      int x_shift = x_strength;
+      if (x_scale < 0) x_shift = -x_shift;
+      if (embolden_in_place)
+	extents->x_bearing -= x_shift / 2;
+      extents->width += x_shift;
+    }
   }
 
 
@@ -656,12 +689,17 @@ struct hb_font_t
   void mults_changed ()
   {
     float upem = face->get_upem ();
+
     x_multf = x_scale / upem;
     y_multf = y_scale / upem;
     bool x_neg = x_scale < 0;
     x_mult = (x_neg ? -((int64_t) -x_scale << 16) : ((int64_t) x_scale << 16)) / upem;
     bool y_neg = y_scale < 0;
     y_mult = (y_neg ? -((int64_t) -y_scale << 16) : ((int64_t) y_scale << 16)) / upem;
+
+    x_strength = fabsf (roundf (x_scale * x_embolden));
+    y_strength = fabsf (roundf (y_scale * y_embolden));
+
     slant_xy = y_scale ? slant * x_scale / y_scale : 0.f;
 
     data.fini ();
