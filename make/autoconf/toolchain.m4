@@ -264,7 +264,7 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
       XLC_TEST_PATH=${TOOLCHAIN_PATH}/
     fi
 
-    XLCLANG_VERSION_OUTPUT=`${XLC_TEST_PATH}xlclang++ -qversion 2>&1 | $HEAD -n 1`
+    XLCLANG_VERSION_OUTPUT=`${XLC_TEST_PATH}xlclang++ --version 2>&1 | $HEAD -n 1`
     $ECHO "$XLCLANG_VERSION_OUTPUT" | $GREP "IBM XL C/C++ for AIX" > /dev/null
     if test $? -eq 0; then
       AC_MSG_NOTICE([xlclang++ output: $XLCLANG_VERSION_OUTPUT])
