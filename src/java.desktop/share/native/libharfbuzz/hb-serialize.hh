@@ -31,7 +31,6 @@
 #ifndef HB_SERIALIZE_HH
 #define HB_SERIALIZE_HH
 
-#include "hb.hh"
 #include "hb-blob.hh"
 #include "hb-map.hh"
 #include "hb-pool.hh"
