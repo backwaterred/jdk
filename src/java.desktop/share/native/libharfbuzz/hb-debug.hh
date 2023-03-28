@@ -29,8 +29,6 @@
 
 #include "hb.hh"
 #include "hb-atomic.hh"
-#include "hb-algs.hh"
-
 
 #ifndef HB_DEBUG
 #define HB_DEBUG 0
