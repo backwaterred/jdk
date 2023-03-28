@@ -524,8 +524,6 @@ static_assert ((sizeof (hb_var_int_t) == 4), "");
 #include "hb-number.hh"
 #include "hb-atomic.hh"	// Requires: hb-meta
 #include "hb-null.hh"	// Requires: hb-meta
-#include "hb-algs.hh"	// Requires: hb-meta hb-null hb-number
-#include "hb-iter.hh"	// Requires: hb-algs hb-meta
 #include "hb-debug.hh"	// Requires: hb-algs hb-atomic
 #include "hb-array.hh"	// Requires: hb-algs hb-iter hb-null
 #include "hb-vector.hh"	// Requires: hb-array hb-null
