@@ -28,6 +28,7 @@
 #define HB_SET_DIGEST_HH
 
 #include "hb.hh"
+#include "hb-serialize.hh"
 #include "hb-machinery.hh"
 
 /*

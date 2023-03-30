@@ -32,6 +32,7 @@
 
 #include "hb-cache.hh"
 #include "hb-font.hh"
+#include "hb-serialize.hh"
 #include "hb-machinery.hh"
 #include "hb-ot-face.hh"
 #include "hb-outline.hh"

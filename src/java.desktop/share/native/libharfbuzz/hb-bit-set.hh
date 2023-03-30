@@ -30,6 +30,7 @@
 
 #include "hb.hh"
 #include "hb-bit-page.hh"
+#include "hb-serialize.hh"
 #include "hb-machinery.hh"
 
 

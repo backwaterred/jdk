@@ -31,6 +31,7 @@
 
 #include "hb.hh"
 
+#include "hb-serialize.hh"
 #include "hb-machinery.hh"
 
 

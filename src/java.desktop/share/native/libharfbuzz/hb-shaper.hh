@@ -28,6 +28,7 @@
 #define HB_SHAPER_HH
 
 #include "hb.hh"
+#include "hb-serialize.hh"
 #include "hb-machinery.hh"
 
 typedef hb_bool_t hb_shape_func_t (hb_shape_plan_t    *shape_plan,
