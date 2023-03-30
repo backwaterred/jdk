@@ -32,6 +32,7 @@
 #include "hb-bit-page.hh"
 #include "hb-serialize.hh"
 #include "hb-machinery.hh"
+#include "hb-map.hh"
 
 
 struct hb_bit_set_t
