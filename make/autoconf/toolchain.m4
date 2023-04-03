@@ -281,7 +281,7 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
   TOOLCHAIN_CXX_BINARY_clang="clang++"
   TOOLCHAIN_CXX_BINARY_gcc="g++"
   TOOLCHAIN_CXX_BINARY_microsoft="cl"
-  TOOLCHAIN_CXX_BINARY_xlc="xlclang++"
+  TOOLCHAIN_CXX_BINARY_xlc="xlclang++ -E"
 
   # Use indirect variable referencing
   toolchain_var_name=TOOLCHAIN_DESCRIPTION_$TOOLCHAIN_TYPE
