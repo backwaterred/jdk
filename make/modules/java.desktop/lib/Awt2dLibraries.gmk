@@ -457,7 +457,7 @@ else
    # Early re-canonizing has to be disabled to workaround an internal XlC compiler error
    # when building libharfbuzz
    ifeq ($(call isTargetOs, aix), true)
-     HARFBUZZ_CFLAGS += -qdebug=necan -qtempinc -v
+     HARFBUZZ_CFLAGS += -qdebug=necan -qtemplatedepth=512 -v
    endif
 
    # hb-ft.cc is not presently needed, and requires freetype 2.4.2 or later.
