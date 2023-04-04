@@ -32,6 +32,7 @@
 
 #include "hb-subset.h"
 
+#include "hb-array.hh"
 #include "hb-serialize.hh"
 #include "hb-machinery.hh"
 #include "hb-subset-input.hh"
