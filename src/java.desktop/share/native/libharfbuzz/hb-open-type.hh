@@ -32,6 +32,7 @@
 #include "hb.hh"
 #include "hb-blob.hh"
 #include "hb-face.hh"
+#include "hb-serialize.hh"
 #include "hb-machinery.hh"
 #include "hb-meta.hh"
 #include "hb-subset.hh"
