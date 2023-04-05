@@ -121,13 +121,13 @@ struct hb_sanitize_context_t :
        hb_dispatch_context_t<hb_sanitize_context_t, bool, HB_DEBUG_SANITIZE>
 {
   hb_sanitize_context_t () :
-        start (nullptr), end (nullptr),
-        max_ops (0), max_subtables (0),
+	start (nullptr), end (nullptr),
+	max_ops (0), max_subtables (0),
         recursion_depth (0),
-        writable (false), edit_count (0),
-        blob (nullptr),
-        num_glyphs (65536),
-        num_glyphs_set (false) {}
+	writable (false), edit_count (0),
+	blob (nullptr),
+	num_glyphs (65536),
+	num_glyphs_set (false) {}
 
   const char *get_name () { return "SANITIZE"; }
   template <typename T, typename F>
@@ -203,23 +203,23 @@ struct hb_sanitize_context_t :
       this->max_ops = HB_SANITIZE_MAX_OPS_MAX;
     else
       this->max_ops = hb_clamp (m,
-                                (unsigned) HB_SANITIZE_MAX_OPS_MIN,
-                                (unsigned) HB_SANITIZE_MAX_OPS_MAX);
+				(unsigned) HB_SANITIZE_MAX_OPS_MIN,
+				(unsigned) HB_SANITIZE_MAX_OPS_MAX);
     this->edit_count = 0;
     this->debug_depth = 0;
     this->recursion_depth = 0;
 
     DEBUG_MSG_LEVEL (SANITIZE, start, 0, +1,
-                     "start [%p..%p] (%lu bytes)",
-                     this->start, this->end,
-                     (unsigned long) (this->end - this->start));
+		     "start [%p..%p] (%lu bytes)",
+		     this->start, this->end,
+		     (unsigned long) (this->end - this->start));
   }
 
   void end_processing ()
   {
     DEBUG_MSG_LEVEL (SANITIZE, this->start, 0, -1,
-                     "end [%p..%p] %u edit requests",
-                     this->start, this->end, this->edit_count);
+		     "end [%p..%p] %u edit requests",
+		     this->start, this->end, this->edit_count);
 
     hb_blob_destroy (this->blob);
     this->blob = nullptr;
@@ -228,45 +228,57 @@ struct hb_sanitize_context_t :
 
   unsigned get_edit_count () { return edit_count; }
 
+
+  bool check_ops(unsigned count)
+  {
+    /* Avoid underflow */
+    if (unlikely (this->max_ops < 0 || count >= (unsigned) this->max_ops))
+    {
+      this->max_ops = -1;
+      return false;
+    }
+    return (this->max_ops -= (int) count) > 0;
+  }
+
   bool check_range (const void *base,
-                    unsigned int len) const
+		    unsigned int len) const
   {
     const char *p = (const char *) base;
     bool ok = !len ||
-              (this->start <= p &&
-               p <= this->end &&
-               (unsigned int) (this->end - p) >= len &&
-               (this->max_ops -= len) > 0);
+	      (this->start <= p &&
+	       p <= this->end &&
+	       (unsigned int) (this->end - p) >= len &&
+	       (this->max_ops -= len) > 0);
 
     DEBUG_MSG_LEVEL (SANITIZE, p, this->debug_depth+1, 0,
-                     "check_range [%p..%p]"
-                     " (%u bytes) in [%p..%p] -> %s",
-                     p, p + len, len,
-                     this->start, this->end,
-                     ok ? "OK" : "OUT-OF-RANGE");
+		     "check_range [%p..%p]"
+		     " (%u bytes) in [%p..%p] -> %s",
+		     p, p + len, len,
+		     this->start, this->end,
+		     ok ? "OK" : "OUT-OF-RANGE");
 
     return likely (ok);
   }
 
   template <typename T>
   bool check_range (const T *base,
-                    unsigned int a,
-                    unsigned int b) const
+		    unsigned int a,
+		    unsigned int b) const
   {
     unsigned m;
     return !hb_unsigned_mul_overflows (a, b, &m) &&
-           this->check_range (base, m);
+	   this->check_range (base, m);
   }
 
   template <typename T>
   bool check_range (const T *base,
-                    unsigned int a,
-                    unsigned int b,
-                    unsigned int c) const
+		    unsigned int a,
+		    unsigned int b,
+		    unsigned int c) const
   {
     unsigned m;
     return !hb_unsigned_mul_overflows (a, b, &m) &&
-           this->check_range (base, m, c);
+	   this->check_range (base, m, c);
   }
 
   template <typename T>
@@ -277,8 +289,8 @@ struct hb_sanitize_context_t :
 
   template <typename T>
   bool check_array (const T *base,
-                    unsigned int a,
-                    unsigned int b) const
+		    unsigned int a,
+		    unsigned int b) const
   {
     return this->check_range (base, a, b, hb_static_size (T));
   }
@@ -353,30 +365,30 @@ struct hb_sanitize_context_t :
     {
       if (edit_count)
       {
-        DEBUG_MSG_FUNC (SANITIZE, start, "passed first round with %u edits; going for second round", edit_count);
+	DEBUG_MSG_FUNC (SANITIZE, start, "passed first round with %u edits; going for second round", edit_count);
 
-        /* sanitize again to ensure no toe-stepping */
-        edit_count = 0;
-        sane = t->sanitize (this);
-        if (edit_count) {
-          DEBUG_MSG_FUNC (SANITIZE, start, "requested %u edits in second round; FAILLING", edit_count);
-          sane = false;
-        }
+	/* sanitize again to ensure no toe-stepping */
+	edit_count = 0;
+	sane = t->sanitize (this);
+	if (edit_count) {
+	  DEBUG_MSG_FUNC (SANITIZE, start, "requested %u edits in second round; FAILLING", edit_count);
+	  sane = false;
+	}
       }
     }
     else
     {
       if (edit_count && !writable) {
-        start = hb_blob_get_data_writable (blob, nullptr);
-        end = start + blob->length;
+	start = hb_blob_get_data_writable (blob, nullptr);
+	end = start + blob->length;
 
-        if (start)
-        {
-          writable = true;
-          /* ok, we made it writable by relocating.  try again */
-          DEBUG_MSG_FUNC (SANITIZE, start, "retry");
-          goto retry;
-        }
+	if (start)
+	{
+	  writable = true;
+	  /* ok, we made it writable by relocating.  try again */
+	  DEBUG_MSG_FUNC (SANITIZE, start, "retry");
+	  goto retry;
+	}
       }
     }
 

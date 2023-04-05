@@ -157,7 +157,7 @@ struct hb_paint_funcs_t
     float slant = font->slant_xy;
 
     push_transform (paint_data,
-                    xscale/upem, 0, slant * yscale/upem, yscale/upem, 0, 0);
+		    xscale/upem, 0, slant * yscale/upem, yscale/upem, 0, 0);
   }
 
   void push_inverse_root_transform (void *paint_data,
@@ -169,7 +169,7 @@ struct hb_paint_funcs_t
     float slant = font->slant_xy;
 
     push_transform (paint_data,
-                    upem/xscale, 0, -slant * upem/xscale, upem/yscale, 0, 0);
+		    upem/xscale, 0, -slant * upem/xscale, upem/yscale, 0, 0);
   }
 
   HB_NODISCARD
@@ -180,7 +180,7 @@ struct hb_paint_funcs_t
       return false;
 
     push_transform (paint_data,
-                    1.f, 0.f, 0.f, 1.f, dx, dy);
+		    1.f, 0.f, 0.f, 1.f, dx, dy);
     return true;
   }
 
@@ -192,7 +192,7 @@ struct hb_paint_funcs_t
       return false;
 
     push_transform (paint_data,
-                    sx, 0.f, 0.f, sy, 0.f, 0.f);
+		    sx, 0.f, 0.f, sy, 0.f, 0.f);
     return true;
   }
 

@@ -20,8 +20,8 @@ struct SubsetGlyph
   hb_bytes_t dest_end;    /* region of source_glyph to copy second */
 
   bool serialize (hb_serialize_context_t *c,
-                  bool use_short_loca,
-                  const hb_subset_plan_t *plan)
+		  bool use_short_loca,
+		  const hb_subset_plan_t *plan)
   {
     TRACE_SERIALIZE (this);
 
@@ -45,7 +45,7 @@ struct SubsetGlyph
     {
       hb_codepoint_t new_gid;
       if (plan->new_gid_for_old_gid (_.get_gid(), &new_gid))
-        const_cast<CompositeGlyphRecord &> (_).set_gid (new_gid);
+	const_cast<CompositeGlyphRecord &> (_).set_gid (new_gid);
     }
 
     if (plan->flags & HB_SUBSET_FLAGS_NO_HINTING)

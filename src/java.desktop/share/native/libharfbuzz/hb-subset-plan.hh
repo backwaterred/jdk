@@ -70,7 +70,7 @@ typedef struct head_maxp_info_t head_maxp_info_t;
 struct hb_subset_plan_t
 {
   HB_INTERNAL hb_subset_plan_t (hb_face_t *,
-                                const hb_subset_input_t *input);
+				const hb_subset_input_t *input);
 
   ~hb_subset_plan_t()
   {
@@ -276,7 +276,7 @@ struct hb_subset_plan_t
   }
 
   inline bool new_gid_for_codepoint (hb_codepoint_t codepoint,
-                                     hb_codepoint_t *new_gid) const
+				     hb_codepoint_t *new_gid) const
   {
     hb_codepoint_t old_gid = codepoint_to_glyph->get (codepoint);
     if (old_gid == HB_MAP_VALUE_INVALID)
@@ -286,7 +286,7 @@ struct hb_subset_plan_t
   }
 
   inline bool new_gid_for_old_gid (hb_codepoint_t old_gid,
-                                   hb_codepoint_t *new_gid) const
+				   hb_codepoint_t *new_gid) const
   {
     hb_codepoint_t gid = glyph_map->get (old_gid);
     if (gid == HB_MAP_VALUE_INVALID)
@@ -297,7 +297,7 @@ struct hb_subset_plan_t
   }
 
   inline bool old_gid_for_new_gid (hb_codepoint_t  new_gid,
-                                   hb_codepoint_t *old_gid) const
+				   hb_codepoint_t *old_gid) const
   {
     hb_codepoint_t gid = reverse_glyph_map->get (new_gid);
     if (gid == HB_MAP_VALUE_INVALID)
@@ -309,15 +309,15 @@ struct hb_subset_plan_t
 
   inline bool
   add_table (hb_tag_t tag,
-             hb_blob_t *contents)
+	     hb_blob_t *contents)
   {
     if (HB_DEBUG_SUBSET)
     {
       hb_blob_t *source_blob = source->reference_table (tag);
       DEBUG_MSG(SUBSET, nullptr, "add table %c%c%c%c, dest %u bytes, source %u bytes",
-                HB_UNTAG(tag),
-                hb_blob_get_length (contents),
-                hb_blob_get_length (source_blob));
+		HB_UNTAG(tag),
+		hb_blob_get_length (contents),
+		hb_blob_get_length (source_blob));
       hb_blob_destroy (source_blob);
     }
     return hb_face_builder_add_table (dest, tag, contents);

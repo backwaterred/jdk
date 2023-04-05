@@ -39,7 +39,7 @@
 extern HB_INTERNAL const hb_codepoint_t minus_1;
 
 template <typename K, typename V,
-          bool minus_one = false>
+	  bool minus_one = false>
 struct hb_hashmap_t
 {
   hb_hashmap_t ()  { init (); }
@@ -56,7 +56,7 @@ struct hb_hashmap_t
       set (item.first, item.second);
   }
   template <typename Iterable,
-            hb_requires (hb_is_iterable (Iterable))>
+	    hb_requires (hb_is_iterable (Iterable))>
   hb_hashmap_t (const Iterable &o) : hb_hashmap_t ()
   {
     auto iter = hb_iter (o);
@@ -74,9 +74,9 @@ struct hb_hashmap_t
     V value;
 
     item_t () : key (),
-                hash (0),
-                is_used_ (false), is_tombstone_ (false),
-                value () {}
+		hash (0),
+		is_used_ (false), is_tombstone_ (false),
+		value () {}
 
     bool is_used () const { return is_used_; }
     void set_used (bool is_used) { is_used_ = is_used; }
@@ -85,10 +85,10 @@ struct hb_hashmap_t
     bool is_real () const { return is_used_ && !is_tombstone_; }
 
     template <bool v = minus_one,
-              hb_enable_if (v == false)>
+	      hb_enable_if (v == false)>
     static inline const V& default_value () { return Null(V); };
     template <bool v = minus_one,
-              hb_enable_if (v == true)>
+	      hb_enable_if (v == true)>
     static inline const V& default_value ()
     {
       static_assert (hb_is_same (V, hb_codepoint_t), "");
@@ -188,9 +188,9 @@ struct hb_hashmap_t
     {
       if (old_items[i].is_real ())
       {
-        set_with_hash (std::move (old_items[i].key),
-                       old_items[i].hash,
-                       std::move (old_items[i].value));
+	set_with_hash (std::move (old_items[i].key),
+		       old_items[i].hash,
+		       std::move (old_items[i].value));
       }
       old_items[i].~item_t ();
     }
@@ -214,7 +214,7 @@ struct hb_hashmap_t
     {
       occupancy--;
       if (!item.is_tombstone ())
-        population--;
+	population--;
     }
 
     item.key = std::forward<KK> (key);
@@ -317,16 +317,6 @@ struct hb_hashmap_t
     hb_copy (other, *this);
   }
 
-  void keys (hb_set_t &keys_) const
-  {
-    hb_copy (keys() , keys_);
-  }
-
-  void values (hb_set_t &values_) const
-  {
-    hb_copy (values() , values_);
-  }
-
   /*
    * Iterator
    */
@@ -369,8 +359,8 @@ struct hb_hashmap_t
 
   /* C iterator. */
   bool next (int *idx,
-             K *key,
-             V *value) const
+	     K *key,
+	     V *value) const
   {
     unsigned i = (unsigned) (*idx + 1);
 
@@ -410,9 +400,9 @@ struct hb_hashmap_t
     while (items[i].is_used ())
     {
       if (items[i].hash == hash && items[i] == key)
-        return items[i];
+	return items[i];
       if (tombstone == (unsigned) -1 && items[i].is_tombstone ())
-        tombstone = i;
+	tombstone = i;
       i = (i + ++step) & mask;
     }
     return items[tombstone == (unsigned) -1 ? i : tombstone];
@@ -475,12 +465,12 @@ struct hb_hashmap_t
  */
 
 struct hb_map_t : hb_hashmap_t<hb_codepoint_t,
-                               hb_codepoint_t,
-                               true>
+			       hb_codepoint_t,
+			       true>
 {
   using hashmap = hb_hashmap_t<hb_codepoint_t,
-                               hb_codepoint_t,
-                               true>;
+			       hb_codepoint_t,
+			       true>;
 
   ~hb_map_t () = default;
   hb_map_t () : hashmap () {}
@@ -490,7 +480,7 @@ struct hb_map_t : hb_hashmap_t<hb_codepoint_t,
   hb_map_t& operator= (hb_map_t&&) = default;
   hb_map_t (std::initializer_list<hb_pair_t<hb_codepoint_t, hb_codepoint_t>> lst) : hashmap (lst) {}
   template <typename Iterable,
-            hb_requires (hb_is_iterable (Iterable))>
+	    hb_requires (hb_is_iterable (Iterable))>
   hb_map_t (const Iterable &o) : hashmap (o) {}
 };
 

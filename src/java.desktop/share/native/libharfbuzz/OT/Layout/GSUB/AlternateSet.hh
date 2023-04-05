@@ -61,8 +61,8 @@ struct AlternateSet
     {
       c->buffer->sync_so_far ();
       c->buffer->message (c->font,
-                          "replacing glyph at %u (alternate substitution)",
-                          c->buffer->idx);
+			  "replacing glyph at %u (alternate substitution)",
+			  c->buffer->idx);
     }
 
     c->replace_glyph (alternates[alt_index - 1]);
@@ -70,8 +70,8 @@ struct AlternateSet
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "replaced glyph at %u (alternate substitution)",
-                          c->buffer->idx - 1u);
+			  "replaced glyph at %u (alternate substitution)",
+			  c->buffer->idx - 1u);
     }
 
     return_trace (true);

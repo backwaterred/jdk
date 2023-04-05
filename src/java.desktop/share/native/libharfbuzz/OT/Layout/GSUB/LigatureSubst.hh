@@ -12,10 +12,10 @@ struct LigatureSubst
 {
   protected:
   union {
-  HBUINT16                              format;         /* Format identifier */
-  LigatureSubstFormat1_2<SmallTypes>    format1;
+  HBUINT16				format;         /* Format identifier */
+  LigatureSubstFormat1_2<SmallTypes>	format1;
 #ifndef HB_NO_BEYOND_64K
-  LigatureSubstFormat1_2<MediumTypes>   format2;
+  LigatureSubstFormat1_2<MediumTypes>	format2;
 #endif
   } u;
 

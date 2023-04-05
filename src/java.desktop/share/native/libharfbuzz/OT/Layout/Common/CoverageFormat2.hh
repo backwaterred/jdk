@@ -117,7 +117,7 @@ struct CoverageFormat2_4
     {
       for (hb_codepoint_t g = HB_SET_VALUE_INVALID; glyphs->next (&g);)
         if (get_coverage (g) != NOT_COVERED)
-          return true;
+	  return true;
       return false;
     }
 
@@ -133,7 +133,7 @@ struct CoverageFormat2_4
   }
 
   template <typename IterableOut,
-            hb_requires (hb_is_sink_of (IterableOut, hb_codepoint_t))>
+	    hb_requires (hb_is_sink_of (IterableOut, hb_codepoint_t))>
   void intersect_set (const hb_set_t &glyphs, IterableOut&& intersect_glyphs) const
   {
     /* Break out of loop for overlapping, broken, tables,
@@ -145,8 +145,8 @@ struct CoverageFormat2_4
         break;
       last = range.last;
       for (hb_codepoint_t g = range.first - 1;
-           glyphs.next (&g) && g <= last;)
-        intersect_glyphs << g;
+	   glyphs.next (&g) && g <= last;)
+	intersect_glyphs << g;
     }
   }
 

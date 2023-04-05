@@ -13,8 +13,8 @@ namespace glyf_impl {
 
 
 template<typename IteratorIn, typename IteratorOut,
-         hb_requires (hb_is_source_of (IteratorIn, unsigned int)),
-         hb_requires (hb_is_sink_of (IteratorOut, unsigned))>
+	 hb_requires (hb_is_source_of (IteratorIn, unsigned int)),
+	 hb_requires (hb_is_sink_of (IteratorOut, unsigned))>
 static void
 _write_loca (IteratorIn&& it, bool short_offsets, IteratorOut&& dest)
 {
@@ -23,11 +23,11 @@ _write_loca (IteratorIn&& it, bool short_offsets, IteratorOut&& dest)
   dest << 0;
   + it
   | hb_map ([=, &offset] (unsigned int padded_size)
-            {
-              offset += padded_size;
-              DEBUG_MSG (SUBSET, nullptr, "loca entry offset %u", offset);
-              return offset >> right_shift;
-            })
+	    {
+	      offset += padded_size;
+	      DEBUG_MSG (SUBSET, nullptr, "loca entry offset %u", offset);
+	      return offset >> right_shift;
+	    })
   | hb_sink (dest)
   ;
 }
@@ -65,7 +65,7 @@ _add_head_and_set_loca_version (hb_subset_plan_t *plan, bool use_short_loca)
 }
 
 template<typename Iterator,
-         hb_requires (hb_is_source_of (Iterator, unsigned int))>
+	 hb_requires (hb_is_source_of (Iterator, unsigned int))>
 static bool
 _add_loca_and_head (hb_subset_plan_t * plan, Iterator padded_offsets, bool use_short_loca)
 {
@@ -76,7 +76,7 @@ _add_loca_and_head (hb_subset_plan_t * plan, Iterator padded_offsets, bool use_s
   if (unlikely (!loca_prime_data)) return false;
 
   DEBUG_MSG (SUBSET, nullptr, "loca entry_size %u num_offsets %u size %u",
-             entry_size, num_offsets, entry_size * num_offsets);
+	     entry_size, num_offsets, entry_size * num_offsets);
 
   if (use_short_loca)
     _write_loca (padded_offsets, true, hb_array ((HBUINT16 *) loca_prime_data, num_offsets));
@@ -84,13 +84,13 @@ _add_loca_and_head (hb_subset_plan_t * plan, Iterator padded_offsets, bool use_s
     _write_loca (padded_offsets, false, hb_array ((HBUINT32 *) loca_prime_data, num_offsets));
 
   hb_blob_t *loca_blob = hb_blob_create (loca_prime_data,
-                                         entry_size * num_offsets,
-                                         HB_MEMORY_MODE_WRITABLE,
-                                         loca_prime_data,
-                                         hb_free);
+					 entry_size * num_offsets,
+					 HB_MEMORY_MODE_WRITABLE,
+					 loca_prime_data,
+					 hb_free);
 
   bool result = plan->add_table (HB_OT_TAG_loca, loca_blob)
-             && _add_head_and_set_loca_version (plan, use_short_loca);
+	     && _add_head_and_set_loca_version (plan, use_short_loca);
 
   hb_blob_destroy (loca_blob);
   return result;

@@ -73,8 +73,8 @@ struct SinglePosFormat2
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "positioning glyph at %u",
-                          c->buffer->idx);
+			  "positioning glyph at %u",
+			  c->buffer->idx);
     }
 
     valueFormat.apply_value (c, this,
@@ -84,8 +84,8 @@ struct SinglePosFormat2
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "positioned glyph at %u",
-                          c->buffer->idx);
+			  "positioned glyph at %u",
+			  c->buffer->idx);
     }
 
     buffer->idx++;
@@ -94,9 +94,9 @@ struct SinglePosFormat2
 
   bool
   position_single (hb_font_t           *font,
-                   hb_direction_t       direction,
-                   hb_codepoint_t       gid,
-                   hb_glyph_position_t &pos) const
+		   hb_direction_t       direction,
+		   hb_codepoint_t       gid,
+		   hb_glyph_position_t &pos) const
   {
     unsigned int index = (this+coverage).get_coverage  (gid);
     if (likely (index == NOT_COVERED)) return false;

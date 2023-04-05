@@ -100,8 +100,8 @@ struct cff2_path_procs_extents_t : path_procs_t<cff2_path_procs_extents_t, cff2_
 struct cff2_cs_opset_extents_t : cff2_cs_opset_t<cff2_cs_opset_extents_t, cff2_extents_param_t, number_t, cff2_path_procs_extents_t> {};
 
 bool OT::cff2::accelerator_t::get_extents (hb_font_t *font,
-                                           hb_codepoint_t glyph,
-                                           hb_glyph_extents_t *extents) const
+					   hb_codepoint_t glyph,
+					   hb_glyph_extents_t *extents) const
 {
 #ifdef HB_NO_OT_FONT_CFF
   /* XXX Remove check when this code moves to .hh file. */
@@ -169,8 +169,8 @@ struct cff2_path_param_t
   void cubic_to (const point_t &p1, const point_t &p2, const point_t &p3)
   {
     draw_session->cubic_to (font->em_fscalef_x (p1.x.to_real ()), font->em_fscalef_y (p1.y.to_real ()),
-                           font->em_fscalef_x (p2.x.to_real ()), font->em_fscalef_y (p2.y.to_real ()),
-                           font->em_fscalef_x (p3.x.to_real ()), font->em_fscalef_y (p3.y.to_real ()));
+			   font->em_fscalef_x (p2.x.to_real ()), font->em_fscalef_y (p2.y.to_real ()),
+			   font->em_fscalef_x (p3.x.to_real ()), font->em_fscalef_y (p3.y.to_real ()));
   }
 
   protected:

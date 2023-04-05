@@ -12,12 +12,12 @@ struct PairPos
 {
   protected:
   union {
-  HBUINT16                      format;         /* Format identifier */
-  PairPosFormat1_3<SmallTypes>  format1;
-  PairPosFormat2_4<SmallTypes>  format2;
+  HBUINT16			format;         /* Format identifier */
+  PairPosFormat1_3<SmallTypes>	format1;
+  PairPosFormat2_4<SmallTypes>	format2;
 #ifndef HB_NO_BEYOND_64K
-  PairPosFormat1_3<MediumTypes> format3;
-  PairPosFormat2_4<MediumTypes> format4;
+  PairPosFormat1_3<MediumTypes>	format3;
+  PairPosFormat2_4<MediumTypes>	format4;
 #endif
   } u;
 

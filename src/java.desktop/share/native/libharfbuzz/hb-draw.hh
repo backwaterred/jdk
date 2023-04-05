@@ -63,38 +63,38 @@ struct hb_draw_funcs_t
   } *destroy;
 
   void emit_move_to (void *draw_data, hb_draw_state_t &st,
-                     float to_x, float to_y)
+		     float to_x, float to_y)
   { func.move_to (this, draw_data, &st,
-                  to_x, to_y,
-                  !user_data ? nullptr : user_data->move_to); }
+		  to_x, to_y,
+		  !user_data ? nullptr : user_data->move_to); }
   void emit_line_to (void *draw_data, hb_draw_state_t &st,
-                     float to_x, float to_y)
+		     float to_x, float to_y)
   { func.line_to (this, draw_data, &st,
-                  to_x, to_y,
-                  !user_data ? nullptr : user_data->line_to); }
+		  to_x, to_y,
+		  !user_data ? nullptr : user_data->line_to); }
   void emit_quadratic_to (void *draw_data, hb_draw_state_t &st,
-                          float control_x, float control_y,
-                          float to_x, float to_y)
+			  float control_x, float control_y,
+			  float to_x, float to_y)
   { func.quadratic_to (this, draw_data, &st,
-                       control_x, control_y,
-                       to_x, to_y,
-                       !user_data ? nullptr : user_data->quadratic_to); }
+		       control_x, control_y,
+		       to_x, to_y,
+		       !user_data ? nullptr : user_data->quadratic_to); }
   void emit_cubic_to (void *draw_data, hb_draw_state_t &st,
-                      float control1_x, float control1_y,
-                      float control2_x, float control2_y,
-                      float to_x, float to_y)
+		      float control1_x, float control1_y,
+		      float control2_x, float control2_y,
+		      float to_x, float to_y)
   { func.cubic_to (this, draw_data, &st,
-                   control1_x, control1_y,
-                   control2_x, control2_y,
-                   to_x, to_y,
-                   !user_data ? nullptr : user_data->cubic_to); }
+		   control1_x, control1_y,
+		   control2_x, control2_y,
+		   to_x, to_y,
+		   !user_data ? nullptr : user_data->cubic_to); }
   void emit_close_path (void *draw_data, hb_draw_state_t &st)
   { func.close_path (this, draw_data, &st,
-                     !user_data ? nullptr : user_data->close_path); }
+		     !user_data ? nullptr : user_data->close_path); }
 
 
   void move_to (void *draw_data, hb_draw_state_t &st,
-                float to_x, float to_y)
+		float to_x, float to_y)
   {
     if (st.path_open) close_path (draw_data, st);
     st.current_x = to_x;
@@ -102,7 +102,7 @@ struct hb_draw_funcs_t
   }
 
   void line_to (void *draw_data, hb_draw_state_t &st,
-                float to_x, float to_y)
+		float to_x, float to_y)
   {
     if (!st.path_open) start_path (draw_data, st);
     emit_line_to (draw_data, st, to_x, to_y);
@@ -112,8 +112,8 @@ struct hb_draw_funcs_t
 
   void
   quadratic_to (void *draw_data, hb_draw_state_t &st,
-                float control_x, float control_y,
-                float to_x, float to_y)
+		float control_x, float control_y,
+		float to_x, float to_y)
   {
     if (!st.path_open) start_path (draw_data, st);
     emit_quadratic_to (draw_data, st, control_x, control_y, to_x, to_y);
@@ -123,9 +123,9 @@ struct hb_draw_funcs_t
 
   void
   cubic_to (void *draw_data, hb_draw_state_t &st,
-            float control1_x, float control1_y,
-            float control2_x, float control2_y,
-            float to_x, float to_y)
+	    float control1_x, float control1_y,
+	    float control2_x, float control2_y,
+	    float to_x, float to_y)
   {
     if (!st.path_open) start_path (draw_data, st);
     emit_cubic_to (draw_data, st, control1_x, control1_y, control2_x, control2_y, to_x, to_y);
@@ -139,7 +139,7 @@ struct hb_draw_funcs_t
     if (st.path_open)
     {
       if ((st.path_start_x != st.current_x) || (st.path_start_y != st.current_y))
-        emit_line_to (draw_data, st, st.path_start_x, st.path_start_y);
+	emit_line_to (draw_data, st, st.path_start_x, st.path_start_y);
       emit_close_path (draw_data, st);
     }
     st.path_open = false;
@@ -172,48 +172,48 @@ struct hb_draw_session_t
   {
     if (likely (not_slanted))
       funcs->move_to (draw_data, st,
-                      to_x, to_y);
+		      to_x, to_y);
     else
       funcs->move_to (draw_data, st,
-                      to_x + to_y * slant, to_y);
+		      to_x + to_y * slant, to_y);
   }
   void line_to (float to_x, float to_y)
   {
     if (likely (not_slanted))
       funcs->line_to (draw_data, st,
-                      to_x, to_y);
+		      to_x, to_y);
     else
       funcs->line_to (draw_data, st,
-                      to_x + to_y * slant, to_y);
+		      to_x + to_y * slant, to_y);
   }
   void
   quadratic_to (float control_x, float control_y,
-                float to_x, float to_y)
+		float to_x, float to_y)
   {
     if (likely (not_slanted))
       funcs->quadratic_to (draw_data, st,
-                           control_x, control_y,
-                           to_x, to_y);
+			   control_x, control_y,
+			   to_x, to_y);
     else
       funcs->quadratic_to (draw_data, st,
-                           control_x + control_y * slant, control_y,
-                           to_x + to_y * slant, to_y);
+			   control_x + control_y * slant, control_y,
+			   to_x + to_y * slant, to_y);
   }
   void
   cubic_to (float control1_x, float control1_y,
-            float control2_x, float control2_y,
-            float to_x, float to_y)
+	    float control2_x, float control2_y,
+	    float to_x, float to_y)
   {
     if (likely (not_slanted))
       funcs->cubic_to (draw_data, st,
-                       control1_x, control1_y,
-                       control2_x, control2_y,
-                       to_x, to_y);
+		       control1_x, control1_y,
+		       control2_x, control2_y,
+		       to_x, to_y);
     else
       funcs->cubic_to (draw_data, st,
-                       control1_x + control1_y * slant, control1_y,
-                       control2_x + control2_y * slant, control2_y,
-                       to_x + to_y * slant, to_y);
+		       control1_x + control1_y * slant, control1_y,
+		       control2_x + control2_y * slant, control2_y,
+		       to_x + to_y * slant, to_y);
   }
   void close_path ()
   {

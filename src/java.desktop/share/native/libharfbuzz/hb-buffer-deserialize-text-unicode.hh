@@ -34,125 +34,125 @@
 
 #line 33 "hb-buffer-deserialize-text-unicode.hh"
 static const unsigned char _deserialize_text_unicode_trans_keys[] = {
-        0u, 0u, 9u, 117u, 43u, 102u, 48u, 102u, 48u, 57u, 9u, 124u, 9u, 124u, 9u, 124u,
-        9u, 124u, 0
+	0u, 0u, 9u, 117u, 43u, 102u, 48u, 102u, 48u, 57u, 9u, 124u, 9u, 124u, 9u, 124u, 
+	9u, 124u, 0
 };
 
 static const char _deserialize_text_unicode_key_spans[] = {
-        0, 109, 60, 55, 10, 116, 116, 116,
-        116
+	0, 109, 60, 55, 10, 116, 116, 116, 
+	116
 };
 
 static const short _deserialize_text_unicode_index_offsets[] = {
-        0, 0, 110, 171, 227, 238, 355, 472,
-        589
+	0, 0, 110, 171, 227, 238, 355, 472, 
+	589
 };
 
 static const char _deserialize_text_unicode_indicies[] = {
-        0, 0, 0, 0, 0, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        0, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 2, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 2, 1, 3,
-        1, 1, 1, 1, 4, 4, 4, 4,
-        4, 4, 4, 4, 4, 4, 1, 1,
-        1, 1, 1, 1, 1, 4, 4, 4,
-        4, 4, 4, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 4, 4, 4,
-        4, 4, 4, 1, 4, 4, 4, 4,
-        4, 4, 4, 4, 4, 4, 1, 1,
-        1, 1, 1, 1, 1, 4, 4, 4,
-        4, 4, 4, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 4, 4, 4,
-        4, 4, 4, 1, 5, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 1, 7,
-        7, 7, 7, 7, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 7, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8,
-        1, 1, 1, 9, 1, 1, 1, 8,
-        8, 8, 8, 8, 8, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 8,
-        8, 8, 8, 8, 8, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 10, 1, 11, 11, 11, 11,
-        11, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 11, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 0,
-        1, 12, 12, 12, 12, 12, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        12, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 13, 1, 12, 12,
-        12, 12, 12, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 12, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 14, 14, 14,
-        14, 14, 14, 14, 14, 14, 14, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 13, 1, 0
+	0, 0, 0, 0, 0, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	0, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 2, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 2, 1, 3, 
+	1, 1, 1, 1, 4, 4, 4, 4, 
+	4, 4, 4, 4, 4, 4, 1, 1, 
+	1, 1, 1, 1, 1, 4, 4, 4, 
+	4, 4, 4, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 4, 4, 4, 
+	4, 4, 4, 1, 4, 4, 4, 4, 
+	4, 4, 4, 4, 4, 4, 1, 1, 
+	1, 1, 1, 1, 1, 4, 4, 4, 
+	4, 4, 4, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 4, 4, 4, 
+	4, 4, 4, 1, 5, 6, 6, 6, 
+	6, 6, 6, 6, 6, 6, 1, 7, 
+	7, 7, 7, 7, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 7, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 8, 8, 
+	8, 8, 8, 8, 8, 8, 8, 8, 
+	1, 1, 1, 9, 1, 1, 1, 8, 
+	8, 8, 8, 8, 8, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 8, 
+	8, 8, 8, 8, 8, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 10, 1, 11, 11, 11, 11, 
+	11, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 11, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 0, 
+	1, 12, 12, 12, 12, 12, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	12, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 13, 1, 12, 12, 
+	12, 12, 12, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 12, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 14, 14, 14, 
+	14, 14, 14, 14, 14, 14, 14, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 1, 
+	1, 13, 1, 0
 };
 
 static const char _deserialize_text_unicode_trans_targs[] = {
-        1, 0, 2, 3, 5, 7, 8, 6,
-        5, 4, 1, 6, 6, 1, 8
+	1, 0, 2, 3, 5, 7, 8, 6, 
+	5, 4, 1, 6, 6, 1, 8
 };
 
 static const char _deserialize_text_unicode_trans_actions[] = {
-        0, 0, 1, 0, 2, 2, 2, 3,
-        0, 4, 3, 0, 5, 5, 0
+	0, 0, 1, 0, 2, 2, 2, 3, 
+	0, 4, 3, 0, 5, 5, 0
 };
 
 static const char _deserialize_text_unicode_eof_actions[] = {
-        0, 0, 0, 0, 0, 3, 0, 5,
-        5
+	0, 0, 0, 0, 0, 3, 0, 5, 
+	5
 };
 
 static const int deserialize_text_unicode_start = 1;
@@ -167,10 +167,10 @@ static const int deserialize_text_unicode_en_main = 1;
 
 static hb_bool_t
 _hb_buffer_deserialize_text_unicode (hb_buffer_t *buffer,
-                                     const char *buf,
-                                     unsigned int buf_len,
-                                     const char **end_ptr,
-                                     hb_font_t *font)
+				     const char *buf,
+				     unsigned int buf_len,
+				     const char **end_ptr,
+				     hb_font_t *font)
 {
   const char *p = buf, *pe = buf + buf_len, *eof = pe, *orig_pe = pe;
 
@@ -196,123 +196,123 @@ _hb_buffer_deserialize_text_unicode (hb_buffer_t *buffer,
   int cs;
   hb_glyph_info_t info = {0};
   const hb_glyph_position_t pos = {0};
-
+  
 #line 194 "hb-buffer-deserialize-text-unicode.hh"
-        {
-        cs = deserialize_text_unicode_start;
-        }
+	{
+	cs = deserialize_text_unicode_start;
+	}
 
 #line 197 "hb-buffer-deserialize-text-unicode.hh"
-        {
-        int _slen;
-        int _trans;
-        const unsigned char *_keys;
-        const char *_inds;
-        if ( p == pe )
-                goto _test_eof;
-        if ( cs == 0 )
-                goto _out;
+	{
+	int _slen;
+	int _trans;
+	const unsigned char *_keys;
+	const char *_inds;
+	if ( p == pe )
+		goto _test_eof;
+	if ( cs == 0 )
+		goto _out;
 _resume:
-        _keys = _deserialize_text_unicode_trans_keys + (cs<<1);
-        _inds = _deserialize_text_unicode_indicies + _deserialize_text_unicode_index_offsets[cs];
+	_keys = _deserialize_text_unicode_trans_keys + (cs<<1);
+	_inds = _deserialize_text_unicode_indicies + _deserialize_text_unicode_index_offsets[cs];
 
-        _slen = _deserialize_text_unicode_key_spans[cs];
-        _trans = _inds[ _slen > 0 && _keys[0] <=(*p) &&
-                (*p) <= _keys[1] ?
-                (*p) - _keys[0] : _slen ];
+	_slen = _deserialize_text_unicode_key_spans[cs];
+	_trans = _inds[ _slen > 0 && _keys[0] <=(*p) &&
+		(*p) <= _keys[1] ?
+		(*p) - _keys[0] : _slen ];
 
-        cs = _deserialize_text_unicode_trans_targs[_trans];
+	cs = _deserialize_text_unicode_trans_targs[_trans];
 
-        if ( _deserialize_text_unicode_trans_actions[_trans] == 0 )
-                goto _again;
+	if ( _deserialize_text_unicode_trans_actions[_trans] == 0 )
+		goto _again;
 
-        switch ( _deserialize_text_unicode_trans_actions[_trans] ) {
-        case 1:
+	switch ( _deserialize_text_unicode_trans_actions[_trans] ) {
+	case 1:
 #line 38 "hb-buffer-deserialize-text-unicode.rl"
-        {
-        hb_memset (&info, 0, sizeof (info));
+	{
+	hb_memset (&info, 0, sizeof (info));
 }
-        break;
-        case 2:
+	break;
+	case 2:
 #line 51 "hb-buffer-deserialize-text-unicode.rl"
-        {
-        tok = p;
+	{
+	tok = p;
 }
-        break;
-        case 4:
+	break;
+	case 4:
 #line 55 "hb-buffer-deserialize-text-unicode.rl"
-        {if (!parse_hex (tok, p, &info.codepoint )) return false; }
-        break;
-        case 3:
+	{if (!parse_hex (tok, p, &info.codepoint )) return false; }
+	break;
+	case 3:
 #line 55 "hb-buffer-deserialize-text-unicode.rl"
-        {if (!parse_hex (tok, p, &info.codepoint )) return false; }
+	{if (!parse_hex (tok, p, &info.codepoint )) return false; }
 #line 42 "hb-buffer-deserialize-text-unicode.rl"
-        {
-        buffer->add_info (info);
-        if (unlikely (!buffer->successful))
-          return false;
-        if (buffer->have_positions)
-          buffer->pos[buffer->len - 1] = pos;
-        *end_ptr = p;
+	{
+	buffer->add_info (info);
+	if (unlikely (!buffer->successful))
+	  return false;
+	if (buffer->have_positions)
+	  buffer->pos[buffer->len - 1] = pos;
+	*end_ptr = p;
 }
-        break;
-        case 5:
+	break;
+	case 5:
 #line 57 "hb-buffer-deserialize-text-unicode.rl"
-        { if (!parse_uint (tok, p, &info.cluster )) return false; }
+	{ if (!parse_uint (tok, p, &info.cluster )) return false; }
 #line 42 "hb-buffer-deserialize-text-unicode.rl"
-        {
-        buffer->add_info (info);
-        if (unlikely (!buffer->successful))
-          return false;
-        if (buffer->have_positions)
-          buffer->pos[buffer->len - 1] = pos;
-        *end_ptr = p;
+	{
+	buffer->add_info (info);
+	if (unlikely (!buffer->successful))
+	  return false;
+	if (buffer->have_positions)
+	  buffer->pos[buffer->len - 1] = pos;
+	*end_ptr = p;
 }
-        break;
+	break;
 #line 256 "hb-buffer-deserialize-text-unicode.hh"
-        }
+	}
 
 _again:
-        if ( cs == 0 )
-                goto _out;
-        if ( ++p != pe )
-                goto _resume;
-        _test_eof: {}
-        if ( p == eof )
-        {
-        switch ( _deserialize_text_unicode_eof_actions[cs] ) {
-        case 3:
+	if ( cs == 0 )
+		goto _out;
+	if ( ++p != pe )
+		goto _resume;
+	_test_eof: {}
+	if ( p == eof )
+	{
+	switch ( _deserialize_text_unicode_eof_actions[cs] ) {
+	case 3:
 #line 55 "hb-buffer-deserialize-text-unicode.rl"
-        {if (!parse_hex (tok, p, &info.codepoint )) return false; }
+	{if (!parse_hex (tok, p, &info.codepoint )) return false; }
 #line 42 "hb-buffer-deserialize-text-unicode.rl"
-        {
-        buffer->add_info (info);
-        if (unlikely (!buffer->successful))
-          return false;
-        if (buffer->have_positions)
-          buffer->pos[buffer->len - 1] = pos;
-        *end_ptr = p;
+	{
+	buffer->add_info (info);
+	if (unlikely (!buffer->successful))
+	  return false;
+	if (buffer->have_positions)
+	  buffer->pos[buffer->len - 1] = pos;
+	*end_ptr = p;
 }
-        break;
-        case 5:
+	break;
+	case 5:
 #line 57 "hb-buffer-deserialize-text-unicode.rl"
-        { if (!parse_uint (tok, p, &info.cluster )) return false; }
+	{ if (!parse_uint (tok, p, &info.cluster )) return false; }
 #line 42 "hb-buffer-deserialize-text-unicode.rl"
-        {
-        buffer->add_info (info);
-        if (unlikely (!buffer->successful))
-          return false;
-        if (buffer->have_positions)
-          buffer->pos[buffer->len - 1] = pos;
-        *end_ptr = p;
+	{
+	buffer->add_info (info);
+	if (unlikely (!buffer->successful))
+	  return false;
+	if (buffer->have_positions)
+	  buffer->pos[buffer->len - 1] = pos;
+	*end_ptr = p;
 }
-        break;
+	break;
 #line 289 "hb-buffer-deserialize-text-unicode.hh"
-        }
-        }
+	}
+	}
 
-        _out: {}
-        }
+	_out: {}
+	}
 
 #line 115 "hb-buffer-deserialize-text-unicode.rl"
 

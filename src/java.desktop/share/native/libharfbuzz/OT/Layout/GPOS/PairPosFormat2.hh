@@ -220,8 +220,8 @@ struct PairPosFormat2_4
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "try kerning glyphs at %u,%u",
-                          c->buffer->idx, skippy_iter.idx);
+			  "try kerning glyphs at %u,%u",
+			  c->buffer->idx, skippy_iter.idx);
     }
 
     applied_first = valueFormat1.apply_value (c, this, v, buffer->cur_pos());
@@ -230,16 +230,16 @@ struct PairPosFormat2_4
     if (applied_first || applied_second)
       if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
       {
-        c->buffer->message (c->font,
-                            "kerned glyphs at %u,%u",
-                            c->buffer->idx, skippy_iter.idx);
+	c->buffer->message (c->font,
+			    "kerned glyphs at %u,%u",
+			    c->buffer->idx, skippy_iter.idx);
       }
 
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "tried kerning glyphs at %u,%u",
-                          c->buffer->idx, skippy_iter.idx);
+			  "tried kerning glyphs at %u,%u",
+			  c->buffer->idx, skippy_iter.idx);
     }
 
     success:

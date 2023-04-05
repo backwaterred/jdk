@@ -55,7 +55,7 @@ namespace OT {
 
 /* Integer types in big-endian order and no alignment requirement */
 template <typename Type,
-          unsigned int Size = sizeof (Type)>
+	  unsigned int Size = sizeof (Type)>
 struct IntType
 {
   typedef Type type;
@@ -87,16 +87,16 @@ struct IntType
     return pb->cmp (*pa);
   }
   template <typename Type2,
-            hb_enable_if (std::is_integral<Type2>::value &&
-                          sizeof (Type2) < sizeof (int) &&
-                          sizeof (Type) < sizeof (int))>
+	    hb_enable_if (std::is_integral<Type2>::value &&
+			  sizeof (Type2) < sizeof (int) &&
+			  sizeof (Type) < sizeof (int))>
   int cmp (Type2 a) const
   {
     Type b = v;
     return (int) a - (int) b;
   }
   template <typename Type2,
-            hb_enable_if (hb_is_convertible (Type2, Type))>
+	    hb_enable_if (hb_is_convertible (Type2, Type))>
   int cmp (Type2 a) const
   {
     Type b = v;
@@ -113,15 +113,15 @@ struct IntType
   DEFINE_SIZE_STATIC (Size);
 };
 
-typedef IntType<uint8_t>  HBUINT8;      /* 8-bit unsigned integer. */
-typedef IntType<int8_t>   HBINT8;       /* 8-bit signed integer. */
-typedef IntType<uint16_t> HBUINT16;     /* 16-bit unsigned integer. */
-typedef IntType<int16_t>  HBINT16;      /* 16-bit signed integer. */
-typedef IntType<uint32_t> HBUINT32;     /* 32-bit unsigned integer. */
-typedef IntType<int32_t>  HBINT32;      /* 32-bit signed integer. */
+typedef IntType<uint8_t>  HBUINT8;	/* 8-bit unsigned integer. */
+typedef IntType<int8_t>   HBINT8;	/* 8-bit signed integer. */
+typedef IntType<uint16_t> HBUINT16;	/* 16-bit unsigned integer. */
+typedef IntType<int16_t>  HBINT16;	/* 16-bit signed integer. */
+typedef IntType<uint32_t> HBUINT32;	/* 32-bit unsigned integer. */
+typedef IntType<int32_t>  HBINT32;	/* 32-bit signed integer. */
 /* Note: we cannot defined a signed HBINT24 because there's no corresponding C type.
  * Works for unsigned, but not signed, since we rely on compiler for sign-extension. */
-typedef IntType<uint32_t, 3> HBUINT24;  /* 24-bit unsigned integer. */
+typedef IntType<uint32_t, 3> HBUINT24;	/* 24-bit unsigned integer. */
 
 /* 15-bit unsigned number; top bit used for extension. */
 struct HBUINT15 : HBUINT16
@@ -314,7 +314,7 @@ struct OffsetTo : Offset<OffsetType, has_null>
 {
   // Make sure Type is not unbounded; works only for types that are fully defined at OffsetTo time.
   static_assert (has_null == false ||
-                 (hb_has_null_size (Type) || !hb_has_min_size (Type)), "");
+		 (hb_has_null_size (Type) || !hb_has_min_size (Type)), "");
 
   HB_DELETE_COPY_ASSIGN (OffsetTo);
   OffsetTo () = default;
@@ -333,22 +333,22 @@ struct OffsetTo : Offset<OffsetType, has_null>
   }
 
   template <typename Base,
-            hb_enable_if (hb_is_convertible (const Base, const void *))>
+	    hb_enable_if (hb_is_convertible (const Base, const void *))>
   friend const Type& operator + (const Base &base, const OffsetTo &offset) { return offset ((const void *) base); }
   template <typename Base,
-            hb_enable_if (hb_is_convertible (const Base, const void *))>
+	    hb_enable_if (hb_is_convertible (const Base, const void *))>
   friend const Type& operator + (const OffsetTo &offset, const Base &base) { return offset ((const void *) base); }
   template <typename Base,
-            hb_enable_if (hb_is_convertible (Base, void *))>
+	    hb_enable_if (hb_is_convertible (Base, void *))>
   friend Type& operator + (Base &&base, OffsetTo &offset) { return offset ((void *) base); }
   template <typename Base,
-            hb_enable_if (hb_is_convertible (Base, void *))>
+	    hb_enable_if (hb_is_convertible (Base, void *))>
   friend Type& operator + (OffsetTo &offset, Base &&base) { return offset ((void *) base); }
 
 
   template <typename ...Ts>
   bool serialize_subset (hb_subset_context_t *c, const OffsetTo& src,
-                         const void *src_base, Ts&&... ds)
+			 const void *src_base, Ts&&... ds)
   {
     *this = 0;
     if (src.is_null ())
@@ -391,9 +391,9 @@ struct OffsetTo : Offset<OffsetType, has_null>
    */
   template <typename ...Ts>
   bool serialize_copy (hb_serialize_context_t *c, const OffsetTo& src,
-                       const void *src_base, unsigned dst_bias,
-                       hb_serialize_context_t::whence_t whence,
-                       Ts&&... ds)
+		       const void *src_base, unsigned dst_bias,
+		       hb_serialize_context_t::whence_t whence,
+		       Ts&&... ds)
   {
     *this = 0;
     if (src.is_null ())
@@ -409,7 +409,7 @@ struct OffsetTo : Offset<OffsetType, has_null>
   }
 
   bool serialize_copy (hb_serialize_context_t *c, const OffsetTo& src,
-                       const void *src_base, unsigned dst_bias = 0)
+		       const void *src_base, unsigned dst_bias = 0)
   { return serialize_copy (c, src, src_base, dst_bias, hb_serialize_context_t::Head); }
 
   bool sanitize_shallow (hb_sanitize_context_t *c, const void *base) const
@@ -426,9 +426,9 @@ struct OffsetTo : Offset<OffsetType, has_null>
   {
     TRACE_SANITIZE (this);
     return_trace (sanitize_shallow (c, base) &&
-                  (this->is_null () ||
-                   c->dispatch (StructAtOffset<Type> (base, *this), std::forward<Ts> (ds)...) ||
-                   neuter (c)));
+		  (this->is_null () ||
+		   c->dispatch (StructAtOffset<Type> (base, *this), std::forward<Ts> (ds)...) ||
+		   neuter (c)));
   }
 
   /* Set the offset to Null */
@@ -497,8 +497,8 @@ struct UnsizedArrayOf
   { return *as_array (len).lsearch (x, &not_found); }
   template <typename T>
   bool lfind (unsigned int len, const T &x, unsigned int *i = nullptr,
-              hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
-              unsigned int to_store = (unsigned int) -1) const
+	      hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
+	      unsigned int to_store = (unsigned int) -1) const
   { return as_array (len).lfind (x, i, not_found, to_store); }
 
   void qsort (unsigned int len, unsigned int start = 0, unsigned int end = (unsigned int) -1)
@@ -511,7 +511,7 @@ struct UnsizedArrayOf
     return_trace (true);
   }
   template <typename Iterator,
-            hb_requires (hb_is_source_of (Iterator, Type))>
+	    hb_requires (hb_is_source_of (Iterator, Type))>
   bool serialize (hb_serialize_context_t *c, Iterator items)
   {
     TRACE_SERIALIZE (this);
@@ -540,7 +540,7 @@ struct UnsizedArrayOf
     if (!sizeof... (Ts) && hb_is_trivially_copyable(Type)) return_trace (true);
     for (unsigned int i = 0; i < count; i++)
       if (unlikely (!c->dispatch (arrayZ[i], std::forward<Ts> (ds)...)))
-        return_trace (false);
+	return_trace (false);
     return_trace (true);
   }
 
@@ -551,7 +551,7 @@ struct UnsizedArrayOf
   }
 
   public:
-  Type          arrayZ[HB_VAR_ARRAY];
+  Type		arrayZ[HB_VAR_ARRAY];
   public:
   DEFINE_SIZE_UNBOUNDED (0);
 };
@@ -586,7 +586,7 @@ struct UnsizedListOfOffset16To : UnsizedArray16OfOffsetTo<Type, OffsetType, has_
   {
     TRACE_SANITIZE (this);
     return_trace ((UnsizedArray16OfOffsetTo<Type, OffsetType, has_null>
-                   ::sanitize (c, count, this, std::forward<Ts> (ds)...)));
+		   ::sanitize (c, count, this, std::forward<Ts> (ds)...)));
   }
 };
 
@@ -609,8 +609,8 @@ struct SortedUnsizedArrayOf : UnsizedArrayOf<Type>
   { return *as_array (len).bsearch (x, &not_found); }
   template <typename T>
   bool bfind (unsigned int len, const T &x, unsigned int *i = nullptr,
-              hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
-              unsigned int to_store = (unsigned int) -1) const
+	      hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
+	      unsigned int to_store = (unsigned int) -1) const
   { return as_array (len).bfind (x, i, not_found, to_store); }
 };
 
@@ -669,8 +669,8 @@ struct ArrayOf
   { return *as_array ().lsearch (x, &not_found); }
   template <typename T>
   bool lfind (const T &x, unsigned int *i = nullptr,
-              hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
-              unsigned int to_store = (unsigned int) -1) const
+	      hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
+	      unsigned int to_store = (unsigned int) -1) const
   { return as_array ().lfind (x, i, not_found, to_store); }
 
   void qsort ()
@@ -685,7 +685,7 @@ struct ArrayOf
     return_trace (true);
   }
   template <typename Iterator,
-            hb_requires (hb_is_source_of (Iterator, Type))>
+	    hb_requires (hb_is_source_of (Iterator, Type))>
   HB_NODISCARD bool serialize (hb_serialize_context_t *c, Iterator items)
   {
     TRACE_SERIALIZE (this);
@@ -729,7 +729,7 @@ struct ArrayOf
     unsigned int count = len;
     for (unsigned int i = 0; i < count; i++)
       if (unlikely (!c->dispatch (arrayZ[i], std::forward<Ts> (ds)...)))
-        return_trace (false);
+	return_trace (false);
     return_trace (true);
   }
 
@@ -740,8 +740,8 @@ struct ArrayOf
   }
 
   public:
-  LenType       len;
-  Type          arrayZ[HB_VAR_ARRAY];
+  LenType	len;
+  Type		arrayZ[HB_VAR_ARRAY];
   public:
   DEFINE_SIZE_ARRAY (sizeof (LenType), arrayZ);
 };
@@ -847,7 +847,7 @@ struct HeadlessArrayOf
     return_trace (true);
   }
   template <typename Iterator,
-            hb_requires (hb_is_source_of (Iterator, Type))>
+	    hb_requires (hb_is_source_of (Iterator, Type))>
   HB_NODISCARD bool serialize (hb_serialize_context_t *c, Iterator items)
   {
     TRACE_SERIALIZE (this);
@@ -869,7 +869,7 @@ struct HeadlessArrayOf
     unsigned int count = get_length ();
     for (unsigned int i = 0; i < count; i++)
       if (unlikely (!c->dispatch (arrayZ[i], std::forward<Ts> (ds)...)))
-        return_trace (false);
+	return_trace (false);
     return_trace (true);
   }
 
@@ -878,12 +878,12 @@ struct HeadlessArrayOf
   {
     TRACE_SANITIZE (this);
     return_trace (lenP1.sanitize (c) &&
-                  (!lenP1 || c->check_array (arrayZ, lenP1 - 1)));
+		  (!lenP1 || c->check_array (arrayZ, lenP1 - 1)));
   }
 
   public:
-  LenType       lenP1;
-  Type          arrayZ[HB_VAR_ARRAY];
+  LenType	lenP1;
+  Type		arrayZ[HB_VAR_ARRAY];
   public:
   DEFINE_SIZE_ARRAY (sizeof (LenType), arrayZ);
 };
@@ -920,7 +920,7 @@ struct ArrayOfM1
     unsigned int count = lenM1 + 1;
     for (unsigned int i = 0; i < count; i++)
       if (unlikely (!c->dispatch (arrayZ[i], std::forward<Ts> (ds)...)))
-        return_trace (false);
+	return_trace (false);
     return_trace (true);
   }
 
@@ -929,12 +929,12 @@ struct ArrayOfM1
   {
     TRACE_SANITIZE (this);
     return_trace (lenM1.sanitize (c) &&
-                  (c->check_array (arrayZ, lenM1 + 1)));
+		  (c->check_array (arrayZ, lenM1 + 1)));
   }
 
   public:
-  LenType       lenM1;
-  Type          arrayZ[HB_VAR_ARRAY];
+  LenType	lenM1;
+  Type		arrayZ[HB_VAR_ARRAY];
   public:
   DEFINE_SIZE_ARRAY (sizeof (LenType), arrayZ);
 };
@@ -965,7 +965,7 @@ struct SortedArrayOf : ArrayOf<Type, LenType>
     return_trace (ret);
   }
   template <typename Iterator,
-            hb_requires (hb_is_sorted_source_of (Iterator, Type))>
+	    hb_requires (hb_is_sorted_source_of (Iterator, Type))>
   bool serialize (hb_serialize_context_t *c, Iterator items)
   {
     TRACE_SERIALIZE (this);
@@ -981,8 +981,8 @@ struct SortedArrayOf : ArrayOf<Type, LenType>
   { return *as_array ().bsearch (x, &not_found); }
   template <typename T>
   bool bfind (const T &x, unsigned int *i = nullptr,
-              hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
-              unsigned int to_store = (unsigned int) -1) const
+	      hb_not_found_t not_found = HB_NOT_FOUND_DONT_STORE,
+	      unsigned int to_store = (unsigned int) -1) const
   { return as_array ().bfind (x, i, not_found, to_store); }
 };
 
@@ -1012,16 +1012,16 @@ struct BinSearchHeader
     entrySelector = hb_max (1u, hb_bit_storage (v)) - 1;
     searchRange = 16 * (1u << entrySelector);
     rangeShift = v * 16 > searchRange
-                 ? 16 * v - searchRange
-                 : 0;
+		 ? 16 * v - searchRange
+		 : 0;
     return *this;
   }
 
   protected:
-  LenType       len;
-  LenType       searchRange;
-  LenType       entrySelector;
-  LenType       rangeShift;
+  LenType	len;
+  LenType	searchRange;
+  LenType	entrySelector;
+  LenType	rangeShift;
 
   public:
   DEFINE_SIZE_STATIC (8);
@@ -1040,15 +1040,15 @@ struct VarSizedBinSearchHeader
     return_trace (c->check_struct (this));
   }
 
-  HBUINT16      unitSize;       /* Size of a lookup unit for this search in bytes. */
-  HBUINT16      nUnits;         /* Number of units of the preceding size to be searched. */
-  HBUINT16      searchRange;    /* The value of unitSize times the largest power of 2
-                                 * that is less than or equal to the value of nUnits. */
-  HBUINT16      entrySelector;  /* The log base 2 of the largest power of 2 less than
-                                 * or equal to the value of nUnits. */
-  HBUINT16      rangeShift;     /* The value of unitSize times the difference of the
-                                 * value of nUnits minus the largest power of 2 less
-                                 * than or equal to the value of nUnits. */
+  HBUINT16	unitSize;	/* Size of a lookup unit for this search in bytes. */
+  HBUINT16	nUnits;		/* Number of units of the preceding size to be searched. */
+  HBUINT16	searchRange;	/* The value of unitSize times the largest power of 2
+				 * that is less than or equal to the value of nUnits. */
+  HBUINT16	entrySelector;	/* The log base 2 of the largest power of 2 less than
+				 * or equal to the value of nUnits. */
+  HBUINT16	rangeShift;	/* The value of unitSize times the difference of the
+				 * value of nUnits minus the largest power of 2 less
+				 * than or equal to the value of nUnits. */
   public:
   DEFINE_SIZE_STATIC (10);
 };
@@ -1072,7 +1072,7 @@ struct VarSizedBinSearchArrayOf
     unsigned int count = Type::TerminationWordCount;
     for (unsigned int i = 0; i < count; i++)
       if (words[i] != 0xFFFFu)
-        return false;
+	return false;
     return true;
   }
 
@@ -1104,7 +1104,7 @@ struct VarSizedBinSearchArrayOf
     unsigned int count = get_length ();
     for (unsigned int i = 0; i < count; i++)
       if (unlikely (!(*this)[i].sanitize (c, std::forward<Ts> (ds)...)))
-        return_trace (false);
+	return_trace (false);
     return_trace (true);
   }
 
@@ -1113,13 +1113,13 @@ struct VarSizedBinSearchArrayOf
   {
     unsigned pos;
     return hb_bsearch_impl (&pos,
-                            key,
-                            (const void *) bytesZ,
-                            get_length (),
-                            header.unitSize,
-                            _hb_cmp_method<T, Type>)
-           ? (const Type *) (((const char *) &bytesZ) + (pos * header.unitSize))
-           : nullptr;
+			    key,
+			    (const void *) bytesZ,
+			    get_length (),
+			    header.unitSize,
+			    _hb_cmp_method<T, Type>)
+	   ? (const Type *) (((const char *) &bytesZ) + (pos * header.unitSize))
+	   : nullptr;
   }
 
   private:
@@ -1127,15 +1127,15 @@ struct VarSizedBinSearchArrayOf
   {
     TRACE_SANITIZE (this);
     return_trace (header.sanitize (c) &&
-                  Type::static_size <= header.unitSize &&
-                  c->check_range (bytesZ.arrayZ,
-                                  header.nUnits,
-                                  header.unitSize));
+		  Type::static_size <= header.unitSize &&
+		  c->check_range (bytesZ.arrayZ,
+				  header.nUnits,
+				  header.unitSize));
   }
 
   protected:
-  VarSizedBinSearchHeader       header;
-  UnsizedArrayOf<HBUINT8>       bytesZ;
+  VarSizedBinSearchHeader	header;
+  UnsizedArrayOf<HBUINT8>	bytesZ;
   public:
   DEFINE_SIZE_ARRAY (10, bytesZ);
 };

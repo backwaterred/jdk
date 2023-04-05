@@ -81,8 +81,8 @@ typedef struct hb_transform_t
 {
   hb_transform_t () {}
   hb_transform_t (float xx, float yx,
-                  float xy, float yy,
-                  float x0, float y0) :
+		  float xy, float yy,
+		  float x0, float y0) :
     xx (xx), yx (yx), xy (xy), yy (yy), x0 (x0), y0 (y0) {}
 
   void multiply (const hb_transform_t &o)
@@ -165,7 +165,7 @@ typedef struct hb_bounds_t
     else if (o.status == BOUNDED)
     {
       if (status == EMPTY)
-        *this = o;
+	*this = o;
       else if (status == BOUNDED)
         extents.union_ (o.extents);
     }
@@ -178,12 +178,12 @@ typedef struct hb_bounds_t
     else if (o.status == BOUNDED)
     {
       if (status == UNBOUNDED)
-        *this = o;
+	*this = o;
       else if (status == BOUNDED)
       {
         extents.intersect (o.extents);
-        if (extents.is_empty ())
-          status = EMPTY;
+	if (extents.is_empty ())
+	  status = EMPTY;
       }
     }
   }
@@ -253,22 +253,22 @@ struct hb_paint_extents_context_t
     switch ((int) mode)
     {
       case HB_PAINT_COMPOSITE_MODE_CLEAR:
-        backdrop_bounds.status = hb_bounds_t::EMPTY;
-        break;
+	backdrop_bounds.status = hb_bounds_t::EMPTY;
+	break;
       case HB_PAINT_COMPOSITE_MODE_SRC:
       case HB_PAINT_COMPOSITE_MODE_SRC_OUT:
-        backdrop_bounds = src_bounds;
-        break;
+	backdrop_bounds = src_bounds;
+	break;
       case HB_PAINT_COMPOSITE_MODE_DEST:
       case HB_PAINT_COMPOSITE_MODE_DEST_OUT:
-        break;
+	break;
       case HB_PAINT_COMPOSITE_MODE_SRC_IN:
       case HB_PAINT_COMPOSITE_MODE_DEST_IN:
-        backdrop_bounds.intersect (src_bounds);
-        break;
+	backdrop_bounds.intersect (src_bounds);
+	break;
       default:
-        backdrop_bounds.union_ (src_bounds);
-        break;
+	backdrop_bounds.union_ (src_bounds);
+	break;
      }
   }
 

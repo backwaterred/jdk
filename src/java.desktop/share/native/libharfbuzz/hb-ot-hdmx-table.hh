@@ -45,7 +45,7 @@ struct DeviceRecord
   { return hb_ceil_to_4 (min_size + count * HBUINT8::static_size); }
 
   template<typename Iterator,
-           hb_requires (hb_is_iterator (Iterator))>
+	   hb_requires (hb_is_iterator (Iterator))>
   bool serialize (hb_serialize_context_t *c, unsigned pixelSize, Iterator it)
   {
     TRACE_SERIALIZE (this);
@@ -69,12 +69,12 @@ struct DeviceRecord
   {
     TRACE_SANITIZE (this);
     return_trace (likely (c->check_struct (this) &&
-                          c->check_range (this, sizeDeviceRecord)));
+			  c->check_range (this, sizeDeviceRecord)));
   }
 
-  HBUINT8                       pixelSize;      /* Pixel size for following widths (as ppem). */
-  HBUINT8                       maxWidth;       /* Maximum width. */
-  UnsizedArrayOf<HBUINT8>       widthsZ;        /* Array of widths (numGlyphs is from the 'maxp' table). */
+  HBUINT8			pixelSize;	/* Pixel size for following widths (as ppem). */
+  HBUINT8			maxWidth;	/* Maximum width. */
+  UnsizedArrayOf<HBUINT8>	widthsZ;	/* Array of widths (numGlyphs is from the 'maxp' table). */
   public:
   DEFINE_SIZE_ARRAY (2, widthsZ);
 };
@@ -96,7 +96,7 @@ struct hdmx
   }
 
   template<typename Iterator,
-           hb_requires (hb_is_iterator (Iterator))>
+	   hb_requires (hb_is_iterator (Iterator))>
   bool serialize (hb_serialize_context_t *c, unsigned version, Iterator it)
   {
     TRACE_SERIALIZE (this);
@@ -124,22 +124,22 @@ struct hdmx
     auto it =
     + hb_range ((unsigned) numRecords)
     | hb_map ([c, this] (unsigned _)
-        {
-          const DeviceRecord *device_record =
-            &StructAtOffset<DeviceRecord> (&firstDeviceRecord,
-                                           _ * sizeDeviceRecord);
-          auto row =
-            + hb_range (c->plan->num_output_glyphs ())
-            | hb_map (c->plan->reverse_glyph_map)
-            | hb_map ([this, c, device_record] (hb_codepoint_t _)
-                      {
-                        if (c->plan->is_empty_glyph (_))
-                          return Null (HBUINT8);
-                        return device_record->widthsZ.as_array (get_num_glyphs ()) [_];
-                      })
-            ;
-          return hb_pair ((unsigned) device_record->pixelSize, +row);
-        })
+	{
+	  const DeviceRecord *device_record =
+	    &StructAtOffset<DeviceRecord> (&firstDeviceRecord,
+					   _ * sizeDeviceRecord);
+	  auto row =
+	    + hb_range (c->plan->num_output_glyphs ())
+	    | hb_map (c->plan->reverse_glyph_map)
+	    | hb_map ([this, c, device_record] (hb_codepoint_t _)
+		      {
+			if (c->plan->is_empty_glyph (_))
+			  return Null (HBUINT8);
+			return device_record->widthsZ.as_array (get_num_glyphs ()) [_];
+		      })
+	    ;
+	  return hb_pair ((unsigned) device_record->pixelSize, +row);
+	})
     ;
 
     hdmx_prime->serialize (c->serializer, version, it);
@@ -155,19 +155,19 @@ struct hdmx
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-                  !hb_unsigned_mul_overflows (numRecords, sizeDeviceRecord) &&
+		  !hb_unsigned_mul_overflows (numRecords, sizeDeviceRecord) &&
                   min_size + numRecords * sizeDeviceRecord > numRecords * sizeDeviceRecord &&
-                  sizeDeviceRecord >= DeviceRecord::min_size &&
-                  c->check_range (this, get_size ()));
+		  sizeDeviceRecord >= DeviceRecord::min_size &&
+		  c->check_range (this, get_size ()));
   }
 
   protected:
-  HBUINT16      version;        /* Table version number (0) */
-  HBUINT16      numRecords;     /* Number of device records. */
-  HBUINT32      sizeDeviceRecord;
-                                /* Size of a device record, 32-bit aligned. */
-  DeviceRecord  firstDeviceRecord;
-                                /* Array of device records. */
+  HBUINT16	version;	/* Table version number (0) */
+  HBUINT16	numRecords;	/* Number of device records. */
+  HBUINT32	sizeDeviceRecord;
+				/* Size of a device record, 32-bit aligned. */
+  DeviceRecord	firstDeviceRecord;
+				/* Array of device records. */
   public:
   DEFINE_SIZE_MIN (8);
 };

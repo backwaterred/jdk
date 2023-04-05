@@ -116,8 +116,8 @@ DEFINE_NULL_INSTANCE (hb_face_t) =
  **/
 hb_face_t *
 hb_face_create_for_tables (hb_reference_table_func_t  reference_table_func,
-                           void                      *user_data,
-                           hb_destroy_func_t          destroy)
+			   void                      *user_data,
+			   hb_destroy_func_t          destroy)
 {
   hb_face_t *face;
 
@@ -214,7 +214,7 @@ _hb_face_for_data_reference_table (hb_face_t *face HB_UNUSED, hb_tag_t tag, void
  **/
 hb_face_t *
 hb_face_create (hb_blob_t    *blob,
-                unsigned int  index)
+		unsigned int  index)
 {
   hb_face_t *face;
 
@@ -232,8 +232,8 @@ hb_face_create (hb_blob_t    *blob,
   }
 
   face = hb_face_create_for_tables (_hb_face_for_data_reference_table,
-                                    closure,
-                                    _hb_face_for_data_closure_destroy);
+				    closure,
+				    _hb_face_for_data_closure_destroy);
 
   face->index = index;
 
@@ -322,10 +322,10 @@ hb_face_destroy (hb_face_t *face)
  **/
 hb_bool_t
 hb_face_set_user_data (hb_face_t          *face,
-                       hb_user_data_key_t *key,
-                       void *              data,
-                       hb_destroy_func_t   destroy,
-                       hb_bool_t           replace)
+		       hb_user_data_key_t *key,
+		       void *              data,
+		       hb_destroy_func_t   destroy,
+		       hb_bool_t           replace)
 {
   return hb_object_set_user_data (face, key, data, destroy, replace);
 }
@@ -344,7 +344,7 @@ hb_face_set_user_data (hb_face_t          *face,
  **/
 void *
 hb_face_get_user_data (const hb_face_t    *face,
-                       hb_user_data_key_t *key)
+		       hb_user_data_key_t *key)
 {
   return hb_object_get_user_data (face, key);
 }
@@ -397,7 +397,7 @@ hb_face_is_immutable (const hb_face_t *face)
  **/
 hb_blob_t *
 hb_face_reference_table (const hb_face_t *face,
-                         hb_tag_t tag)
+			 hb_tag_t tag)
 {
   if (unlikely (tag == HB_TAG_NONE))
     return hb_blob_get_empty ();
@@ -438,7 +438,7 @@ hb_face_reference_blob (hb_face_t *face)
  **/
 void
 hb_face_set_index (hb_face_t    *face,
-                   unsigned int  index)
+		   unsigned int  index)
 {
   if (hb_object_is_immutable (face))
     return;
@@ -477,7 +477,7 @@ hb_face_get_index (const hb_face_t *face)
  **/
 void
 hb_face_set_upem (hb_face_t    *face,
-                  unsigned int  upem)
+		  unsigned int  upem)
 {
   if (hb_object_is_immutable (face))
     return;
@@ -517,7 +517,7 @@ hb_face_get_upem (const hb_face_t *face)
  **/
 void
 hb_face_set_glyph_count (hb_face_t    *face,
-                         unsigned int  glyph_count)
+			 unsigned int  glyph_count)
 {
   if (hb_object_is_immutable (face))
     return;
@@ -558,9 +558,9 @@ hb_face_get_glyph_count (const hb_face_t *face)
  **/
 unsigned int
 hb_face_get_table_tags (const hb_face_t *face,
-                        unsigned int  start_offset,
-                        unsigned int *table_count, /* IN/OUT */
-                        hb_tag_t     *table_tags /* OUT */)
+			unsigned int  start_offset,
+			unsigned int *table_count, /* IN/OUT */
+			hb_tag_t     *table_tags /* OUT */)
 {
   if (face->destroy != (hb_destroy_func_t) _hb_face_for_data_closure_destroy)
   {
@@ -596,7 +596,7 @@ hb_face_get_table_tags (const hb_face_t *face,
  */
 void
 hb_face_collect_unicodes (hb_face_t *face,
-                          hb_set_t  *out)
+			  hb_set_t  *out)
 {
   face->table.cmap->collect_unicodes (out, face->get_num_glyphs ());
 }
@@ -613,8 +613,8 @@ hb_face_collect_unicodes (hb_face_t *face,
  */
 void
 hb_face_collect_nominal_glyph_mapping (hb_face_t *face,
-                                       hb_map_t  *mapping,
-                                       hb_set_t  *unicodes)
+				       hb_map_t  *mapping,
+				       hb_set_t  *unicodes)
 {
   hb_set_t stack_unicodes;
   if (!unicodes)
@@ -633,7 +633,7 @@ hb_face_collect_nominal_glyph_mapping (hb_face_t *face,
  */
 void
 hb_face_collect_variation_selectors (hb_face_t *face,
-                                     hb_set_t  *out)
+				     hb_set_t  *out)
 {
   face->table.cmap->collect_variation_selectors (out);
 }
@@ -650,8 +650,8 @@ hb_face_collect_variation_selectors (hb_face_t *face,
  */
 void
 hb_face_collect_variation_unicodes (hb_face_t *face,
-                                    hb_codepoint_t variation_selector,
-                                    hb_set_t  *out)
+				    hb_codepoint_t variation_selector,
+				    hb_set_t  *out)
 {
   face->table.cmap->collect_variation_unicodes (variation_selector, out);
 }

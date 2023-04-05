@@ -48,16 +48,16 @@ struct avarV2Tail
   friend struct avar;
 
   bool sanitize (hb_sanitize_context_t *c,
-                 const void *base) const
+		 const void *base) const
   {
     TRACE_SANITIZE (this);
     return_trace (varIdxMap.sanitize (c, base) &&
-                  varStore.sanitize (c, base));
+		  varStore.sanitize (c, base));
   }
 
   protected:
-  Offset32To<DeltaSetIndexMap>  varIdxMap;      /* Offset from the beginning of 'avar' table. */
-  Offset32To<VariationStore>    varStore;       /* Offset from the beginning of 'avar' table. */
+  Offset32To<DeltaSetIndexMap>	varIdxMap;	/* Offset from the beginning of 'avar' table. */
+  Offset32To<VariationStore>	varStore;	/* Offset from the beginning of 'avar' table. */
 
   public:
   DEFINE_SIZE_STATIC (8);
@@ -73,10 +73,10 @@ struct AxisValueMap
   }
 
   public:
-  F2DOT14       coords[2];
-//   F2DOT14    fromCoord;      /* A normalized coordinate value obtained using
-//                               * default normalization. */
-//   F2DOT14    toCoord;        /* The modified, normalized coordinate value. */
+  F2DOT14	coords[2];
+//   F2DOT14	fromCoord;	/* A normalized coordinate value obtained using
+//				 * default normalization. */
+//   F2DOT14	toCoord;	/* The modified, normalized coordinate value. */
 
   public:
   DEFINE_SIZE_STATIC (4);
@@ -94,9 +94,9 @@ struct SegmentMaps : Array16Of<AxisValueMap>
     if (len < 2)
     {
       if (!len)
-        return value;
+	return value;
       else /* len == 1*/
-        return value - arrayZ[0].fromCoord + arrayZ[0].toCoord;
+	return value - arrayZ[0].fromCoord + arrayZ[0].toCoord;
     }
 
     if (value <= arrayZ[0].fromCoord)
@@ -115,7 +115,7 @@ struct SegmentMaps : Array16Of<AxisValueMap>
 
     int denom = arrayZ[i].fromCoord - arrayZ[i-1].fromCoord;
     return roundf (arrayZ[i-1].toCoord + ((float) (arrayZ[i].toCoord - arrayZ[i-1].toCoord) *
-                                          (value - arrayZ[i-1].fromCoord)) / denom);
+					  (value - arrayZ[i-1].fromCoord)) / denom);
 #undef toCoord
 #undef fromCoord
   }
@@ -142,12 +142,12 @@ struct avar
   {
     TRACE_SANITIZE (this);
     if (!(version.sanitize (c) &&
-          (version.major == 1
+	  (version.major == 1
 #ifndef HB_NO_AVAR2
-           || version.major == 2
+	   || version.major == 2
 #endif
-           ) &&
-          c->check_struct (this)))
+	   ) &&
+	  c->check_struct (this)))
       return_trace (false);
 
     const SegmentMaps *map = &firstAxisSegmentMaps;
@@ -155,7 +155,7 @@ struct avar
     for (unsigned int i = 0; i < count; i++)
     {
       if (unlikely (!map->sanitize (c)))
-        return_trace (false);
+	return_trace (false);
       map = &StructAfter<SegmentMaps> (*map);
     }
 
@@ -226,13 +226,13 @@ struct avar
   }
 
   protected:
-  FixedVersion<>version;        /* Version of the avar table
-                                 * initially set to 0x00010000u */
-  HBUINT16      reserved;       /* This field is permanently reserved. Set to 0. */
-  HBUINT16      axisCount;      /* The number of variation axes in the font. This
-                                 * must be the same number as axisCount in the
-                                 * 'fvar' table. */
-  SegmentMaps   firstAxisSegmentMaps;
+  FixedVersion<>version;	/* Version of the avar table
+				 * initially set to 0x00010000u */
+  HBUINT16	reserved;	/* This field is permanently reserved. Set to 0. */
+  HBUINT16	axisCount;	/* The number of variation axes in the font. This
+				 * must be the same number as axisCount in the
+				 * 'fvar' table. */
+  SegmentMaps	firstAxisSegmentMaps;
 
   public:
   DEFINE_SIZE_MIN (8);

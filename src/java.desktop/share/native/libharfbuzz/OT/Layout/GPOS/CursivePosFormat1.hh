@@ -143,8 +143,8 @@ struct CursivePosFormat1
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "cursive attaching glyph at %u to glyph at %u",
-                          i, j);
+			  "cursive attaching glyph at %u to glyph at %u",
+			  i, j);
     }
 
     buffer->unsafe_to_break (i, j + 1);
@@ -233,16 +233,16 @@ struct CursivePosFormat1
     {
       pos[parent].attach_chain() = 0;
       if (likely (HB_DIRECTION_IS_HORIZONTAL (c->direction)))
-        pos[parent].y_offset = 0;
+	pos[parent].y_offset = 0;
       else
-        pos[parent].x_offset = 0;
+	pos[parent].x_offset = 0;
     }
 
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "cursive attached glyph at %u to glyph at %u",
-                          i, j);
+			  "cursive attached glyph at %u to glyph at %u",
+			  i, j);
     }
 
     buffer->idx++;

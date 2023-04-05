@@ -172,8 +172,8 @@ hb_face_builder_create ()
   if (unlikely (!data)) return hb_face_get_empty ();
 
   return hb_face_create_for_tables (_hb_face_builder_reference_table,
-                                    data,
-                                    _hb_face_builder_data_destroy);
+				    data,
+				    _hb_face_builder_data_destroy);
 }
 
 /**

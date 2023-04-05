@@ -64,12 +64,12 @@ struct hb_set_digest_bits_pattern_t
   static constexpr unsigned mask_bytes = sizeof (mask_t);
   static constexpr unsigned mask_bits = sizeof (mask_t) * 8;
   static constexpr unsigned num_bits = 0
-                                     + (mask_bytes >= 1 ? 3 : 0)
-                                     + (mask_bytes >= 2 ? 1 : 0)
-                                     + (mask_bytes >= 4 ? 1 : 0)
-                                     + (mask_bytes >= 8 ? 1 : 0)
-                                     + (mask_bytes >= 16? 1 : 0)
-                                     + 0;
+				     + (mask_bytes >= 1 ? 3 : 0)
+				     + (mask_bytes >= 2 ? 1 : 0)
+				     + (mask_bytes >= 4 ? 1 : 0)
+				     + (mask_bytes >= 8 ? 1 : 0)
+				     + (mask_bytes >= 16? 1 : 0)
+				     + 0;
 
   static_assert ((shift < sizeof (hb_codepoint_t) * 8), "");
   static_assert ((shift + num_bits <= sizeof (hb_codepoint_t) * 8), "");
@@ -149,7 +149,7 @@ struct hb_set_digest_combiner_t
   bool add_range (hb_codepoint_t a, hb_codepoint_t b)
   {
     return head.add_range (a, b) &&
-           tail.add_range (a, b);
+	   tail.add_range (a, b);
   }
   template <typename T>
   void add_array (const T *array, unsigned int count, unsigned int stride=sizeof(T))
@@ -163,7 +163,7 @@ struct hb_set_digest_combiner_t
   bool add_sorted_array (const T *array, unsigned int count, unsigned int stride=sizeof(T))
   {
     return head.add_sorted_array (array, count, stride) &&
-           tail.add_sorted_array (array, count, stride);
+	   tail.add_sorted_array (array, count, stride);
   }
   template <typename T>
   bool add_sorted_array (const hb_sorted_array_t<const T>& arr) { return add_sorted_array (&arr, arr.len ()); }

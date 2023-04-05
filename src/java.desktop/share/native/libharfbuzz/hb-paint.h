@@ -76,15 +76,15 @@ hb_paint_funcs_destroy (hb_paint_funcs_t *funcs);
 
 HB_EXTERN hb_bool_t
 hb_paint_funcs_set_user_data (hb_paint_funcs_t *funcs,
-                              hb_user_data_key_t *key,
-                              void *              data,
-                              hb_destroy_func_t   destroy,
-                              hb_bool_t           replace);
+			      hb_user_data_key_t *key,
+			      void *              data,
+			      hb_destroy_func_t   destroy,
+			      hb_bool_t           replace);
 
 
 HB_EXTERN void *
 hb_paint_funcs_get_user_data (const hb_paint_funcs_t *funcs,
-                              hb_user_data_key_t       *key);
+			      hb_user_data_key_t       *key);
 
 HB_EXTERN void
 hb_paint_funcs_make_immutable (hb_paint_funcs_t *funcs);
@@ -280,14 +280,14 @@ typedef void (*hb_paint_color_func_t) (hb_paint_funcs_t *funcs,
  * Since: 7.0.0
  */
 typedef hb_bool_t (*hb_paint_image_func_t) (hb_paint_funcs_t *funcs,
-                                            void *paint_data,
-                                            hb_blob_t *image,
-                                            unsigned int width,
-                                            unsigned int height,
-                                            hb_tag_t format,
-                                            float slant,
-                                            hb_glyph_extents_t *extents,
-                                            void *user_data);
+					    void *paint_data,
+					    hb_blob_t *image,
+					    unsigned int width,
+					    unsigned int height,
+					    hb_tag_t format,
+					    float slant,
+					    hb_glyph_extents_t *extents,
+					    void *user_data);
 
 /**
  * hb_color_stop_t:
@@ -358,11 +358,11 @@ typedef struct hb_color_line_t hb_color_line_t;
  * Since: 7.0.0
  */
 typedef unsigned int (*hb_color_line_get_color_stops_func_t) (hb_color_line_t *color_line,
-                                                              void *color_line_data,
-                                                              unsigned int start,
-                                                              unsigned int *count,
-                                                              hb_color_stop_t *color_stops,
-                                                              void *user_data);
+							      void *color_line_data,
+							      unsigned int start,
+							      unsigned int *count,
+							      hb_color_stop_t *color_stops,
+							      void *user_data);
 
 /**
  * hb_color_line_get_extend_func_t:
@@ -377,8 +377,8 @@ typedef unsigned int (*hb_color_line_get_color_stops_func_t) (hb_color_line_t *c
  * Since: 7.0.0
  */
 typedef hb_paint_extend_t (*hb_color_line_get_extend_func_t) (hb_color_line_t *color_line,
-                                                              void *color_line_data,
-                                                              void *user_data);
+							      void *color_line_data,
+							      void *user_data);
 
 /**
  * hb_color_line_t:

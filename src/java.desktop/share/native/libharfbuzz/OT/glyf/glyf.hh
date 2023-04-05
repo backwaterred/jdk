@@ -41,9 +41,9 @@ struct glyf
   /* requires source of SubsetGlyph complains the identifier isn't declared */
   template <typename Iterator>
   bool serialize (hb_serialize_context_t *c,
-                  Iterator it,
+		  Iterator it,
                   bool use_short_loca,
-                  const hb_subset_plan_t *plan)
+		  const hb_subset_plan_t *plan)
   {
     TRACE_SERIALIZE (this);
 
@@ -119,14 +119,14 @@ struct glyf
     if (unlikely (c->serializer->in_error ())) return_trace (false);
 
     return_trace (c->serializer->check_success (glyf_impl::_add_loca_and_head (c->plan,
-                                                                               padded_offsets.iter (),
-                                                                               use_short_loca)));
+									       padded_offsets.iter (),
+									       use_short_loca)));
   }
 
   bool
   _populate_subset_glyphs (const hb_subset_plan_t   *plan,
-                           hb_font_t                *font,
-                           hb_vector_t<glyf_impl::SubsetGlyph> &glyphs /* OUT */) const;
+			   hb_font_t                *font,
+			   hb_vector_t<glyf_impl::SubsetGlyph> &glyphs /* OUT */) const;
 
   hb_font_t *
   _create_font_for_instancing (const hb_subset_plan_t *plan) const;
@@ -139,11 +139,11 @@ struct glyf
 
   protected:
   UnsizedArrayOf<HBUINT8>
-                dataZ;  /* Glyphs data. */
+		dataZ;	/* Glyphs data. */
   public:
-  DEFINE_SIZE_MIN (0);  /* In reality, this is UNBOUNDED() type; but since we always
-                         * check the size externally, allow Null() object of it by
-                         * defining it _MIN instead. */
+  DEFINE_SIZE_MIN (0);	/* In reality, this is UNBOUNDED() type; but since we always
+			 * check the size externally, allow Null() object of it by
+			 * defining it _MIN instead. */
 };
 
 struct glyf_accelerator_t
@@ -209,7 +209,7 @@ struct glyf_accelerator_t
       assert (count >= glyf_impl::PHANTOM_COUNT);
       count -= glyf_impl::PHANTOM_COUNT;
       for (unsigned point_index = 0; point_index < count; point_index++)
-        consumer.consume_point (all_points[point_index]);
+	consumer.consume_point (all_points[point_index]);
       consumer.points_end ();
     }
 
@@ -217,7 +217,7 @@ struct glyf_accelerator_t
     contour_point_t *phantoms = consumer.get_phantoms_sink ();
     if (phantoms)
       for (unsigned i = 0; i < glyf_impl::PHANTOM_COUNT; ++i)
-        phantoms[i] = all_points[all_points.length - glyf_impl::PHANTOM_COUNT + i];
+	phantoms[i] = all_points[all_points.length - glyf_impl::PHANTOM_COUNT + i];
 
     return true;
   }
@@ -236,33 +236,33 @@ struct glyf_accelerator_t
 
       void add (const contour_point_t &p)
       {
-        min_x = hb_min (min_x, p.x);
-        min_y = hb_min (min_y, p.y);
-        max_x = hb_max (max_x, p.x);
-        max_y = hb_max (max_y, p.y);
+	min_x = hb_min (min_x, p.x);
+	min_y = hb_min (min_y, p.y);
+	max_x = hb_max (max_x, p.x);
+	max_y = hb_max (max_y, p.y);
       }
 
       bool empty () const { return (min_x >= max_x) || (min_y >= max_y); }
 
       void get_extents (hb_font_t *font, hb_glyph_extents_t *extents, bool scaled)
       {
-        if (unlikely (empty ()))
-        {
-          extents->width = 0;
-          extents->x_bearing = 0;
-          extents->height = 0;
-          extents->y_bearing = 0;
-          return;
-        }
-        {
-          extents->x_bearing = roundf (min_x);
-          extents->width = roundf (max_x - extents->x_bearing);
-          extents->y_bearing = roundf (max_y);
-          extents->height = roundf (min_y - extents->y_bearing);
+	if (unlikely (empty ()))
+	{
+	  extents->width = 0;
+	  extents->x_bearing = 0;
+	  extents->height = 0;
+	  extents->y_bearing = 0;
+	  return;
+	}
+	{
+	  extents->x_bearing = roundf (min_x);
+	  extents->width = roundf (max_x - extents->x_bearing);
+	  extents->y_bearing = roundf (max_y);
+	  extents->height = roundf (min_y - extents->y_bearing);
 
-          if (scaled)
-            font->scale_glyph_extents (extents);
-        }
+	  if (scaled)
+	    font->scale_glyph_extents (extents);
+	}
       }
 
       protected:
@@ -300,13 +300,13 @@ struct glyf_accelerator_t
     if (unlikely (!success))
       return
 #ifndef HB_NO_VERTICAL
-        is_vertical ? vmtx->get_advance_without_var_unscaled (gid) :
+	is_vertical ? vmtx->get_advance_without_var_unscaled (gid) :
 #endif
-        hmtx->get_advance_without_var_unscaled (gid);
+	hmtx->get_advance_without_var_unscaled (gid);
 
     float result = is_vertical
-                 ? phantoms[glyf_impl::PHANTOM_TOP].y - phantoms[glyf_impl::PHANTOM_BOTTOM].y
-                 : phantoms[glyf_impl::PHANTOM_RIGHT].x - phantoms[glyf_impl::PHANTOM_LEFT].x;
+		 ? phantoms[glyf_impl::PHANTOM_TOP].y - phantoms[glyf_impl::PHANTOM_BOTTOM].y
+		 : phantoms[glyf_impl::PHANTOM_RIGHT].x - phantoms[glyf_impl::PHANTOM_LEFT].x;
     return hb_clamp (roundf (result), 0.f, (float) UINT_MAX / 2);
   }
 
@@ -321,8 +321,8 @@ struct glyf_accelerator_t
       return false;
 
     *lsb = is_vertical
-         ? roundf (phantoms[glyf_impl::PHANTOM_TOP].y) - extents.y_bearing
-         : roundf (phantoms[glyf_impl::PHANTOM_LEFT].x);
+	 ? roundf (phantoms[glyf_impl::PHANTOM_TOP].y) - extents.y_bearing
+	 : roundf (phantoms[glyf_impl::PHANTOM_LEFT].x);
     return true;
   }
 #endif
@@ -372,7 +372,7 @@ struct glyf_accelerator_t
       return glyf_impl::Glyph ();
 
     glyf_impl::Glyph glyph (hb_bytes_t ((const char *) this->glyf_table + start_offset,
-                             end_offset - start_offset), gid);
+			     end_offset - start_offset), gid);
     return needs_padding_removal ? glyf_impl::Glyph (glyph.trim_padding (), gid) : glyph;
   }
 
@@ -398,8 +398,8 @@ struct glyf_accelerator_t
 
 inline bool
 glyf::_populate_subset_glyphs (const hb_subset_plan_t   *plan,
-                               hb_font_t *font,
-                               hb_vector_t<glyf_impl::SubsetGlyph>& glyphs /* OUT */) const
+			       hb_font_t *font,
+			       hb_vector_t<glyf_impl::SubsetGlyph>& glyphs /* OUT */) const
 {
   OT::glyf_accelerator_t glyf (plan->source);
   unsigned num_glyphs = plan->num_output_glyphs ();

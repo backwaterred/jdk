@@ -25,7 +25,15 @@ struct SingleSubstFormat1_3
   bool sanitize (hb_sanitize_context_t *c) const
   {
     TRACE_SANITIZE (this);
-    return_trace (coverage.sanitize (c, this) && deltaGlyphID.sanitize (c));
+    return_trace (c->check_struct (this) &&
+                  coverage.sanitize (c, this) &&
+                  /* The coverage  table may use a range to represent a set
+                   * of glyphs, which means a small number of bytes can
+                   * generate a large glyph set. Manually modify the
+                   * sanitizer max ops to take this into account.
+                   *
+                   * Note: This check *must* be right after coverage sanitize. */
+                  c->check_ops ((this + coverage).get_population () >> 1));
   }
 
   hb_codepoint_t get_mask () const
@@ -58,8 +66,8 @@ struct SingleSubstFormat1_3
     hb_codepoint_t min_after = (min_before + d) & mask;
     hb_codepoint_t max_after = (max_before + d) & mask;
     if (intersection.get_population () == max_before - min_before + 1 &&
-        ((min_before <= min_after && min_after <= max_before) ||
-         (min_before <= max_after && max_after <= max_before)))
+	((min_before <= min_after && min_after <= max_before) ||
+	 (min_before <= max_after && max_after <= max_before)))
       return;
 
     + hb_iter (intersection)
@@ -103,8 +111,8 @@ struct SingleSubstFormat1_3
     {
       c->buffer->sync_so_far ();
       c->buffer->message (c->font,
-                          "replacing glyph at %u (single substitution)",
-                          c->buffer->idx);
+			  "replacing glyph at %u (single substitution)",
+			  c->buffer->idx);
     }
 
     c->replace_glyph (glyph_id);
@@ -112,8 +120,8 @@ struct SingleSubstFormat1_3
     if (HB_BUFFER_MESSAGE_MORE && c->buffer->messaging ())
     {
       c->buffer->message (c->font,
-                          "replaced glyph at %u (single substitution)",
-                          c->buffer->idx - 1u);
+			  "replaced glyph at %u (single substitution)",
+			  c->buffer->idx - 1u);
     }
 
     return_trace (true);
