@@ -187,8 +187,11 @@ class BlockingSocketOps {
 
                 // delayed abrupt close of s2
                 runAfterParkedAsync(() -> {
+                    System.out.println("[testSocketReadPeerClose2] Setting SO_LINGER");
                     s2.setSoLinger(true, 0);
+                    System.out.println("[testSocketReadPeerClose2] Closing socket");
                     s2.close();
+                    System.out.println("[testSocketReadPeerClose2] Closure end.");
                 });
 
                 // read from s1 should block, then throw
