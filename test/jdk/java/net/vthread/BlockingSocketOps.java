@@ -192,11 +192,7 @@ class BlockingSocketOps {
                 // read from s1 should block, then throw
                 try {
                     int n = s1.getInputStream().read();
-                    if (!Platform.isAix()) {
-                        fail("read " + n);
-                    } else {
-                        assertTrue(n == -1);
-                    }
+                    fail("read " + n);
                 } catch (IOException ioe) {
                     // expected
                 }
