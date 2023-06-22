@@ -172,8 +172,15 @@ AC_DEFUN_ONCE([LIB_SETUP_LIBFFI],
 
       AC_MSG_CHECKING([for libffi lib file location])
       if test "x${LIBFFI_LIB_PATH}" != x; then
+<<<<<<< HEAD
         if test -e ${LIBFFI_LIB_PATH}/${LIBFFI_LIB_FILE_NAME}; then
           LIBFFI_LIB_FILE="${LIBFFI_LIB_PATH}/${LIBFFI_LIB_FILE_NAME}"
+=======
+        if test -e ${LIBFFI_LIB_PATH}/libffi.so.?; then
+          LIBFFI_LIB_FILE="${LIBFFI_LIB_PATH}/libffi.so.?"
+        elif test -e ${LIBFFI_LIB_PATH}/libffi.a; then
+          LIBFFI_LIB_FILE="${LIBFFI_LIB_PATH}/libffi.a"
+>>>>>>> 9adae62aa2a (Fixup)
         else
           AC_MSG_ERROR([Could not locate ${LIBFFI_LIB_FILE_NAME} for bundling in ${LIBFFI_LIB_PATH}])
         fi
