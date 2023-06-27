@@ -166,6 +166,8 @@ AC_DEFUN_ONCE([LIB_SETUP_LIBFFI],
         LIBFFI_LIB_FILE_NAME=libffi.?.dylib
       elif test "x${OPENJDK_TARGET_OS}" = "xwindows"; then
         LIBFFI_LIB_FILE_NAME=libffi.dll
+      elif test "x${OPENJDK_TARGET_OS}" = "xaix"; then
+        LIBFFI_LIB_FILE_NAME=libffi.a
       else
         LIBFFI_LIB_FILE_NAME=libffi.so.?
       fi
