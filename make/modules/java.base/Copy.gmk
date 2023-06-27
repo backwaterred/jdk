@@ -240,7 +240,7 @@ ifeq ($(ENABLE_LIBFFI_BUNDLING), true)
       FILES := $(LIBFFI_LIB_FILE), \
       DEST := $(call FindLibDirForModule, $(MODULE)), \
       FLATTEN := true, \
-      MACRO := install-file-nolink, \
+      MACRO := install-file, \
   ))
 
   TARGETS += $(COPY_LIBFFI)
