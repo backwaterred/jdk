@@ -27,7 +27,7 @@
 #include "jni_util.h"
 #include "java_nio_MappedMemoryUtils.h"
 
-#include <sys/mman.h>
+#include <unistd.h>
 
 JNIEXPORT int JNICALL
 Java_java_nio_MappedMemoryUtils_pageSize0(JNIEnv* _env, jclass _cls)
