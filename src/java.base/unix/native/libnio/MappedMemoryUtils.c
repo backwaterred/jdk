@@ -136,8 +136,8 @@ Java_java_nio_MappedMemoryUtils_force0(JNIEnv *env, jobject obj, jobject fdo,
     }
 }
 
-JNIEXPORT jint JNICALL
-Java_java_nio_MappedMemoryUtils_pageSize0()
+JNIEXPORT int JNICALL
+Java_java_nio_MappedMemoryUtils_pageSize0(JNIEnv* _env, jclass _cls)
 {
     // not required on AIX
     return -1;

@@ -108,7 +108,7 @@ Java_java_nio_MappedMemoryUtils_force0(JNIEnv *env, jobject obj, jobject fdo,
 }
 
 JNIEXPORT jint JNICALL
-Java_java_nio_MappedMemoryUtils_pageSize0()
+Java_java_nio_MappedMemoryUtils_pageSize0(JNIEnv* _env, jclass _cls)
 {
     // Not required on Windows.
     return -1;

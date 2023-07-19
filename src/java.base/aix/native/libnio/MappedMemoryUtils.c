@@ -27,8 +27,8 @@
 #include "jni_util.h"
 #include "java_nio_MappedMemoryUtils.h"
 
-JNIEXPORT jint JNICALL
-Java_java_nio_MappedMemoryUtils_pageSize0()
+JNIEXPORT int JNICALL
+Java_java_nio_MappedMemoryUtils_pageSize0(JNIEnv* _env, jclass _cls)
 {
     return (jint)sysconf(_SC_PAGESIZE);
 }
