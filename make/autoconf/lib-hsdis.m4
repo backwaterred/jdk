@@ -262,6 +262,7 @@ AC_DEFUN([LIB_SETUP_HSDIS_BINUTILS],
         fi
         HSDIS_LDFLAGS=""
         HSDIS_LIBS="$BINUTILS_DIR/lib/libbfd.a $BINUTILS_DIR/lib/libopcodes.a"
+      fi
     fi
   fi
 
