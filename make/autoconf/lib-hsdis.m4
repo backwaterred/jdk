@@ -252,6 +252,16 @@ AC_DEFUN([LIB_SETUP_HSDIS_BINUTILS],
       fi
       HSDIS_LDFLAGS=""
       HSDIS_LIBS="$BINUTILS_DIR/bfd/libbfd.a $BINUTILS_DIR/opcodes/libopcodes.a $BINUTILS_DIR/libiberty/libiberty.a $BINUTILS_DIR/zlib/libz.a"
+    elif test "x$OPENJDK_BUILD_OS" = xaix; then
+      if test -e "$BINUTILS_DIR/lib/libbfd.a" && test -e "$BINUTILS_DIR/lib/libopcodes.a"; then
+        HSDIS_CFLAGS="-DLIBARCH_$OPENJDK_TARGET_CPU_LEGACY_LIB"
+        if test -n "$BINUTILS_SRC"; then
+          HSDIS_CFLAGS="$HSDIS_CFLAGS -I$BINUTILS_SRC/include"
+        else
+          HSDIS_CFLAGS="$HSDIS_CFLAGS -I$BINUTILS_DIR/include"
+        fi
+        HSDIS_LDFLAGS=""
+        HSDIS_LIBS="$BINUTILS_DIR/lib/libbfd.a $BINUTILS_DIR/lib/libopcodes.a"
     fi
   fi
 
