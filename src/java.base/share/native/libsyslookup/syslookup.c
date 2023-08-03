@@ -27,6 +27,8 @@
 // Adding at least one #include removes unwanted warnings on some platforms.
 #include <stdlib.h>
 
+extern void* malloc(size_t bytes);
+
 // Simple dummy function so this library appears as a normal library to tooling.
 char* syslookup() {
   return "syslookup";
