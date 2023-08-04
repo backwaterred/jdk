@@ -211,10 +211,9 @@ $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
     CFLAGS := $(CFLAGS_JDKLIB), \
     CXXFLAGS := $(CXXFLAGS_JDKLIB), \
     LDFLAGS := $(LDFLAGS_JDKLIB), \
-    LDFLAGS_aix := -G -bnogc -bexpall, \
+    LDFLAGS_aix := -bnoentry -blazy, \
     LDFLAGS_linux := -Wl$(COMMA)--no-as-needed, \
     LIBS := $(LIBCXX), \
-    LIBS_aix := -lc -lm -ldl, \
     LIBS_linux := -lc -lm -ldl, \
 ))
 
