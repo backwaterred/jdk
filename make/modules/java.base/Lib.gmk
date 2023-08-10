@@ -208,9 +208,9 @@ endif
 
 $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
     NAME := syslookup, \
-    CFLAGS := $(CFLAGS_JDKLIB), \
+    CFLAGS := $(CFLAGS_JDKLIB) -bnoentry -blazy, \
     CXXFLAGS := $(CXXFLAGS_JDKLIB), \
-    LDFLAGS := $(LDFLAGS_JDKLIB) -bnoentry -blazy, \
+    LDFLAGS := $(LDFLAGS_JDKLIB), \
     LDFLAGS_aix := -bnoentry -blazy, \
     LDFLAGS_linux := -Wl$(COMMA)--no-as-needed, \
     LIBS := $(LIBCXX), \
