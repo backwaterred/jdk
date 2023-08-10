@@ -209,7 +209,7 @@ endif
 $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
     NAME := syslookup, \
     CFLAGS := $(CFLAGS_JDKLIB), \
-    CFLAGS_aix := -brtl -bnoentry -blazy, \
+    CFLAGS_aix := -bloadmap:syslookup.loadmap -brtl -bnoentry -blazy, \
     CXXFLAGS := $(CXXFLAGS_JDKLIB), \
     LDFLAGS := $(LDFLAGS_JDKLIB), \
     LDFLAGS_linux := -Wl$(COMMA)--no-as-needed, \
