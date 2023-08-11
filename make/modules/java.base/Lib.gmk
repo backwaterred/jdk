@@ -209,14 +209,13 @@ endif
 $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
     NAME := syslookup, \
     CFLAGS := $(CFLAGS_JDKLIB), \
-    CFLAGS_aix := -bloadmap:syslookup.cflags.loadmap -bexpfull -brtl -bnoentry -blazy -qvisibility=default, \
     CXXFLAGS := $(CXXFLAGS_JDKLIB), \
     LDFLAGS := $(LDFLAGS_JDKLIB), \
     LDFLAGS_linux := -Wl$(COMMA)--no-as-needed, \
-    LDFLAGS_aix := -bloadmap:syslookup.ldflags.loadmap -bexpfull -brtl -bnoentry -blazy, \
+    LDFLAGS_aix := -brtl -bautoload:$(LIBC) -bautoload:$(LIBM), \
     LIBS := $(LIBCXX), \
     LIBS_linux := -lc -lm -ldl, \
-    LIBS_aix := -lc -lm -ldl, \
+    LIBS_aix := -lc -lm, \
 ))
 
 TARGETS += $(BUILD_SYSLOOKUPLIB)
