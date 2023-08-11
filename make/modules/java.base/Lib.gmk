@@ -216,6 +216,7 @@ $(eval $(call SetupJdkLibrary, BUILD_SYSLOOKUPLIB, \
     LDFLAGS_aix := -bloadmap:syslookup.ldflags.loadmap -bexpfull -brtl -bnoentry -blazy, \
     LIBS := $(LIBCXX), \
     LIBS_linux := -lc -lm -ldl, \
+    LIBS_aix := -lc -lm -ldl, \
 ))
 
 TARGETS += $(BUILD_SYSLOOKUPLIB)
